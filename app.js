@@ -458,7 +458,7 @@
     state.viewLayer = layer;
     const title = $("dagTitle");
     if (title) {
-      title.textContent = `decoder ${String(layer).padStart(2, "0")} · 28 layers share this graph · arrows are tensors`;
+      title.textContent = `decoder ${String(layer).padStart(2, "0")} · 28 layers share this graph`;
     }
     const res = $("dag-residual");
     if (res) res.setAttribute("data-node", layer === 0 ? "g-embedding" : `L${layer - 1}-output`);
@@ -483,23 +483,28 @@
     return { x, y: bot };
   }
 
-  function edgePath(a, b, kind, width) {
-    const dy = Math.max(16, (b.y - a.y) * 0.32);
+  function routeEdge(a, b, kind, width) {
+    const fx = (n) => n.toFixed(1);
     if (kind === "skip-left") {
-      const x = 8;
-      return `M ${a.x} ${a.y} C ${x} ${a.y + 10}, ${x} ${b.y - 10}, ${b.x} ${b.y}`;
+      const gx = 16;
+      return {
+        d: `M ${fx(a.x)} ${fx(a.y)} H ${fx(gx)} V ${fx(b.y)} H ${fx(b.x)}`,
+        lab: { x: gx + 8, y: (a.y + b.y) / 2, anchor: "start" }
+      };
     }
     if (kind === "skip-right") {
-      const x = Math.max(width - 8, a.x);
-      return `M ${a.x} ${a.y} C ${x} ${a.y + 10}, ${x} ${b.y - 10}, ${b.x} ${b.y}`;
+      const gx = width - 16;
+      return {
+        d: `M ${fx(a.x)} ${fx(a.y)} H ${fx(gx)} V ${fx(b.y)} H ${fx(b.x)}`,
+        lab: { x: gx - 8, y: (a.y + b.y) / 2, anchor: "end" }
+      };
     }
-    return `M ${a.x} ${a.y} C ${a.x} ${a.y + dy}, ${b.x} ${b.y - dy}, ${b.x} ${b.y}`;
-  }
-
-  function labelPoint(a, b, kind, width) {
-    if (kind === "skip-left") return { x: 18, y: (a.y + b.y) / 2 };
-    if (kind === "skip-right") return { x: width - 18, y: (a.y + b.y) / 2 };
-    return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+    const gap = b.y - a.y;
+    const busY = a.y + (gap > 36 ? 22 : Math.max(12, gap * 0.42));
+    return {
+      d: `M ${fx(a.x)} ${fx(a.y)} V ${fx(busY)} H ${fx(b.x)} V ${fx(b.y)}`,
+      lab: { x: b.x, y: (busY + b.y) / 2 - 1, anchor: "middle" }
+    };
   }
 
   function restoreEdgeLive() {
@@ -508,7 +513,6 @@
     dag.querySelectorAll(".op.active").forEach((el) => {
       const op = el.getAttribute("data-op");
       document.querySelectorAll(`#dagEdges [data-to="${op}"]`).forEach((e) => e.classList.add("live"));
-      document.querySelectorAll(`#dagEdges [data-from="${op}"]`).forEach((e) => e.classList.add("live-out"));
     });
   }
 
@@ -522,11 +526,11 @@
     svg.setAttribute("height", String(h));
     svg.setAttribute("viewBox", `0 0 ${w} ${h}`);
     const defs = `<defs>
-      <marker id="arr" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto">
-        <path d="M0,0 L8,4 L0,8 z" fill="#7c8b99"/>
+      <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+        <path d="M0,0 L10,5 L0,10 z" fill="#64748b"/>
       </marker>
-      <marker id="arrLive" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto">
-        <path d="M0,0 L8,4 L0,8 z" fill="#0f766e"/>
+      <marker id="arrLive" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+        <path d="M0,0 L10,5 L0,10 z" fill="#0f766e"/>
       </marker>
     </defs>`;
     const paths = DAG_EDGES.map((edge) => {
@@ -536,12 +540,10 @@
       const kind = edge.kind || "fwd";
       const a = dagAnchor(src, dag, kind === "skip-left" ? "left" : kind === "skip-right" ? "right" : "bottom");
       const b = dagAnchor(dst, dag, kind === "skip-left" ? "left" : kind === "skip-right" ? "right" : "top");
-      const d = edgePath(a, b, kind, w);
-      const p = labelPoint(a, b, kind, w);
+      const routed = routeEdge(a, b, kind, w);
       const cls = kind === "fwd" ? "edge" : "edge skip";
-      const anchor = kind === "skip-left" ? "start" : kind === "skip-right" ? "end" : "middle";
-      return `<path class="${cls}" data-from="${edge.from}" data-to="${edge.to}" d="${d}" marker-end="url(#arr)"/>` +
-        `<text class="edge-lab" data-from="${edge.from}" data-to="${edge.to}" text-anchor="${anchor}" x="${p.x}" y="${p.y - 2}">${escapeHtml(edge.lab)}</text>`;
+      return `<path class="${cls}" data-from="${edge.from}" data-to="${edge.to}" d="${routed.d}" marker-end="url(#arr)"/>` +
+        `<text class="edge-lab" data-from="${edge.from}" data-to="${edge.to}" text-anchor="${routed.lab.anchor}" x="${routed.lab.x}" y="${routed.lab.y}">${escapeHtml(edge.lab)}</text>`;
     }).join("");
     svg.innerHTML = defs + paths;
     restoreEdgeLive();
@@ -569,7 +571,8 @@
       <div class="flow-edge"><i>↓</i><span>h feeds decoder x</span></div>
       <div class="layer-rail" id="layerRail">${rail}</div>
       <article class="decoder-graph" id="decoderGraph">
-        <p class="dag-title" id="dagTitle">decoder 00 · 28 layers share this graph · arrows are tensors</p>
+        <p class="dag-title" id="dagTitle">decoder 00 · 28 layers share this graph</p>
+        <p class="dag-legend">Solid arrow = tensor in. Dashed = residual skip. Click a node for the full checkpoint.</p>
         <div class="dag" id="dag">
           <svg class="dag-edges" id="dagEdges" aria-hidden="true"></svg>
           <div class="dag-nodes">${dagOps}</div>
@@ -714,7 +717,6 @@
     const el = $("dag-" + op);
     if (el) el.classList.add("active");
     document.querySelectorAll(`#dagEdges [data-to="${op}"]`).forEach((e) => e.classList.add("live"));
-    document.querySelectorAll(`#dagEdges [data-from="${op}"]`).forEach((e) => e.classList.add("live-out"));
   }
 
   function paintNetwork(event, layer) {

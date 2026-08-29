@@ -5,14 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" href="data:,">
   <title>Qwen3-0.6B forward</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+  <p class="demo-banner">Recorded T4 replay · Run T4 is off · scrub the graph, it does not re-simulate</p>
   <header>
     <div>
       <p class="eyebrow">qwen3_chip_top · Verilator RTL · 8× ROM · 8× SRAM · 16-lane BF16 MAC</p>
-      <h1>RTL chip schematic</h1>
-      <p class="lede">Left is one decoder graph: arrows show which tensor feeds the next op. All 28 layers share that graph — pick a layer on the rail. Right is the digital chip: burnt-in ROM, SRAM, 16-lane MAC, NLIN engines, one FSM. This public page is a recorded Hello T4 — live verify needs the 1.1GB ROM on your machine.</p>
+      <h1>Qwen3-0.6B chip lab</h1>
+      <p class="lede">Left: one decoder graph — arrows are tensors into the next op, L00–L27 share that graph. Right: the digital chip (burnt-in ROM, SRAM, 16-lane MAC, NLIN, one FSM). Recorded T4 replay — live verify needs the 1.1GB ROM on your machine.</p>
     </div>
     <div class="status-stack">
       <span id="readyBadge" class="badge">checking ROM…</span>
@@ -36,7 +40,7 @@
         <span class="label">tokens</span>
         <div id="tokenList" class="tokens"><span class="muted">Token IDs appear as soon as the statement is tokenized.</span></div>
       </div>
-      <div class="token-row">
+      <div class="token-row pred-row">
         <span class="label">predicted</span>
         <p id="predSentence" class="pred-sentence muted">The completed sentence appears here after argmax.</p>
       </div>
@@ -67,7 +71,7 @@
           <input id="playSlider" type="range" min="0" max="0" value="0">
         </label>
       </div>
-      <p id="playEvent" class="muted small">Waiting for a forward timeline.</p>
+      <p id="playEvent" class="muted small">Waiting for a forward timeline. Playback reads saved checkpoints — it does not re-run T4.</p>
     </section>
 
     <div class="split">
@@ -75,7 +79,7 @@
         <div class="pane-label">Qwen3-0.6B decoder graph</div>
         <div id="compute" class="compute">
           <p class="compute-k" id="computeName">computation</p>
-          <p class="compute-eq" id="computeEq">Click a node for the full tensor. Arrows on the graph are the tensors that feed the next op.</p>
+          <p class="compute-eq" id="computeEq">Click a node for the full tensor. Solid arrows feed the next op; dashed arrows are residual skips.</p>
           <p class="compute-shape" id="computeShape"></p>
           <div class="compute-ins" id="computeIns"></div>
           <div class="compute-vals" id="computeVals"></div>
