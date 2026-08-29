@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en" data-share-demo>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="data:,">
+  <title>Qwen3-0.6B forward</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header>
+    <div>
+      <p class="eyebrow">qwen3_chip_top · Verilator RTL · 8× ROM · 8× SRAM · 16-lane BF16 MAC</p>
+      <h1>RTL chip schematic</h1>
+      <p class="lede">Left is one decoder graph: arrows show which tensor feeds the next op. All 28 layers share that graph — pick a layer on the rail. Right is the digital chip: burnt-in ROM, SRAM, 16-lane MAC, NLIN engines, one FSM. This public page is a recorded Hello T4 — live verify needs the 1.1GB ROM on your machine.</p>
+    </div>
+    <div class="status-stack">
+      <span id="readyBadge" class="badge">checking ROM…</span>
+      <span id="runBadge" class="badge">idle</span>
+    </div>
+  </header>
+
+  <main>
+    <section class="panel input-panel">
+      <form id="verifyForm">
+        <label class="grow">Statement
+          <input id="verifyText" type="text" maxlength="4000"
+            placeholder="The capital of India is Delhi, and the capital of Japan is"
+            value="The capital of India is Delhi, and the capital of Japan is"
+            required autocomplete="off">
+        </label>
+        <button type="submit" id="verifyBtn">Run T4</button>
+      </form>
+      <p id="formError" class="error" hidden></p>
+      <div class="token-row">
+        <span class="label">tokens</span>
+        <div id="tokenList" class="tokens"><span class="muted">Token IDs appear as soon as the statement is tokenized.</span></div>
+      </div>
+      <div class="token-row">
+        <span class="label">predicted</span>
+        <p id="predSentence" class="pred-sentence muted">The completed sentence appears here after argmax.</p>
+      </div>
+      <div class="token-row">
+        <span class="label">output</span>
+        <div id="outToken" class="tokens"><span class="muted">Argmax is decoded after the forward pass.</span></div>
+      </div>
+    </section>
+
+    <section class="metrics" id="metrics">
+      <div><span>cycle</span><strong id="mCycle">—</strong></div>
+      <div><span>stage</span><strong id="mStage">IDLE</strong></div>
+      <div><span>layer</span><strong id="mLayer">—</strong></div>
+      <div><span>token</span><strong id="mToken">—</strong></div>
+      <div><span>ROM reads</span><strong id="mRom">—</strong></div>
+      <div><span>SRAM R/W</span><strong id="mSram">—</strong></div>
+      <div><span>MACs</span><strong id="mMacs">—</strong></div>
+      <div><span>stalls</span><strong id="mStalls">—</strong></div>
+    </section>
+
+    <section class="transport panel">
+      <div class="transport-row">
+        <button type="button" id="playBtn" class="ghost">Pause</button>
+        <button type="button" id="stepBack" class="ghost">Prev</button>
+        <button type="button" id="stepFwd" class="ghost">Next</button>
+        <label class="scrub">
+          <span id="playLabel">event 0 / 0</span>
+          <input id="playSlider" type="range" min="0" max="0" value="0">
+        </label>
+      </div>
+      <p id="playEvent" class="muted small">Waiting for a forward timeline.</p>
+    </section>
+
+    <div class="split">
+      <section class="network-pane" aria-label="Qwen3-0.6B network">
+        <div class="pane-label">Qwen3-0.6B decoder graph</div>
+        <div id="compute" class="compute">
+          <p class="compute-k" id="computeName">computation</p>
+          <p class="compute-eq" id="computeEq">Click a node for the full tensor. Arrows on the graph are the tensors that feed the next op.</p>
+          <p class="compute-shape" id="computeShape"></p>
+          <div class="compute-ins" id="computeIns"></div>
+          <div class="compute-vals" id="computeVals"></div>
+        </div>
+        <div id="network" class="network"></div>
+      </section>
+
+      <section class="sch-wrap" aria-label="qwen3_chip_top RTL schematic">
+        <div class="sch-label">qwen3_chip_top · cycle-accurate RTL</div>
+        <div class="sch" id="chip">
+          <div class="sch-row top">
+            <div class="blk io" data-block="host">
+              <span class="blk-k">host I/O</span>
+              <strong>token[17:0]</strong>
+              <small>pos[15:0]</small>
+              <small id="hostDetail">cmd idle</small>
+            </div>
+            <div class="bus v" data-wire="host fsm"><span>cmd</span></div>
+            <div class="blk ctl" data-block="fsm">
+              <span class="blk-k">controller FSM</span>
+              <strong id="fsmName">IDLE</strong>
+              <small>qwen_stage_e · 1 cluster, 28 layers muxed</small>
+            </div>
+          </div>
+
+          <div class="bus h" data-wire="rom sram mac fsm"><span>addr[63:0] · 256b words · ROM port 0 · SRAM port 0</span></div>
+
+          <div class="sch-row mem">
+            <div class="blk rom" data-block="rom">
+              <span class="blk-k">weight ROM · u_rom</span>
+              <strong>8 banks · 256b · read-only</strong>
+              <small id="romHint">BF16 weights burnt in · ~1.1GB</small>
+              <div class="mem-array" id="romBanks"></div>
+            </div>
+            <div class="bus v tall" data-wire="rom mac"><span>W 256b</span></div>
+            <div class="blk sram">
+              <span class="blk-k">scratch SRAM · u_sram</span>
+              <strong>8 banks · 256b · R/W</strong>
+              <div class="sram-tags">
+                <span data-block="sram-hidden">hidden act</span>
+                <span data-block="sram-kv">K/V cache</span>
+                <span data-block="sram-ws">workspace</span>
+              </div>
+              <div class="mem-array" id="sramBanks"></div>
+            </div>
+          </div>
+
+          <div class="bus h" data-wire="mac rom sram"><span>act 16×BF16 · acc FP32 · 2-stage pipe</span></div>
+
+          <div class="blk mac" data-block="mac">
+            <span class="blk-k">MAC array · qwen_bf16_mac_array</span>
+            <strong>16 lanes · BF16 × BF16 → FP32 reduce</strong>
+            <div class="mac-grid" id="macLanes"></div>
+            <div class="mac-reduce">∑ tree → acc[31:0]</div>
+          </div>
+
+          <div class="bus h" data-wire="rmsnorm softmax rope swiglu"><span>NLIN req/rsp</span></div>
+
+          <div class="sch-row eng">
+            <div class="blk eng" data-block="rmsnorm"><span class="blk-k">engine</span><strong>RMSNorm</strong><small>u_norm</small></div>
+            <div class="blk eng" data-block="softmax"><span class="blk-k">engine</span><strong>softmax</strong><small>u_softmax</small></div>
+            <div class="blk eng" data-block="rope"><span class="blk-k">engine</span><strong>RoPE</strong><small>u_rope</small></div>
+            <div class="blk eng" data-block="swiglu"><span class="blk-k">engine</span><strong>SwiGLU</strong><small>u_swiglu</small></div>
+          </div>
+
+          <div class="blk logits" data-block="logits">
+            <span class="blk-k">lm_head stream</span>
+            <strong id="logitDetail">151936 logits · argmax on-chip</strong>
+            <small id="argmaxDetail">argmax —</small>
+          </div>
+
+          <div class="layers" id="layerStrip" role="list" aria-label="28 decoder layers time-multiplexed on this datapath"></div>
+          <p class="sch-note" id="dieEq">idle</p>
+          <p class="sch-note dim" id="dieIo"></p>
+        </div>
+      </section>
+    </div>
+
+    <section class="panel result-panel">
+      <div class="section-title">
+        <h2>Python vs RTL</h2>
+        <span id="compareBadge" class="badge">not compared</span>
+      </div>
+      <p id="compareDetail" class="muted">T4 compares every mandatory checkpoint and all 151936 logits. Playback continues through mismatches.</p>
+      <pre id="mismatchBox" hidden></pre>
+    </section>
+  </main>
+  <footer>Host supplies token IDs only · weights are burnt-in BF16 ROM · production geometry, no DEBUG_SHORT_MODE</footer>
+  <div id="tensorModal" class="modal" hidden>
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <div class="modal-head">
+        <div>
+          <p class="compute-k" id="modalTitle">tensor</p>
+          <p class="compute-eq" id="modalEq"></p>
+          <p class="muted small" id="modalMeta"></p>
+        </div>
+        <button type="button" class="ghost" id="modalClose">Close</button>
+      </div>
+      <div class="modal-tabs">
+        <button type="button" class="ghost" id="modalPy" data-src="python">Python</button>
+        <button type="button" class="ghost" id="modalRtl" data-src="rtl">RTL</button>
+      </div>
+      <div class="modal-pager">
+        <button type="button" class="ghost" id="modalPrev">Prev</button>
+        <span id="modalPage" class="muted small"></span>
+        <button type="button" class="ghost" id="modalNext">Next</button>
+      </div>
+      <div id="modalGrid" class="modal-grid"></div>
+    </div>
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>
