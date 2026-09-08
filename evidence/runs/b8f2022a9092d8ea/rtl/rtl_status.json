@@ -1,0 +1,1 @@
+{"cycle":3842548320,"stage":"IDLE","stage_id":0,"layer":27,"position":12,"output_index":0,"reduce_index":0,"busy":false,"fault":false,"token_index":13,"token_count":13,"argmax":374,"rom_reads":543635456,"sram_reads":551851456,"sram_writes":10172032,"macs":8696995840,"stalls":0}

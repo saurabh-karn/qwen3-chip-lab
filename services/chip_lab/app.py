@@ -76,6 +76,42 @@ def _read_json(path: Path) -> dict[str, Any] | None:
         return None
 
 
+def _canonical_work_dir(stored: str | None) -> Path | None:
+    """Resolve a work_dir from evidence JSON, including laptop paths baked in.
+
+    Deployed images keep `evidence/runs/<id>/python.ndjson` for replay, but
+    verify.json often still points at `/Users/.../evidence/runs/<id>`. Prefer
+    the in-tree run dir so a laptop path on the build machine cannot steal
+    replay away from the files shipped in the image.
+    """
+    if not stored:
+        return None
+    p = Path(stored)
+    if p.name:
+        cand = RUNS / p.name
+        if cand.is_dir() and (cand / "python.ndjson").is_file():
+            return cand
+        if cand.is_dir():
+            return cand
+    if p.is_dir():
+        return p
+    rel = ROOT / stored
+    if rel.is_dir():
+        return rel
+    return None
+
+
+def _with_resolved_work_dir(doc: dict[str, Any] | None) -> dict[str, Any] | None:
+    if not doc:
+        return doc
+    resolved = _canonical_work_dir(doc.get("work_dir"))
+    if resolved is None:
+        return doc
+    patched = dict(doc)
+    patched["work_dir"] = str(resolved)
+    return patched
+
+
 def _rom_sha256() -> str | None:
     doc = _read_json(MANIFEST) or {}
     sha = doc.get("rom_sha256")
@@ -215,7 +251,7 @@ def _with_decode(payload: dict[str, Any], evidence: dict[str, Any] | None = None
     ev = evidence if isinstance(evidence, dict) else {}
     ids = payload.get("token_ids") or ev.get("token_ids") or []
     payload["token_texts"] = [_decode_ids([int(i)]) for i in ids]
-    side = _oracle_sidecar(Path(payload["work_dir"]) if payload.get("work_dir") else None)
+    side = _oracle_sidecar(_canonical_work_dir(payload.get("work_dir")))
     py_arg = ev.get("python_argmax") if ev.get("python_argmax") is not None else side.get("python_argmax")
     rtl_arg = ev.get("rtl_argmax") if ev.get("rtl_argmax") is not None else (ev.get("rtl_meta") or {}).get("argmax")
     if py_arg is not None:
@@ -233,7 +269,7 @@ def _with_decode(payload: dict[str, Any], evidence: dict[str, Any] | None = None
 
 def _job_view(job: dict[str, Any]) -> dict[str, Any]:
     view = dict(job)
-    work = Path(job["work_dir"]) if job.get("work_dir") else None
+    work = _canonical_work_dir(job.get("work_dir"))
     evidence = view.get("evidence")
     view.update(_work_payload(work, evidence if isinstance(evidence, dict) else None))
     if view.get("status") == "running":
@@ -286,9 +322,10 @@ def _cached_evidence(text: str, token_ids: list[int], tier: str) -> dict[str, An
             continue
         # Prefer the directory that actually holds this verify.json. Deployed
         # copies still have a laptop work_dir baked into the file.
-        stored = path.parent if path.parent != EVIDENCE else (
-            Path(candidate["work_dir"]) if candidate.get("work_dir") else work
-        )
+        if path.parent != EVIDENCE:
+            stored = path.parent
+        else:
+            stored = _canonical_work_dir(candidate.get("work_dir")) or work
         marker = str(stored)
         if marker in seen:
             continue
@@ -314,7 +351,7 @@ def _work_is_busy(work: Path) -> bool:
 
 def _sync_job_from_disk(job: dict[str, Any]) -> None:
     """Refresh an attached or in-flight job from work-dir status files."""
-    work = Path(job["work_dir"]) if job.get("work_dir") else None
+    work = _canonical_work_dir(job.get("work_dir"))
     if work is None or not work.is_dir():
         return
     ev = _read_json(work / "verify.json")
@@ -395,7 +432,7 @@ def _replay_payload(text: str, token_ids: list[int], tier: str) -> dict[str, Any
     if signed:
         cached_i = _cached_infer(token_ids)
         if cached_i:
-            work = Path(cached_i["work_dir"])
+            work = _canonical_work_dir(cached_i.get("work_dir"))
             return {
                 "status": "cached",
                 "mode": "rtl_infer",
@@ -404,7 +441,7 @@ def _replay_payload(text: str, token_ids: list[int], tier: str) -> dict[str, Any
                 "text": text,
                 "token_ids": token_ids,
                 "token_count": len(token_ids),
-                "work_dir": str(work),
+                "work_dir": str(work) if work else cached_i.get("work_dir"),
                 "message": "ROM signed off. Replaying this prompt’s RTL forward.",
                 "evidence": cached_i,
                 "rtl_signed_off": True,
@@ -429,7 +466,7 @@ def _replay_payload(text: str, token_ids: list[int], tier: str) -> dict[str, Any
 
     cached = _cached_evidence(text, token_ids, tier)
     if cached:
-        work = Path(cached["work_dir"])
+        work = _canonical_work_dir(cached.get("work_dir"))
         return {
             "status": "cached",
             "job_id": None,
@@ -437,7 +474,7 @@ def _replay_payload(text: str, token_ids: list[int], tier: str) -> dict[str, Any
             "text": text,
             "token_ids": token_ids,
             "token_count": len(token_ids),
-            "work_dir": str(work),
+            "work_dir": str(work) if work else cached.get("work_dir"),
             "message": "Loaded completed verify for this token sequence.",
             "evidence": cached,
             "rtl_signed_off": signed,
@@ -634,15 +671,15 @@ def _latest_evidence() -> dict[str, Any] | None:
                     continue
                 candidates.append((mtime, doc))
     if not candidates:
-        return top
+        return _with_resolved_work_dir(top)
     candidates.sort(key=lambda item: item[0], reverse=True)
-    return candidates[0][1]
+    return _with_resolved_work_dir(candidates[0][1])
 
 
 @app.get("/api/evidence")
 def api_evidence() -> dict[str, Any]:
     evidence = _latest_evidence()
-    work = Path(evidence["work_dir"]) if evidence and evidence.get("work_dir") else None
+    work = _canonical_work_dir(evidence.get("work_dir")) if evidence else None
     payload = {"evidence": evidence, **_work_payload(work, evidence)}
     if evidence:
         payload["token_ids"] = evidence.get("token_ids")
@@ -850,22 +887,19 @@ def _event_shape(work: Path, event: str) -> list[int]:
 
 def _resolve_work_dir(job_id: str | None, work_dir: str | None) -> Path | None:
     """Prefer the explicit job/work dir; fall back to the latest evidence."""
-    if work_dir:
-        candidate = Path(work_dir)
-        if candidate.is_dir():
-            return candidate
+    candidate = _canonical_work_dir(work_dir)
+    if candidate is not None:
+        return candidate
     if job_id:
         with _lock:
             job = _jobs.get(job_id)
-        if job and job.get("work_dir"):
-            candidate = Path(job["work_dir"])
-            if candidate.is_dir():
+        if job:
+            candidate = _canonical_work_dir(job.get("work_dir"))
+            if candidate is not None:
                 return candidate
     evidence = _read_json(VERIFY_JSON)
-    if evidence and evidence.get("work_dir"):
-        candidate = Path(evidence["work_dir"])
-        if candidate.is_dir():
-            return candidate
+    if evidence:
+        return _canonical_work_dir(evidence.get("work_dir"))
     return None
 
 
@@ -1055,7 +1089,7 @@ def api_verify(body: VerifyRequest) -> dict[str, Any]:
     if signed and not body.force_verify:
         cached_i = _cached_infer(token_ids)
         if cached_i:
-            work = Path(cached_i["work_dir"])
+            work = _canonical_work_dir(cached_i.get("work_dir"))
             return {
                 "status": "cached",
                 "mode": "rtl_infer",
@@ -1064,7 +1098,7 @@ def api_verify(body: VerifyRequest) -> dict[str, Any]:
                 "text": text,
                 "token_ids": token_ids,
                 "token_count": len(token_ids),
-                "work_dir": str(work),
+                "work_dir": str(work) if work else cached_i.get("work_dir"),
                 "message": "ROM signed off. Replaying this prompt’s RTL forward.",
                 "evidence": cached_i,
                 "rtl_signed_off": True,
@@ -1085,7 +1119,7 @@ def api_verify(body: VerifyRequest) -> dict[str, Any]:
 
     cached = _cached_evidence(text, token_ids, tier)
     if cached:
-        work = Path(cached["work_dir"])
+        work = _canonical_work_dir(cached.get("work_dir"))
         return {
             "status": "cached",
             "job_id": None,
@@ -1093,7 +1127,7 @@ def api_verify(body: VerifyRequest) -> dict[str, Any]:
             "text": text,
             "token_ids": token_ids,
             "token_count": len(token_ids),
-            "work_dir": str(work),
+            "work_dir": str(work) if work else cached.get("work_dir"),
             "message": "Loaded completed verify for this token sequence.",
             "evidence": cached,
             "rtl_signed_off": _signed_off() is not None,

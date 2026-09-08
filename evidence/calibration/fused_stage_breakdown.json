@@ -1,0 +1,180 @@
+{
+ "total_cycles": 57025007,
+ "stages": [
+  {
+   "stage": "IDLE",
+   "entries": 2,
+   "cycles": 2,
+   "rom_reads": 0,
+   "macs": 0
+  },
+  {
+   "stage": "EMBED",
+   "entries": 1,
+   "cycles": 5120,
+   "rom_reads": 0,
+   "macs": 0
+  },
+  {
+   "stage": "INPUT_NORM",
+   "entries": 28,
+   "cycles": 213220,
+   "rom_reads": 1024,
+   "macs": 0
+  },
+  {
+   "stage": "Q_PROJ",
+   "entries": 28,
+   "cycles": 3734752,
+   "rom_reads": 30464,
+   "macs": 28672
+  },
+  {
+   "stage": "K_PROJ",
+   "entries": 28,
+   "cycles": 1869280,
+   "rom_reads": 3670016,
+   "macs": 58720256
+  },
+  {
+   "stage": "V_PROJ",
+   "entries": 28,
+   "cycles": 12873728,
+   "rom_reads": 1835008,
+   "macs": 29360128
+  },
+  {
+   "stage": "Q_NORM",
+   "entries": 28,
+   "cycles": 3555328,
+   "rom_reads": 1835008,
+   "macs": 29360128
+  },
+  {
+   "stage": "K_NORM",
+   "entries": 28,
+   "cycles": 1777664,
+   "rom_reads": 516096,
+   "macs": 7340032
+  },
+  {
+   "stage": "ROPE",
+   "entries": 28,
+   "cycles": 688128,
+   "rom_reads": 258048,
+   "macs": 3670016
+  },
+  {
+   "stage": "ATTN_SCORE",
+   "entries": 28,
+   "cycles": 29120,
+   "rom_reads": 0,
+   "macs": 0
+  },
+  {
+   "stage": "SOFTMAX",
+   "entries": 28,
+   "cycles": 6720,
+   "rom_reads": 0,
+   "macs": 57344
+  },
+  {
+   "stage": "ATTN_VALUE",
+   "entries": 28,
+   "cycles": 516096,
+   "rom_reads": 0,
+   "macs": 0
+  },
+  {
+   "stage": "O_PROJ",
+   "entries": 28,
+   "cycles": 3707872,
+   "rom_reads": 0,
+   "macs": 917504
+  },
+  {
+   "stage": "ATTN_RESIDUAL",
+   "entries": 28,
+   "cycles": 258048,
+   "rom_reads": 3670016,
+   "macs": 58720256
+  },
+  {
+   "stage": "POST_NORM",
+   "entries": 28,
+   "cycles": 213220,
+   "rom_reads": 0,
+   "macs": 458752
+  },
+  {
+   "stage": "GATE_PROJ",
+   "entries": 28,
+   "cycles": 5600224,
+   "rom_reads": 30464,
+   "macs": 28672
+  },
+  {
+   "stage": "UP_PROJ",
+   "entries": 28,
+   "cycles": 5600224,
+   "rom_reads": 5505024,
+   "macs": 88080384
+  },
+  {
+   "stage": "SILU",
+   "entries": 28,
+   "cycles": 688128,
+   "rom_reads": 5505024,
+   "macs": 88080384
+  },
+  {
+   "stage": "DOWN_PROJ",
+   "entries": 28,
+   "cycles": 5546464,
+   "rom_reads": 0,
+   "macs": 0
+  },
+  {
+   "stage": "MLP_RESIDUAL",
+   "entries": 28,
+   "cycles": 258048,
+   "rom_reads": 5505024,
+   "macs": 88080384
+  },
+  {
+   "stage": "NEXT_LAYER",
+   "entries": 27,
+   "cycles": 27,
+   "rom_reads": 0,
+   "macs": 442368
+  },
+  {
+   "stage": "FINAL_NORM",
+   "entries": 1,
+   "cycles": 7615,
+   "rom_reads": 0,
+   "macs": 16384
+  },
+  {
+   "stage": "LM_HEAD",
+   "entries": 1,
+   "cycles": 9875976,
+   "rom_reads": 1088,
+   "macs": 1024
+  },
+  {
+   "stage": "ARGMAX",
+   "entries": 1,
+   "cycles": 1,
+   "rom_reads": 9723904,
+   "macs": 155582464
+  },
+  {
+   "stage": "DONE",
+   "entries": 1,
+   "cycles": 2,
+   "rom_reads": 0,
+   "macs": 0
+  }
+ ]
+}

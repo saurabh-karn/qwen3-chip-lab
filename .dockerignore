@@ -14,7 +14,11 @@ qwen_chip/sim/obj_dir*
 qwen_chip/tests
 gpu_model/sim/obj_dir*
 pure_weights
-evidence/runs
+evidence/runs/**/*.bin
+evidence/runs/**/*.f32le
+evidence/runs/**/rtl_checkpoints/
+evidence/runs/**/python_checkpoints/
+evidence/calibration/*.bin
 artifacts/qwen3.bf16rom
 artifacts/golden
 **/*.npz

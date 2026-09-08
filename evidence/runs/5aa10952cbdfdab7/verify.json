@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "tier": "T4",
+  "text": "Yellow",
+  "token_ids": [
+    47699
+  ],
+  "token_count": 1,
+  "arithmetic_profile": "qwen-ref-v2",
+  "layout_sha256": "90862bab24f0ff234a57c3d069de4279b2b7603342d391781e17ebf906a44e45",
+  "rom_sha256": "18602c6adf0658763eae602b44a6436a6b25ffdabddec508fa66633624e90979",
+  "rom_bytes": 1192099840,
+  "git_commit": "93c7fc012bc75bac2d4a56cdade008daac6ea9ca",
+  "geometry": {
+    "layers": 28,
+    "hidden": 1024,
+    "intermediate": 3072,
+    "q_heads": 16,
+    "kv_heads": 8,
+    "head_dim": 128,
+    "vocab": 151936
+  },
+  "mac_lanes": 16,
+  "rom_data_w": 256,
+  "sram_data_w": 256,
+  "debug_short_mode": 0,
+  "fused_schedule": 1,
+  "rtl_meta": {
+    "cycle_count": 57025007,
+    "rom_read_count": 38086208,
+    "sram_read_count": 3269312,
+    "sram_write_count": 481856,
+    "mac_count": 608945152,
+    "stall_count": 0,
+    "argmax": 61832
+  },
+  "python_argmax": 61832,
+  "rtl_argmax": 61832,
+  "comparison": {
+    "schema_version": 1,
+    "passed": true,
+    "python_events": 563,
+    "rtl_events": 563,
+    "full_logits_compared": true,
+    "mismatch_count": 0,
+    "first_mismatch": null,
+    "mismatches": []
+  },
+  "passed": true,
+  "work_dir": "evidence/runs/5aa10952cbdfdab7"
+}

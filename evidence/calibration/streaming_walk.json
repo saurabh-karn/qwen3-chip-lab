@@ -1,0 +1,11 @@
+{
+  "schedule": "streaming_reference",
+  "total_cycles": 618,
+  "stages": [
+    {"stage": "NORM", "cycles": 26},
+    {"stage": "QKV_FETCH", "cycles": 514},
+    {"stage": "QKV_MAC", "cycles": 65},
+    {"stage": "KV_CACHE", "cycles": 4},
+    {"stage": "SOFTMAX", "cycles": 9}
+  ]
+}
