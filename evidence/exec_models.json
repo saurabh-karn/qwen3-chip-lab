@@ -1,0 +1,404 @@
+{
+  "schema_version": 1,
+  "model_id": "Qwen/Qwen3-0.6B",
+  "sequence_length": 1,
+  "tech_node": "N4",
+  "tech_node_name": "TSMC N4 (4nm production)",
+  "energy_references": {
+    "baseline": "Horowitz, 'Computing's energy problem', ISSCC 2014, doi:10.1109/ISSCC.2014.6757323",
+    "scaling_validation": [
+      "Tu et al., '28nm 29.2TFLOPS/W BF16 CIM Processor', ISSCC 2022",
+      "'5nm 254-TOPS/W CIM Macro', ISSCC 2022",
+      "'3nm 23.2TOPS/W Neural Engine', ISSCC 2024"
+    ],
+    "tech_node_ref": "Scaled from 28nm; TSMC N4 \u2248 N5 enhanced"
+  },
+  "workload": {
+    "total_macs": 596819264,
+    "total_flops": 1193638528,
+    "weight_bytes": 1192259584,
+    "act_bytes": 2607360,
+    "stages": 17,
+    "stages_detail": [
+      {
+        "stage": "embedding",
+        "note": "row gather from tied table",
+        "count": 1,
+        "macs_per_call": 0,
+        "weight_bytes_per_call": 2048,
+        "act_bytes_per_call": 2048,
+        "total_macs": 0
+      },
+      {
+        "stage": "input_rmsnorm",
+        "note": "sum of squares + scale, weight gamma",
+        "count": 28,
+        "macs_per_call": 2048,
+        "weight_bytes_per_call": 2048,
+        "act_bytes_per_call": 4096,
+        "total_macs": 57344
+      },
+      {
+        "stage": "qkv_proj",
+        "note": "fused Q/K/V GEMM",
+        "count": 28,
+        "macs_per_call": 4194304,
+        "weight_bytes_per_call": 8388608,
+        "act_bytes_per_call": 8192,
+        "total_macs": 117440512
+      },
+      {
+        "stage": "qk_norm",
+        "note": "per-head RMSNorm",
+        "count": 28,
+        "macs_per_call": 6144,
+        "weight_bytes_per_call": 6144,
+        "act_bytes_per_call": 12288,
+        "total_macs": 172032
+      },
+      {
+        "stage": "rope",
+        "note": "rotate-half, table-backed cos/sin",
+        "count": 28,
+        "macs_per_call": 0,
+        "weight_bytes_per_call": 0,
+        "act_bytes_per_call": 6144,
+        "total_macs": 0
+      },
+      {
+        "stage": "attn_scores",
+        "note": "Q*K^T over causal context",
+        "count": 28,
+        "macs_per_call": 4096,
+        "weight_bytes_per_call": 0,
+        "act_bytes_per_call": 64,
+        "total_macs": 114688
+      },
+      {
+        "stage": "softmax",
+        "note": "max/exp/sum/divide",
+        "count": 28,
+        "macs_per_call": 48,
+        "weight_bytes_per_call": 0,
+        "act_bytes_per_call": 64,
+        "total_macs": 1344
+      },
+      {
+        "stage": "attn_value",
+        "note": "P*V",
+        "count": 28,
+        "macs_per_call": 4096,
+        "weight_bytes_per_call": 0,
+        "act_bytes_per_call": 4096,
+        "total_macs": 114688
+      },
+      {
+        "stage": "o_proj",
+        "note": "output projection",
+        "count": 28,
+        "macs_per_call": 2097152,
+        "weight_bytes_per_call": 4194304,
+        "act_bytes_per_call": 2048,
+        "total_macs": 58720256
+      },
+      {
+        "stage": "attn_residual",
+        "note": "elementwise add",
+        "count": 28,
+        "macs_per_call": 1024,
+        "weight_bytes_per_call": 0,
+        "act_bytes_per_call": 4096,
+        "total_macs": 28672
+      },
+      {
+        "stage": "post_rmsnorm",
+        "note": "",
+        "count": 28,
+        "macs_per_call": 2048,
+        "weight_bytes_per_call": 2048,
+        "act_bytes_per_call": 4096,
+        "total_macs": 57344
+      },
+      {
+        "stage": "gate_up_proj",
+        "note": "fused gate/up GEMM",
+        "count": 28,
+        "macs_per_call": 6291456,
+        "weight_bytes_per_call": 12582912,
+        "act_bytes_per_call": 12288,
+        "total_macs": 176160768
+      },
+      {
+        "stage": "silu_swiglu",
+        "note": "SiLU + elementwise product",
+        "count": 28,
+        "macs_per_call": 9216,
+        "weight_bytes_per_call": 0,
+        "act_bytes_per_call": 18432,
+        "total_macs": 258048
+      },
+      {
+        "stage": "down_proj",
+        "note": "",
+        "count": 28,
+        "macs_per_call": 3145728,
+        "weight_bytes_per_call": 6291456,
+        "act_bytes_per_call": 2048,
+        "total_macs": 88080384
+      },
+      {
+        "stage": "mlp_residual",
+        "note": "",
+        "count": 28,
+        "macs_per_call": 1024,
+        "weight_bytes_per_call": 0,
+        "act_bytes_per_call": 4096,
+        "total_macs": 28672
+      },
+      {
+        "stage": "final_rmsnorm",
+        "note": "",
+        "count": 1,
+        "macs_per_call": 2048,
+        "weight_bytes_per_call": 2048,
+        "act_bytes_per_call": 4096,
+        "total_macs": 2048
+      },
+      {
+        "stage": "lm_head",
+        "note": "tied embedding as head; argmax reduces in flight",
+        "count": 1,
+        "macs_per_call": 155582464,
+        "weight_bytes_per_call": 311164928,
+        "act_bytes_per_call": 303872,
+        "total_macs": 155582464
+      }
+    ]
+  },
+  "platforms": {
+    "h100": {
+      "platform": "NVIDIA H100 SXM",
+      "kind": "gpu",
+      "model_id": "Qwen/Qwen3-0.6B",
+      "sequence_length": 1,
+      "metrics": {
+        "total_macs": 596819264,
+        "total_flops": 1193638528,
+        "total_weight_bytes": 1192259584,
+        "total_act_bytes": 2607360,
+        "total_cycles": 533763,
+        "latency_s": 0.000355842,
+        "throughput_toks": 2810.236003619584,
+        "compute_energy_j": 0.14947778481538354,
+        "weight_energy_j": 0.04769038336,
+        "act_energy_j": 1.042944e-05,
+        "total_energy_j": 0.19717859761538353,
+        "avg_utilization": 0.00338761523442823,
+        "peak_macs_per_s": 494500000000000.0,
+        "achieved_macs_per_s": 1677202983346.5415,
+        "peak_utilization": 0.003391714829821115,
+        "transistors": 80000000000.0,
+        "area_mm2": 814.0
+      },
+      "provenance": {
+        "kind": "analytical_estimate",
+        "measured": false,
+        "sources": "datasheet: BF16 dense 989 TFLOPS, HBM3e 3.35 TB/s, 700W TDP; tile_m/n/k=16/8/16 is the mma.sync.aligned.m16n8k16 PTX ISA shape; SM count, tensor-cores/SM, warp/occupancy constants cited in docs/references.md Sec.10 (used by lab/gpu_tile_sim.py, not this module)"
+      },
+      "stage_count": 395
+    },
+    "b200": {
+      "platform": "NVIDIA B200",
+      "kind": "gpu",
+      "model_id": "Qwen/Qwen3-0.6B",
+      "sequence_length": 1,
+      "metrics": {
+        "total_macs": 596819264,
+        "total_flops": 1193638528,
+        "total_weight_bytes": 1192259584,
+        "total_act_bytes": 2607360,
+        "total_cycles": 223459,
+        "latency_s": 0.00014897266666666668,
+        "throughput_toks": 6712.64079764073,
+        "compute_energy_j": 0.08941976005973333,
+        "weight_energy_j": 0.042921345024,
+        "act_energy_j": 1.042944e-05,
+        "total_energy_j": 0.13235153452373333,
+        "avg_utilization": 0.003556001076011458,
+        "peak_macs_per_s": 1125000000000000.0,
+        "achieved_macs_per_s": 4006233340344.3135,
+        "peak_utilization": 0.0035610963025282786,
+        "transistors": 208000000000.0,
+        "area_mm2": 1600.0
+      },
+      "provenance": {
+        "kind": "analytical_estimate",
+        "measured": false,
+        "sources": "datasheet: BF16 dense 2.25 PFLOPS, HBM3e 8 TB/s, 1000W TDP"
+      },
+      "stage_count": 395
+    },
+    "tpu_v5e": {
+      "platform": "Google TPU v5e",
+      "kind": "tpu",
+      "model_id": "Qwen/Qwen3-0.6B",
+      "sequence_length": 1,
+      "metrics": {
+        "total_macs": 596819264,
+        "total_flops": 1193638528,
+        "total_weight_bytes": 1192259584,
+        "total_act_bytes": 2607360,
+        "total_cycles": 372479,
+        "latency_s": 0.000744958,
+        "throughput_toks": 1342.357555727974,
+        "compute_energy_j": 0.07600711399699492,
+        "weight_energy_j": 0.04769038336,
+        "act_energy_j": 1.042944e-05,
+        "total_energy_j": 0.12370792679699492,
+        "avg_utilization": 0.008122437945365449,
+        "peak_macs_per_s": 98500000000000.0,
+        "achieved_macs_per_s": 801144848434.4084,
+        "peak_utilization": 0.008133450237912777,
+        "transistors": 32000000000.0,
+        "area_mm2": 325.0
+      },
+      "provenance": {
+        "kind": "analytical_estimate",
+        "measured": false,
+        "sources": "datasheet: 197 TFLOPS BF16, HBM 1.6 TB/s, 170W TDP"
+      },
+      "stage_count": 395
+    },
+    "lpu": {
+      "platform": "Groq LPU",
+      "kind": "lpu",
+      "model_id": "Qwen/Qwen3-0.6B",
+      "sequence_length": 1,
+      "metrics": {
+        "total_macs": 596819264,
+        "total_flops": 1193638528,
+        "total_weight_bytes": 1192259584,
+        "total_act_bytes": 2607360,
+        "total_cycles": 405752,
+        "latency_s": 0.000405752,
+        "throughput_toks": 2464.5596324848675,
+        "compute_energy_j": 0.09132331787234042,
+        "weight_energy_j": 0.004769038336,
+        "act_energy_j": 1.042944e-05,
+        "total_energy_j": 0.09610278564834042,
+        "avg_utilization": 0.015627156489678426,
+        "peak_macs_per_s": 94000000000000.0,
+        "achieved_macs_per_s": 1470896665943.7292,
+        "peak_utilization": 0.015647836871741802,
+        "transistors": 26800000000.0,
+        "area_mm2": 725.0
+      },
+      "provenance": {
+        "kind": "analytical_estimate",
+        "measured": false,
+        "sources": "published: GroqChip TSP, 188 TFLOPS BF16, 230 MB SRAM; 375 W GroqCard accelerator TDP (card-level, comparable to the H100 SXM module TDP used above - NOT the ~750 W system/node figure)"
+      },
+      "stage_count": 395
+    },
+    "cim": {
+      "platform": "Analog CIM (crossbar)",
+      "kind": "cim",
+      "model_id": "Qwen/Qwen3-0.6B",
+      "sequence_length": 1,
+      "metrics": {
+        "total_macs": 596819264,
+        "total_flops": 1193638528,
+        "total_weight_bytes": 1192259584,
+        "total_act_bytes": 2607360,
+        "total_cycles": 150016,
+        "latency_s": 0.000300032,
+        "throughput_toks": 3332.977815699659,
+        "compute_energy_j": 3.840409600000001e-06,
+        "weight_energy_j": 0.00029124165632,
+        "act_energy_j": 1.042944e-05,
+        "total_energy_j": 0.00030551150591999997,
+        "avg_utilization": 1.0,
+        "peak_macs_per_s": 0.0,
+        "achieved_macs_per_s": 1989185366894.198,
+        "peak_utilization": null,
+        "transistors": 26000000000.0,
+        "area_mm2": 600.0
+      },
+      "provenance": {
+        "kind": "analytical_estimate",
+        "measured": false,
+        "sources": "ISAAC (Shafiee et al., ISCA 2016) ADC model: 8-bit SAR ~5 pJ/conv, 256x256 arrays, 4-bit nibble passes; cell/row/shift-add energies are estimates (docs/references.md \u00a75); throughput = array-pass model. NOTE these constants are ~32nm-class and do NOT scale with the selected tech_node, so a CIM row priced beside an N4 ROM row is not at a common node. Attention has no stationary weights at any context length, so a crossbar must run it on digital lanes."
+      },
+      "stage_count": 395
+    },
+    "pim": {
+      "platform": "HBM-PIM / DRAM-PIM",
+      "kind": "pim",
+      "model_id": "Qwen/Qwen3-0.6B",
+      "sequence_length": 1,
+      "metrics": {
+        "total_macs": 596819264,
+        "total_flops": 1193638528,
+        "total_weight_bytes": 1192259584,
+        "total_act_bytes": 2607360,
+        "total_cycles": 497153,
+        "latency_s": 0.000994306,
+        "throughput_toks": 1005.7266073019775,
+        "compute_energy_j": 0.0002685686688,
+        "weight_energy_j": 0.019076153344,
+        "act_energy_j": 1.042944e-05,
+        "total_energy_j": 0.0193551514528,
+        "avg_utilization": 1.0,
+        "peak_macs_per_s": 600000000000.0,
+        "achieved_macs_per_s": 600237013555.1832,
+        "peak_utilization": 1.000395022591972,
+        "transistors": 20000000000.0,
+        "area_mm2": 1200.0
+      },
+      "provenance": {
+        "kind": "analytical_estimate",
+        "measured": false,
+        "sources": "published: Samsung HBM-PIM 1.2 TFLOPS / 1.2 TB/s in-stack (ISSCC 2021); in-bank ~2 pJ/bit vs ~5 pJ/bit off-stack (docs/references.md); TDP and transistor count are estimates"
+      },
+      "stage_count": 395
+    },
+    "rom": {
+      "platform": "Qwen3-0.6B chip (this repo)",
+      "kind": "rom",
+      "model_id": "Qwen/Qwen3-0.6B",
+      "sequence_length": 1,
+      "metrics": {
+        "total_macs": 608945152,
+        "total_flops": 1217890304,
+        "total_weight_bytes": 1192259584,
+        "total_act_bytes": 2607360,
+        "total_cycles": 57025007,
+        "latency_s": 0.114050014,
+        "throughput_toks": 8.768083097297998,
+        "compute_energy_j": 0.00027402531840000006,
+        "weight_energy_j": 0.00034125242368,
+        "act_energy_j": 1.042944e-06,
+        "total_energy_j": 0.0006163206860800001,
+        "avg_utilization": 0.667410211804095,
+        "peak_macs_per_s": 8000000000.0,
+        "achieved_macs_per_s": 5339281694.432759,
+        "peak_utilization": 0.6674102118040949,
+        "transistors": 58235251392,
+        "area_mm2": 0.0
+      },
+      "provenance": {
+        "kind": "measured",
+        "measured": true,
+        "fused": true,
+        "source": "/Users/saurabhkarn/trocr-asic/evidence/runs/e29e6a07b9568e16/verify.json",
+        "cycles": 57025007,
+        "macs": 608945152,
+        "rom_reads": 38086208,
+        "tech_node": "N4",
+        "tech_node_name": "TSMC N4 (4nm production)",
+        "energy_constants": "TSMC N4 (4nm production) (0.45 pJ/MAC, 0.035 pJ/bit ROM)"
+      },
+      "stage_count": 0
+    }
+  }
+}

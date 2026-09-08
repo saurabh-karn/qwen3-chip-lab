@@ -1,0 +1,5222 @@
+{
+  "schema_version": 1,
+  "runs": [
+    {
+      "run_key": "hw_13tok",
+      "token_count": 13,
+      "tier": "T4",
+      "oracle_argmax": 26194,
+      "same_compute": true,
+      "engine_macs": 7924315136,
+      "mask_rom_extra_macs": 776236032,
+      "backends": [
+        {
+          "backend": "gpu",
+          "label": "GPU tile (fused streaming GEMM)",
+          "passed": true,
+          "mismatch_count": 0,
+          "error": null,
+          "cycles": 745190883,
+          "macs": 7924315136,
+          "rom_reads": 495120704,
+          "sram_reads": 43387200,
+          "sram_writes": 6328192,
+          "stalls": 0,
+          "argmax": 26194,
+          "memory": "rom",
+          "ext_mem_lat": 0,
+          "hbm_weight_bytes": 15843862528,
+          "ondie_weight_reads": 43387200,
+          "work_dir": "/Users/saurabhkarn/trocr-asic/evidence/runs/hw_13tok_gpu",
+          "store_bytes_per_cycle": 21.261481976558212,
+          "hbm_utilization": 0.0031733555188892854,
+          "energy": {
+            "memory": "rom",
+            "weight_energy_j": 0.01014007201792,
+            "sram_energy_j": 0.00111071232,
+            "mac_energy_j": 0.0035659418112000004,
+            "total_energy_j": 0.014816726149120002,
+            "weight_pj_per_bit": 0.08,
+            "constants": {
+              "rom_pj_per_bit": 0.08,
+              "sram_pj_per_bit": 0.1,
+              "hbm_pj_per_bit": 3.5,
+              "mac_pj_per_op": 0.45
+            },
+            "provenance": "lab/scale_1t.py N4 constants (rom 0.08 / sram 0.10 / hbm 3.5 pJ/bit, mac 0.45 pJ/op); counters from rtl_meta (measured)"
+          },
+          "stage_breakdown": {
+            "total_cycles": 745190883,
+            "stages": [
+              {
+                "stage": "IDLE",
+                "entries": 14,
+                "cycles": 26,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "EMBED",
+                "entries": 13,
+                "cycles": 66560,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "INPUT_NORM",
+                "entries": 364,
+                "cycles": 2771860,
+                "rom_reads": 13312,
+                "macs": 0
+              },
+              {
+                "stage": "Q_PROJ",
+                "entries": 364,
+                "cycles": 48551776,
+                "rom_reads": 396032,
+                "macs": 372736
+              },
+              {
+                "stage": "K_PROJ",
+                "entries": 364,
+                "cycles": 24300640,
+                "rom_reads": 47710208,
+                "macs": 763363328
+              },
+              {
+                "stage": "V_PROJ",
+                "entries": 364,
+                "cycles": 167358464,
+                "rom_reads": 23855104,
+                "macs": 381681664
+              },
+              {
+                "stage": "Q_NORM",
+                "entries": 364,
+                "cycles": 46219264,
+                "rom_reads": 23855104,
+                "macs": 381681664
+              },
+              {
+                "stage": "K_NORM",
+                "entries": 364,
+                "cycles": 23109632,
+                "rom_reads": 6709248,
+                "macs": 95420416
+              },
+              {
+                "stage": "ROPE",
+                "entries": 364,
+                "cycles": 8945664,
+                "rom_reads": 3354624,
+                "macs": 47710208
+              },
+              {
+                "stage": "ATTN_SCORE",
+                "entries": 364,
+                "cycles": 2649920,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "SOFTMAX",
+                "entries": 364,
+                "cycles": 570752,
+                "rom_reads": 0,
+                "macs": 5218304
+              },
+              {
+                "stage": "ATTN_VALUE",
+                "entries": 364,
+                "cycles": 7820288,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "O_PROJ",
+                "entries": 364,
+                "cycles": 48202336,
+                "rom_reads": 0,
+                "macs": 15482880
+              },
+              {
+                "stage": "ATTN_RESIDUAL",
+                "entries": 364,
+                "cycles": 3354624,
+                "rom_reads": 47710208,
+                "macs": 763363328
+              },
+              {
+                "stage": "POST_NORM",
+                "entries": 364,
+                "cycles": 2771860,
+                "rom_reads": 0,
+                "macs": 5963776
+              },
+              {
+                "stage": "GATE_PROJ",
+                "entries": 364,
+                "cycles": 72802912,
+                "rom_reads": 396032,
+                "macs": 372736
+              },
+              {
+                "stage": "UP_PROJ",
+                "entries": 364,
+                "cycles": 72802912,
+                "rom_reads": 71565312,
+                "macs": 1145044992
+              },
+              {
+                "stage": "SILU",
+                "entries": 364,
+                "cycles": 8945664,
+                "rom_reads": 71565312,
+                "macs": 1145044992
+              },
+              {
+                "stage": "DOWN_PROJ",
+                "entries": 364,
+                "cycles": 72104032,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "MLP_RESIDUAL",
+                "entries": 364,
+                "cycles": 3354624,
+                "rom_reads": 71565312,
+                "macs": 1145044992
+              },
+              {
+                "stage": "NEXT_LAYER",
+                "entries": 351,
+                "cycles": 351,
+                "rom_reads": 0,
+                "macs": 5750784
+              },
+              {
+                "stage": "FINAL_NORM",
+                "entries": 13,
+                "cycles": 98995,
+                "rom_reads": 0,
+                "macs": 212992
+              },
+              {
+                "stage": "LM_HEAD",
+                "entries": 13,
+                "cycles": 128387688,
+                "rom_reads": 14144,
+                "macs": 13312
+              },
+              {
+                "stage": "ARGMAX",
+                "entries": 13,
+                "cycles": 13,
+                "rom_reads": 126410752,
+                "macs": 2022572032
+              },
+              {
+                "stage": "DONE",
+                "entries": 13,
+                "cycles": 26,
+                "rom_reads": 0,
+                "macs": 0
+              }
+            ]
+          }
+        },
+        {
+          "backend": "gpu_hbm",
+          "label": "GPU tile (HBM latency)",
+          "passed": true,
+          "mismatch_count": 0,
+          "error": null,
+          "cycles": 3115259727,
+          "macs": 7924315136,
+          "rom_reads": 495120704,
+          "sram_reads": 43387200,
+          "sram_writes": 6328192,
+          "stalls": 0,
+          "argmax": 26194,
+          "memory": "hbm",
+          "ext_mem_lat": 40,
+          "hbm_weight_bytes": 15843862528,
+          "ondie_weight_reads": 43387200,
+          "work_dir": "/Users/saurabhkarn/trocr-asic/evidence/runs/hw_13tok_gpu_hbm",
+          "store_bytes_per_cycle": 5.085888149447387,
+          "hbm_utilization": 0.0007590877834996099,
+          "energy": {
+            "memory": "hbm",
+            "weight_energy_j": 0.443628150784,
+            "sram_energy_j": 0.00111071232,
+            "mac_energy_j": 0.0035659418112000004,
+            "total_energy_j": 0.4483048049152,
+            "weight_pj_per_bit": 3.5,
+            "constants": {
+              "rom_pj_per_bit": 0.08,
+              "sram_pj_per_bit": 0.1,
+              "hbm_pj_per_bit": 3.5,
+              "mac_pj_per_op": 0.45
+            },
+            "provenance": "lab/scale_1t.py N4 constants (rom 0.08 / sram 0.10 / hbm 3.5 pJ/bit, mac 0.45 pJ/op); counters from rtl_meta (measured)"
+          },
+          "stage_breakdown": {
+            "total_cycles": 3115259727,
+            "stages": [
+              {
+                "stage": "IDLE",
+                "entries": 14,
+                "cycles": 26,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "EMBED",
+                "entries": 13,
+                "cycles": 599040,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "INPUT_NORM",
+                "entries": 364,
+                "cycles": 18613140,
+                "rom_reads": 13312,
+                "macs": 0
+              },
+              {
+                "stage": "Q_PROJ",
+                "entries": 364,
+                "cycles": 150054632,
+                "rom_reads": 396032,
+                "macs": 372736
+              },
+              {
+                "stage": "K_PROJ",
+                "entries": 364,
+                "cycles": 75059348,
+                "rom_reads": 47710208,
+                "macs": 763363328
+              },
+              {
+                "stage": "V_PROJ",
+                "entries": 364,
+                "cycles": 1121562624,
+                "rom_reads": 23855104,
+                "macs": 381681664
+              },
+              {
+                "stage": "Q_NORM",
+                "entries": 364,
+                "cycles": 314589184,
+                "rom_reads": 23855104,
+                "macs": 381681664
+              },
+              {
+                "stage": "K_NORM",
+                "entries": 364,
+                "cycles": 157294592,
+                "rom_reads": 6709248,
+                "macs": 95420416
+              },
+              {
+                "stage": "ROPE",
+                "entries": 364,
+                "cycles": 8945664,
+                "rom_reads": 3354624,
+                "macs": 47710208
+              },
+              {
+                "stage": "ATTN_SCORE",
+                "entries": 364,
+                "cycles": 2649920,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "SOFTMAX",
+                "entries": 364,
+                "cycles": 570752,
+                "rom_reads": 0,
+                "macs": 5218304
+              },
+              {
+                "stage": "ATTN_VALUE",
+                "entries": 364,
+                "cycles": 7820288,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "O_PROJ",
+                "entries": 364,
+                "cycles": 150077928,
+                "rom_reads": 0,
+                "macs": 15482880
+              },
+              {
+                "stage": "ATTN_RESIDUAL",
+                "entries": 364,
+                "cycles": 3354624,
+                "rom_reads": 47710208,
+                "macs": 763363328
+              },
+              {
+                "stage": "POST_NORM",
+                "entries": 364,
+                "cycles": 18613140,
+                "rom_reads": 0,
+                "macs": 5963776
+              },
+              {
+                "stage": "GATE_PROJ",
+                "entries": 364,
+                "cycles": 225049916,
+                "rom_reads": 396032,
+                "macs": 372736
+              },
+              {
+                "stage": "UP_PROJ",
+                "entries": 364,
+                "cycles": 225049916,
+                "rom_reads": 71565312,
+                "macs": 1145044992
+              },
+              {
+                "stage": "SILU",
+                "entries": 364,
+                "cycles": 8945664,
+                "rom_reads": 71565312,
+                "macs": 1145044992
+              },
+              {
+                "stage": "DOWN_PROJ",
+                "entries": 364,
+                "cycles": 225096508,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "MLP_RESIDUAL",
+                "entries": 364,
+                "cycles": 3354624,
+                "rom_reads": 71565312,
+                "macs": 1145044992
+              },
+              {
+                "stage": "NEXT_LAYER",
+                "entries": 351,
+                "cycles": 351,
+                "rom_reads": 0,
+                "macs": 5750784
+              },
+              {
+                "stage": "FINAL_NORM",
+                "entries": 13,
+                "cycles": 664755,
+                "rom_reads": 0,
+                "macs": 212992
+              },
+              {
+                "stage": "LM_HEAD",
+                "entries": 13,
+                "cycles": 397293052,
+                "rom_reads": 14144,
+                "macs": 13312
+              },
+              {
+                "stage": "ARGMAX",
+                "entries": 13,
+                "cycles": 13,
+                "rom_reads": 126410752,
+                "macs": 2022572032
+              },
+              {
+                "stage": "DONE",
+                "entries": 13,
+                "cycles": 26,
+                "rom_reads": 0,
+                "macs": 0
+              }
+            ]
+          }
+        },
+        {
+          "backend": "lpu",
+          "label": "LPU (weight-stationary interleaved)",
+          "passed": true,
+          "mismatch_count": 0,
+          "error": null,
+          "cycles": 1747379915,
+          "macs": 7924315136,
+          "rom_reads": 495120704,
+          "sram_reads": 43387200,
+          "sram_writes": 6328192,
+          "stalls": 0,
+          "argmax": 26194,
+          "memory": "rom",
+          "ext_mem_lat": 0,
+          "hbm_weight_bytes": 15843862528,
+          "ondie_weight_reads": 43387200,
+          "work_dir": "/Users/saurabhkarn/trocr-asic/evidence/runs/hw_13tok_lpu",
+          "store_bytes_per_cycle": 9.06721108099723,
+          "hbm_utilization": 0.0013533150867160045,
+          "energy": {
+            "memory": "rom",
+            "weight_energy_j": 0.01014007201792,
+            "sram_energy_j": 0.00111071232,
+            "mac_energy_j": 0.0035659418112000004,
+            "total_energy_j": 0.014816726149120002,
+            "weight_pj_per_bit": 0.08,
+            "constants": {
+              "rom_pj_per_bit": 0.08,
+              "sram_pj_per_bit": 0.1,
+              "hbm_pj_per_bit": 3.5,
+              "mac_pj_per_op": 0.45
+            },
+            "provenance": "lab/scale_1t.py N4 constants (rom 0.08 / sram 0.10 / hbm 3.5 pJ/bit, mac 0.45 pJ/op); counters from rtl_meta (measured)"
+          },
+          "stage_breakdown": {
+            "total_cycles": 1747379915,
+            "stages": [
+              {
+                "stage": "IDLE",
+                "entries": 14,
+                "cycles": 26,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "EMBED",
+                "entries": 13,
+                "cycles": 66560,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "INPUT_NORM",
+                "entries": 364,
+                "cycles": 2771860,
+                "rom_reads": 13312,
+                "macs": 0
+              },
+              {
+                "stage": "Q_PROJ",
+                "entries": 364,
+                "cycles": 191727900,
+                "rom_reads": 396032,
+                "macs": 372736
+              },
+              {
+                "stage": "K_PROJ",
+                "entries": 364,
+                "cycles": 95911452,
+                "rom_reads": 47710208,
+                "macs": 763363328
+              },
+              {
+                "stage": "V_PROJ",
+                "entries": 364,
+                "cycles": 167358464,
+                "rom_reads": 23855104,
+                "macs": 381681664
+              },
+              {
+                "stage": "Q_NORM",
+                "entries": 364,
+                "cycles": 46219264,
+                "rom_reads": 23855104,
+                "macs": 381681664
+              },
+              {
+                "stage": "K_NORM",
+                "entries": 364,
+                "cycles": 23109632,
+                "rom_reads": 6709248,
+                "macs": 95420416
+              },
+              {
+                "stage": "ROPE",
+                "entries": 364,
+                "cycles": 8945664,
+                "rom_reads": 3354624,
+                "macs": 47710208
+              },
+              {
+                "stage": "ATTN_SCORE",
+                "entries": 364,
+                "cycles": 2649920,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "SOFTMAX",
+                "entries": 364,
+                "cycles": 570752,
+                "rom_reads": 0,
+                "macs": 5218304
+              },
+              {
+                "stage": "ATTN_VALUE",
+                "entries": 364,
+                "cycles": 7820288,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "O_PROJ",
+                "entries": 364,
+                "cycles": 191378460,
+                "rom_reads": 0,
+                "macs": 15482880
+              },
+              {
+                "stage": "ATTN_RESIDUAL",
+                "entries": 364,
+                "cycles": 3354624,
+                "rom_reads": 47710208,
+                "macs": 763363328
+              },
+              {
+                "stage": "POST_NORM",
+                "entries": 364,
+                "cycles": 2771860,
+                "rom_reads": 0,
+                "macs": 5963776
+              },
+              {
+                "stage": "GATE_PROJ",
+                "entries": 364,
+                "cycles": 287544348,
+                "rom_reads": 396032,
+                "macs": 372736
+              },
+              {
+                "stage": "UP_PROJ",
+                "entries": 364,
+                "cycles": 287544348,
+                "rom_reads": 71565312,
+                "macs": 1145044992
+              },
+              {
+                "stage": "SILU",
+                "entries": 364,
+                "cycles": 8945664,
+                "rom_reads": 71565312,
+                "macs": 1145044992
+              },
+              {
+                "stage": "DOWN_PROJ",
+                "entries": 364,
+                "cycles": 286845468,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "MLP_RESIDUAL",
+                "entries": 364,
+                "cycles": 3354624,
+                "rom_reads": 71565312,
+                "macs": 1145044992
+              },
+              {
+                "stage": "NEXT_LAYER",
+                "entries": 351,
+                "cycles": 351,
+                "rom_reads": 0,
+                "macs": 5750784
+              },
+              {
+                "stage": "FINAL_NORM",
+                "entries": 13,
+                "cycles": 98995,
+                "rom_reads": 0,
+                "macs": 212992
+              },
+              {
+                "stage": "LM_HEAD",
+                "entries": 13,
+                "cycles": 128389352,
+                "rom_reads": 14144,
+                "macs": 13312
+              },
+              {
+                "stage": "ARGMAX",
+                "entries": 13,
+                "cycles": 13,
+                "rom_reads": 126410752,
+                "macs": 2022572032
+              },
+              {
+                "stage": "DONE",
+                "entries": 13,
+                "cycles": 26,
+                "rom_reads": 0,
+                "macs": 0
+              }
+            ]
+          }
+        },
+        {
+          "backend": "lpu_hbm",
+          "label": "LPU (HBM latency)",
+          "passed": true,
+          "mismatch_count": 0,
+          "error": null,
+          "cycles": 2737973935,
+          "macs": 7924315136,
+          "rom_reads": 495120704,
+          "sram_reads": 43387200,
+          "sram_writes": 6328192,
+          "stalls": 0,
+          "argmax": 26194,
+          "memory": "hbm",
+          "ext_mem_lat": 40,
+          "hbm_weight_bytes": 15843862528,
+          "ondie_weight_reads": 43387200,
+          "work_dir": "/Users/saurabhkarn/trocr-asic/evidence/runs/hw_13tok_lpu_hbm",
+          "store_bytes_per_cycle": 5.786710503509596,
+          "hbm_utilization": 0.0008636881348521785,
+          "energy": {
+            "memory": "hbm",
+            "weight_energy_j": 0.443628150784,
+            "sram_energy_j": 0.00111071232,
+            "mac_energy_j": 0.0035659418112000004,
+            "total_energy_j": 0.4483048049152,
+            "weight_pj_per_bit": 3.5,
+            "constants": {
+              "rom_pj_per_bit": 0.08,
+              "sram_pj_per_bit": 0.1,
+              "hbm_pj_per_bit": 3.5,
+              "mac_pj_per_op": 0.45
+            },
+            "provenance": "lab/scale_1t.py N4 constants (rom 0.08 / sram 0.10 / hbm 3.5 pJ/bit, mac 0.45 pJ/op); counters from rtl_meta (measured)"
+          },
+          "stage_breakdown": {
+            "total_cycles": 2737973935,
+            "stages": [
+              {
+                "stage": "IDLE",
+                "entries": 14,
+                "cycles": 26,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "EMBED",
+                "entries": 13,
+                "cycles": 599040,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "INPUT_NORM",
+                "entries": 364,
+                "cycles": 18613140,
+                "rom_reads": 13312,
+                "macs": 0
+              },
+              {
+                "stage": "Q_PROJ",
+                "entries": 364,
+                "cycles": 96322772,
+                "rom_reads": 396032,
+                "macs": 372736
+              },
+              {
+                "stage": "K_PROJ",
+                "entries": 364,
+                "cycles": 48216532,
+                "rom_reads": 47710208,
+                "macs": 763363328
+              },
+              {
+                "stage": "V_PROJ",
+                "entries": 364,
+                "cycles": 1121562624,
+                "rom_reads": 23855104,
+                "macs": 381681664
+              },
+              {
+                "stage": "Q_NORM",
+                "entries": 364,
+                "cycles": 314589184,
+                "rom_reads": 23855104,
+                "macs": 381681664
+              },
+              {
+                "stage": "K_NORM",
+                "entries": 364,
+                "cycles": 157294592,
+                "rom_reads": 6709248,
+                "macs": 95420416
+              },
+              {
+                "stage": "ROPE",
+                "entries": 364,
+                "cycles": 8945664,
+                "rom_reads": 3354624,
+                "macs": 47710208
+              },
+              {
+                "stage": "ATTN_SCORE",
+                "entries": 364,
+                "cycles": 2649920,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "SOFTMAX",
+                "entries": 364,
+                "cycles": 570752,
+                "rom_reads": 0,
+                "macs": 5218304
+              },
+              {
+                "stage": "ATTN_VALUE",
+                "entries": 364,
+                "cycles": 7820288,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "O_PROJ",
+                "entries": 364,
+                "cycles": 95973332,
+                "rom_reads": 0,
+                "macs": 15482880
+              },
+              {
+                "stage": "ATTN_RESIDUAL",
+                "entries": 364,
+                "cycles": 3354624,
+                "rom_reads": 47710208,
+                "macs": 763363328
+              },
+              {
+                "stage": "POST_NORM",
+                "entries": 364,
+                "cycles": 18613140,
+                "rom_reads": 0,
+                "macs": 5963776
+              },
+              {
+                "stage": "GATE_PROJ",
+                "entries": 364,
+                "cycles": 144429012,
+                "rom_reads": 396032,
+                "macs": 372736
+              },
+              {
+                "stage": "UP_PROJ",
+                "entries": 364,
+                "cycles": 144429012,
+                "rom_reads": 71565312,
+                "macs": 1145044992
+              },
+              {
+                "stage": "SILU",
+                "entries": 364,
+                "cycles": 8945664,
+                "rom_reads": 71565312,
+                "macs": 1145044992
+              },
+              {
+                "stage": "DOWN_PROJ",
+                "entries": 364,
+                "cycles": 143730132,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "MLP_RESIDUAL",
+                "entries": 364,
+                "cycles": 3354624,
+                "rom_reads": 71565312,
+                "macs": 1145044992
+              },
+              {
+                "stage": "NEXT_LAYER",
+                "entries": 351,
+                "cycles": 351,
+                "rom_reads": 0,
+                "macs": 5750784
+              },
+              {
+                "stage": "FINAL_NORM",
+                "entries": 13,
+                "cycles": 664755,
+                "rom_reads": 0,
+                "macs": 212992
+              },
+              {
+                "stage": "LM_HEAD",
+                "entries": 13,
+                "cycles": 397294716,
+                "rom_reads": 14144,
+                "macs": 13312
+              },
+              {
+                "stage": "ARGMAX",
+                "entries": 13,
+                "cycles": 13,
+                "rom_reads": 126410752,
+                "macs": 2022572032
+              },
+              {
+                "stage": "DONE",
+                "entries": 13,
+                "cycles": 26,
+                "rom_reads": 0,
+                "macs": 0
+              }
+            ]
+          }
+        },
+        {
+          "backend": "mask_rom",
+          "label": "Mask-ROM chip (unfused controller)",
+          "passed": true,
+          "mismatch_count": 0,
+          "error": null,
+          "cycles": 3843659360,
+          "macs": 8700551168,
+          "rom_reads": 543635456,
+          "sram_reads": 552073664,
+          "sram_writes": 10172032,
+          "stalls": 0,
+          "argmax": 26194,
+          "memory": "rom",
+          "ext_mem_lat": 0,
+          "hbm_weight_bytes": 17396334592,
+          "ondie_weight_reads": 552073664,
+          "work_dir": "/Users/saurabhkarn/trocr-asic/evidence/runs/hw_13tok_mask_rom",
+          "store_bytes_per_cycle": 4.525982394027758,
+          "hbm_utilization": 0.0006755197603026504,
+          "energy": {
+            "memory": "rom",
+            "weight_energy_j": 0.011133654138880001,
+            "sram_energy_j": 0.0141330857984,
+            "mac_energy_j": 0.0039152480256,
+            "total_energy_j": 0.02918198796288,
+            "weight_pj_per_bit": 0.08,
+            "constants": {
+              "rom_pj_per_bit": 0.08,
+              "sram_pj_per_bit": 0.1,
+              "hbm_pj_per_bit": 3.5,
+              "mac_pj_per_op": 0.45
+            },
+            "provenance": "lab/scale_1t.py N4 constants (rom 0.08 / sram 0.10 / hbm 3.5 pJ/bit, mac 0.45 pJ/op); counters from rtl_meta (measured)"
+          },
+          "stage_breakdown": {
+            "total_cycles": 3843659360,
+            "stages": [
+              {
+                "stage": "IDLE",
+                "entries": 14,
+                "cycles": 26,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "EMBED",
+                "entries": 13,
+                "cycles": 66560,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "INPUT_NORM",
+                "entries": 364,
+                "cycles": 169222144,
+                "rom_reads": 13312,
+                "macs": 0
+              },
+              {
+                "stage": "Q_PROJ",
+                "entries": 364,
+                "cycles": 334716928,
+                "rom_reads": 24227840,
+                "macs": 381681664
+              },
+              {
+                "stage": "K_PROJ",
+                "entries": 364,
+                "cycles": 167358464,
+                "rom_reads": 47710208,
+                "macs": 763363328
+              },
+              {
+                "stage": "V_PROJ",
+                "entries": 364,
+                "cycles": 167358464,
+                "rom_reads": 23855104,
+                "macs": 381681664
+              },
+              {
+                "stage": "Q_NORM",
+                "entries": 364,
+                "cycles": 46219264,
+                "rom_reads": 23855104,
+                "macs": 381681664
+              },
+              {
+                "stage": "K_NORM",
+                "entries": 364,
+                "cycles": 23109632,
+                "rom_reads": 6709248,
+                "macs": 95420416
+              },
+              {
+                "stage": "ROPE",
+                "entries": 364,
+                "cycles": 8945664,
+                "rom_reads": 3354624,
+                "macs": 47710208
+              },
+              {
+                "stage": "ATTN_SCORE",
+                "entries": 364,
+                "cycles": 2649920,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "SOFTMAX",
+                "entries": 364,
+                "cycles": 570752,
+                "rom_reads": 0,
+                "macs": 5218304
+              },
+              {
+                "stage": "ATTN_VALUE",
+                "entries": 364,
+                "cycles": 7820288,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "O_PROJ",
+                "entries": 364,
+                "cycles": 334344192,
+                "rom_reads": 0,
+                "macs": 15482880
+              },
+              {
+                "stage": "ATTN_RESIDUAL",
+                "entries": 364,
+                "cycles": 3354624,
+                "rom_reads": 47710208,
+                "macs": 763363328
+              },
+              {
+                "stage": "POST_NORM",
+                "entries": 364,
+                "cycles": 169222144,
+                "rom_reads": 0,
+                "macs": 5963776
+              },
+              {
+                "stage": "GATE_PROJ",
+                "entries": 364,
+                "cycles": 502075392,
+                "rom_reads": 24227840,
+                "macs": 381681664
+              },
+              {
+                "stage": "UP_PROJ",
+                "entries": 364,
+                "cycles": 502075392,
+                "rom_reads": 71565312,
+                "macs": 1145044992
+              },
+              {
+                "stage": "SILU",
+                "entries": 364,
+                "cycles": 8945664,
+                "rom_reads": 71565312,
+                "macs": 1145044992
+              },
+              {
+                "stage": "DOWN_PROJ",
+                "entries": 364,
+                "cycles": 501329920,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "MLP_RESIDUAL",
+                "entries": 364,
+                "cycles": 3354624,
+                "rom_reads": 71565312,
+                "macs": 1145044992
+              },
+              {
+                "stage": "NEXT_LAYER",
+                "entries": 351,
+                "cycles": 351,
+                "rom_reads": 0,
+                "macs": 5750784
+              },
+              {
+                "stage": "FINAL_NORM",
+                "entries": 13,
+                "cycles": 6043648,
+                "rom_reads": 0,
+                "macs": 212992
+              },
+              {
+                "stage": "LM_HEAD",
+                "entries": 13,
+                "cycles": 884875264,
+                "rom_reads": 865280,
+                "macs": 13631488
+              },
+              {
+                "stage": "ARGMAX",
+                "entries": 13,
+                "cycles": 13,
+                "rom_reads": 126410752,
+                "macs": 2022572032
+              },
+              {
+                "stage": "DONE",
+                "entries": 13,
+                "cycles": 26,
+                "rom_reads": 0,
+                "macs": 0
+              }
+            ]
+          }
+        },
+        {
+          "backend": "mask_rom_fused",
+          "label": "Mask-ROM chip (fused 2D schedule)",
+          "passed": true,
+          "mismatch_count": 0,
+          "error": null,
+          "cycles": 745190883,
+          "macs": 7924315136,
+          "rom_reads": 495120704,
+          "sram_reads": 43387200,
+          "sram_writes": 6328192,
+          "stalls": 0,
+          "argmax": 26194,
+          "memory": "rom",
+          "ext_mem_lat": 0,
+          "hbm_weight_bytes": 15843862528,
+          "ondie_weight_reads": 43387200,
+          "work_dir": "/Users/saurabhkarn/trocr-asic/evidence/runs/hw_13tok_mask_rom_fused",
+          "store_bytes_per_cycle": 21.261481976558212,
+          "hbm_utilization": 0.0031733555188892854,
+          "energy": {
+            "memory": "rom",
+            "weight_energy_j": 0.01014007201792,
+            "sram_energy_j": 0.00111071232,
+            "mac_energy_j": 0.0035659418112000004,
+            "total_energy_j": 0.014816726149120002,
+            "weight_pj_per_bit": 0.08,
+            "constants": {
+              "rom_pj_per_bit": 0.08,
+              "sram_pj_per_bit": 0.1,
+              "hbm_pj_per_bit": 3.5,
+              "mac_pj_per_op": 0.45
+            },
+            "provenance": "lab/scale_1t.py N4 constants (rom 0.08 / sram 0.10 / hbm 3.5 pJ/bit, mac 0.45 pJ/op); counters from rtl_meta (measured)"
+          },
+          "stage_breakdown": {
+            "total_cycles": 745190883,
+            "stages": [
+              {
+                "stage": "IDLE",
+                "entries": 14,
+                "cycles": 26,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "EMBED",
+                "entries": 13,
+                "cycles": 66560,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "INPUT_NORM",
+                "entries": 364,
+                "cycles": 2771860,
+                "rom_reads": 13312,
+                "macs": 0
+              },
+              {
+                "stage": "Q_PROJ",
+                "entries": 364,
+                "cycles": 48551776,
+                "rom_reads": 396032,
+                "macs": 372736
+              },
+              {
+                "stage": "K_PROJ",
+                "entries": 364,
+                "cycles": 24300640,
+                "rom_reads": 47710208,
+                "macs": 763363328
+              },
+              {
+                "stage": "V_PROJ",
+                "entries": 364,
+                "cycles": 167358464,
+                "rom_reads": 23855104,
+                "macs": 381681664
+              },
+              {
+                "stage": "Q_NORM",
+                "entries": 364,
+                "cycles": 46219264,
+                "rom_reads": 23855104,
+                "macs": 381681664
+              },
+              {
+                "stage": "K_NORM",
+                "entries": 364,
+                "cycles": 23109632,
+                "rom_reads": 6709248,
+                "macs": 95420416
+              },
+              {
+                "stage": "ROPE",
+                "entries": 364,
+                "cycles": 8945664,
+                "rom_reads": 3354624,
+                "macs": 47710208
+              },
+              {
+                "stage": "ATTN_SCORE",
+                "entries": 364,
+                "cycles": 2649920,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "SOFTMAX",
+                "entries": 364,
+                "cycles": 570752,
+                "rom_reads": 0,
+                "macs": 5218304
+              },
+              {
+                "stage": "ATTN_VALUE",
+                "entries": 364,
+                "cycles": 7820288,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "O_PROJ",
+                "entries": 364,
+                "cycles": 48202336,
+                "rom_reads": 0,
+                "macs": 15482880
+              },
+              {
+                "stage": "ATTN_RESIDUAL",
+                "entries": 364,
+                "cycles": 3354624,
+                "rom_reads": 47710208,
+                "macs": 763363328
+              },
+              {
+                "stage": "POST_NORM",
+                "entries": 364,
+                "cycles": 2771860,
+                "rom_reads": 0,
+                "macs": 5963776
+              },
+              {
+                "stage": "GATE_PROJ",
+                "entries": 364,
+                "cycles": 72802912,
+                "rom_reads": 396032,
+                "macs": 372736
+              },
+              {
+                "stage": "UP_PROJ",
+                "entries": 364,
+                "cycles": 72802912,
+                "rom_reads": 71565312,
+                "macs": 1145044992
+              },
+              {
+                "stage": "SILU",
+                "entries": 364,
+                "cycles": 8945664,
+                "rom_reads": 71565312,
+                "macs": 1145044992
+              },
+              {
+                "stage": "DOWN_PROJ",
+                "entries": 364,
+                "cycles": 72104032,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "MLP_RESIDUAL",
+                "entries": 364,
+                "cycles": 3354624,
+                "rom_reads": 71565312,
+                "macs": 1145044992
+              },
+              {
+                "stage": "NEXT_LAYER",
+                "entries": 351,
+                "cycles": 351,
+                "rom_reads": 0,
+                "macs": 5750784
+              },
+              {
+                "stage": "FINAL_NORM",
+                "entries": 13,
+                "cycles": 98995,
+                "rom_reads": 0,
+                "macs": 212992
+              },
+              {
+                "stage": "LM_HEAD",
+                "entries": 13,
+                "cycles": 128387688,
+                "rom_reads": 14144,
+                "macs": 13312
+              },
+              {
+                "stage": "ARGMAX",
+                "entries": 13,
+                "cycles": 13,
+                "rom_reads": 126410752,
+                "macs": 2022572032
+              },
+              {
+                "stage": "DONE",
+                "entries": 13,
+                "cycles": 26,
+                "rom_reads": 0,
+                "macs": 0
+              }
+            ]
+          }
+        },
+        {
+          "backend": "tpu",
+          "label": "TPU MXU (weight-stationary tile engine)",
+          "passed": true,
+          "mismatch_count": 0,
+          "error": null,
+          "cycles": 1217717028,
+          "macs": 7924315136,
+          "rom_reads": 495120704,
+          "sram_reads": 43387200,
+          "sram_writes": 6328192,
+          "stalls": 0,
+          "argmax": 26194,
+          "memory": "rom",
+          "ext_mem_lat": 0,
+          "hbm_weight_bytes": 15843862528,
+          "ondie_weight_reads": 43387200,
+          "work_dir": "/Users/saurabhkarn/trocr-asic/evidence/runs/hw_13tok_tpu",
+          "store_bytes_per_cycle": 13.011120123713996,
+          "hbm_utilization": 0.0019419582274199994,
+          "energy": {
+            "memory": "rom",
+            "weight_energy_j": 0.01014007201792,
+            "sram_energy_j": 0.00111071232,
+            "mac_energy_j": 0.0035659418112000004,
+            "total_energy_j": 0.014816726149120002,
+            "weight_pj_per_bit": 0.08,
+            "constants": {
+              "rom_pj_per_bit": 0.08,
+              "sram_pj_per_bit": 0.1,
+              "hbm_pj_per_bit": 3.5,
+              "mac_pj_per_op": 0.45
+            },
+            "provenance": "lab/scale_1t.py N4 constants (rom 0.08 / sram 0.10 / hbm 3.5 pJ/bit, mac 0.45 pJ/op); counters from rtl_meta (measured)"
+          },
+          "stage_breakdown": {
+            "total_cycles": 1217717028,
+            "stages": [
+              {
+                "stage": "IDLE",
+                "entries": 14,
+                "cycles": 26,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "EMBED",
+                "entries": 13,
+                "cycles": 66560,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "INPUT_NORM",
+                "entries": 364,
+                "cycles": 2771860,
+                "rom_reads": 13312,
+                "macs": 0
+              },
+              {
+                "stage": "Q_PROJ",
+                "entries": 364,
+                "cycles": 97751836,
+                "rom_reads": 396032,
+                "macs": 372736
+              },
+              {
+                "stage": "K_PROJ",
+                "entries": 364,
+                "cycles": 48900124,
+                "rom_reads": 47710208,
+                "macs": 763363328
+              },
+              {
+                "stage": "V_PROJ",
+                "entries": 364,
+                "cycles": 167358464,
+                "rom_reads": 23855104,
+                "macs": 381681664
+              },
+              {
+                "stage": "Q_NORM",
+                "entries": 364,
+                "cycles": 46219264,
+                "rom_reads": 23855104,
+                "macs": 381681664
+              },
+              {
+                "stage": "K_NORM",
+                "entries": 364,
+                "cycles": 23109632,
+                "rom_reads": 6709248,
+                "macs": 95420416
+              },
+              {
+                "stage": "ROPE",
+                "entries": 364,
+                "cycles": 8945664,
+                "rom_reads": 3354624,
+                "macs": 47710208
+              },
+              {
+                "stage": "ATTN_SCORE",
+                "entries": 364,
+                "cycles": 2649920,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "SOFTMAX",
+                "entries": 364,
+                "cycles": 570752,
+                "rom_reads": 0,
+                "macs": 5218304
+              },
+              {
+                "stage": "ATTN_VALUE",
+                "entries": 364,
+                "cycles": 7820288,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "O_PROJ",
+                "entries": 364,
+                "cycles": 96656924,
+                "rom_reads": 0,
+                "macs": 15482880
+              },
+              {
+                "stage": "ATTN_RESIDUAL",
+                "entries": 364,
+                "cycles": 3354624,
+                "rom_reads": 47710208,
+                "macs": 763363328
+              },
+              {
+                "stage": "POST_NORM",
+                "entries": 364,
+                "cycles": 2771860,
+                "rom_reads": 0,
+                "macs": 5963776
+              },
+              {
+                "stage": "GATE_PROJ",
+                "entries": 364,
+                "cycles": 146603548,
+                "rom_reads": 396032,
+                "macs": 372736
+              },
+              {
+                "stage": "UP_PROJ",
+                "entries": 364,
+                "cycles": 146603548,
+                "rom_reads": 71565312,
+                "macs": 1145044992
+              },
+              {
+                "stage": "SILU",
+                "entries": 364,
+                "cycles": 8945664,
+                "rom_reads": 71565312,
+                "macs": 1145044992
+              },
+              {
+                "stage": "DOWN_PROJ",
+                "entries": 364,
+                "cycles": 144413724,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "MLP_RESIDUAL",
+                "entries": 364,
+                "cycles": 3354624,
+                "rom_reads": 71565312,
+                "macs": 1145044992
+              },
+              {
+                "stage": "NEXT_LAYER",
+                "entries": 351,
+                "cycles": 351,
+                "rom_reads": 0,
+                "macs": 5750784
+              },
+              {
+                "stage": "FINAL_NORM",
+                "entries": 13,
+                "cycles": 98995,
+                "rom_reads": 0,
+                "macs": 212992
+              },
+              {
+                "stage": "LM_HEAD",
+                "entries": 13,
+                "cycles": 258748737,
+                "rom_reads": 14144,
+                "macs": 13312
+              },
+              {
+                "stage": "ARGMAX",
+                "entries": 13,
+                "cycles": 13,
+                "rom_reads": 126410752,
+                "macs": 2022572032
+              },
+              {
+                "stage": "DONE",
+                "entries": 13,
+                "cycles": 26,
+                "rom_reads": 0,
+                "macs": 0
+              }
+            ]
+          }
+        },
+        {
+          "backend": "tpu_hbm",
+          "label": "TPU MXU (HBM latency)",
+          "passed": true,
+          "mismatch_count": 0,
+          "error": null,
+          "cycles": 2850267428,
+          "macs": 7924315136,
+          "rom_reads": 495120704,
+          "sram_reads": 43387200,
+          "sram_writes": 6328192,
+          "stalls": 0,
+          "argmax": 26194,
+          "memory": "hbm",
+          "ext_mem_lat": 40,
+          "hbm_weight_bytes": 15843862528,
+          "ondie_weight_reads": 43387200,
+          "work_dir": "/Users/saurabhkarn/trocr-asic/evidence/runs/hw_13tok_tpu_hbm",
+          "store_bytes_per_cycle": 5.558728409957467,
+          "hbm_utilization": 0.0008296609567100697,
+          "energy": {
+            "memory": "hbm",
+            "weight_energy_j": 0.443628150784,
+            "sram_energy_j": 0.00111071232,
+            "mac_energy_j": 0.0035659418112000004,
+            "total_energy_j": 0.4483048049152,
+            "weight_pj_per_bit": 3.5,
+            "constants": {
+              "rom_pj_per_bit": 0.08,
+              "sram_pj_per_bit": 0.1,
+              "hbm_pj_per_bit": 3.5,
+              "mac_pj_per_op": 0.45
+            },
+            "provenance": "lab/scale_1t.py N4 constants (rom 0.08 / sram 0.10 / hbm 3.5 pJ/bit, mac 0.45 pJ/op); counters from rtl_meta (measured)"
+          },
+          "stage_breakdown": {
+            "total_cycles": 2850267428,
+            "stages": [
+              {
+                "stage": "IDLE",
+                "entries": 14,
+                "cycles": 26,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "EMBED",
+                "entries": 13,
+                "cycles": 599040,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "INPUT_NORM",
+                "entries": 364,
+                "cycles": 18613140,
+                "rom_reads": 13312,
+                "macs": 0
+              },
+              {
+                "stage": "Q_PROJ",
+                "entries": 364,
+                "cycles": 127570716,
+                "rom_reads": 396032,
+                "macs": 372736
+              },
+              {
+                "stage": "K_PROJ",
+                "entries": 364,
+                "cycles": 63809564,
+                "rom_reads": 47710208,
+                "macs": 763363328
+              },
+              {
+                "stage": "V_PROJ",
+                "entries": 364,
+                "cycles": 1121562624,
+                "rom_reads": 23855104,
+                "macs": 381681664
+              },
+              {
+                "stage": "Q_NORM",
+                "entries": 364,
+                "cycles": 314589184,
+                "rom_reads": 23855104,
+                "macs": 381681664
+              },
+              {
+                "stage": "K_NORM",
+                "entries": 364,
+                "cycles": 157294592,
+                "rom_reads": 6709248,
+                "macs": 95420416
+              },
+              {
+                "stage": "ROPE",
+                "entries": 364,
+                "cycles": 8945664,
+                "rom_reads": 3354624,
+                "macs": 47710208
+              },
+              {
+                "stage": "ATTN_SCORE",
+                "entries": 364,
+                "cycles": 2649920,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "SOFTMAX",
+                "entries": 364,
+                "cycles": 570752,
+                "rom_reads": 0,
+                "macs": 5218304
+              },
+              {
+                "stage": "ATTN_VALUE",
+                "entries": 364,
+                "cycles": 7820288,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "O_PROJ",
+                "entries": 364,
+                "cycles": 111566364,
+                "rom_reads": 0,
+                "macs": 15482880
+              },
+              {
+                "stage": "ATTN_RESIDUAL",
+                "entries": 364,
+                "cycles": 3354624,
+                "rom_reads": 47710208,
+                "macs": 763363328
+              },
+              {
+                "stage": "POST_NORM",
+                "entries": 364,
+                "cycles": 18613140,
+                "rom_reads": 0,
+                "macs": 5963776
+              },
+              {
+                "stage": "GATE_PROJ",
+                "entries": 364,
+                "cycles": 191331868,
+                "rom_reads": 396032,
+                "macs": 372736
+              },
+              {
+                "stage": "UP_PROJ",
+                "entries": 364,
+                "cycles": 191331868,
+                "rom_reads": 71565312,
+                "macs": 1145044992
+              },
+              {
+                "stage": "SILU",
+                "entries": 364,
+                "cycles": 8945664,
+                "rom_reads": 71565312,
+                "macs": 1145044992
+              },
+              {
+                "stage": "DOWN_PROJ",
+                "entries": 364,
+                "cycles": 159323164,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "MLP_RESIDUAL",
+                "entries": 364,
+                "cycles": 3354624,
+                "rom_reads": 71565312,
+                "macs": 1145044992
+              },
+              {
+                "stage": "NEXT_LAYER",
+                "entries": 351,
+                "cycles": 351,
+                "rom_reads": 0,
+                "macs": 5750784
+              },
+              {
+                "stage": "FINAL_NORM",
+                "entries": 13,
+                "cycles": 664755,
+                "rom_reads": 0,
+                "macs": 212992
+              },
+              {
+                "stage": "LM_HEAD",
+                "entries": 13,
+                "cycles": 337755457,
+                "rom_reads": 14144,
+                "macs": 13312
+              },
+              {
+                "stage": "ARGMAX",
+                "entries": 13,
+                "cycles": 13,
+                "rom_reads": 126410752,
+                "macs": 2022572032
+              },
+              {
+                "stage": "DONE",
+                "entries": 13,
+                "cycles": 26,
+                "rom_reads": 0,
+                "macs": 0
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "run_key": "hw_1tok",
+      "token_count": 1,
+      "tier": "T4",
+      "oracle_argmax": 15846,
+      "same_compute": true,
+      "engine_macs": 608945152,
+      "mask_rom_extra_macs": 59710464,
+      "backends": [
+        {
+          "backend": "gpu",
+          "label": "GPU tile (fused streaming GEMM)",
+          "passed": true,
+          "mismatch_count": 0,
+          "error": null,
+          "cycles": 57024559,
+          "macs": 608945152,
+          "rom_reads": 38086208,
+          "sram_reads": 3269312,
+          "sram_writes": 481408,
+          "stalls": 0,
+          "argmax": 15846,
+          "memory": "rom",
+          "ext_mem_lat": 0,
+          "hbm_weight_bytes": 1218758656,
+          "ondie_weight_reads": 3269312,
+          "work_dir": "/Users/saurabhkarn/trocr-asic/evidence/runs/hw_1tok_gpu",
+          "store_bytes_per_cycle": 21.37252224958022,
+          "hbm_utilization": 0.0031899286939671974,
+          "energy": {
+            "memory": "rom",
+            "weight_energy_j": 0.00078000553984,
+            "sram_energy_j": 8.36943872e-05,
+            "mac_energy_j": 0.00027402531840000006,
+            "total_energy_j": 0.00113772524544,
+            "weight_pj_per_bit": 0.08,
+            "constants": {
+              "rom_pj_per_bit": 0.08,
+              "sram_pj_per_bit": 0.1,
+              "hbm_pj_per_bit": 3.5,
+              "mac_pj_per_op": 0.45
+            },
+            "provenance": "lab/scale_1t.py N4 constants (rom 0.08 / sram 0.10 / hbm 3.5 pJ/bit, mac 0.45 pJ/op); counters from rtl_meta (measured)"
+          },
+          "stage_breakdown": {
+            "total_cycles": 57024559,
+            "stages": [
+              {
+                "stage": "IDLE",
+                "entries": 2,
+                "cycles": 2,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "EMBED",
+                "entries": 1,
+                "cycles": 5120,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "INPUT_NORM",
+                "entries": 28,
+                "cycles": 213220,
+                "rom_reads": 1024,
+                "macs": 0
+              },
+              {
+                "stage": "Q_PROJ",
+                "entries": 28,
+                "cycles": 3734752,
+                "rom_reads": 30464,
+                "macs": 28672
+              },
+              {
+                "stage": "K_PROJ",
+                "entries": 28,
+                "cycles": 1869280,
+                "rom_reads": 3670016,
+                "macs": 58720256
+              },
+              {
+                "stage": "V_PROJ",
+                "entries": 28,
+                "cycles": 12873728,
+                "rom_reads": 1835008,
+                "macs": 29360128
+              },
+              {
+                "stage": "Q_NORM",
+                "entries": 28,
+                "cycles": 3555328,
+                "rom_reads": 1835008,
+                "macs": 29360128
+              },
+              {
+                "stage": "K_NORM",
+                "entries": 28,
+                "cycles": 1777664,
+                "rom_reads": 516096,
+                "macs": 7340032
+              },
+              {
+                "stage": "ROPE",
+                "entries": 28,
+                "cycles": 688128,
+                "rom_reads": 258048,
+                "macs": 3670016
+              },
+              {
+                "stage": "ATTN_SCORE",
+                "entries": 28,
+                "cycles": 29120,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "SOFTMAX",
+                "entries": 28,
+                "cycles": 6272,
+                "rom_reads": 0,
+                "macs": 57344
+              },
+              {
+                "stage": "ATTN_VALUE",
+                "entries": 28,
+                "cycles": 516096,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "O_PROJ",
+                "entries": 28,
+                "cycles": 3707872,
+                "rom_reads": 0,
+                "macs": 917504
+              },
+              {
+                "stage": "ATTN_RESIDUAL",
+                "entries": 28,
+                "cycles": 258048,
+                "rom_reads": 3670016,
+                "macs": 58720256
+              },
+              {
+                "stage": "POST_NORM",
+                "entries": 28,
+                "cycles": 213220,
+                "rom_reads": 0,
+                "macs": 458752
+              },
+              {
+                "stage": "GATE_PROJ",
+                "entries": 28,
+                "cycles": 5600224,
+                "rom_reads": 30464,
+                "macs": 28672
+              },
+              {
+                "stage": "UP_PROJ",
+                "entries": 28,
+                "cycles": 5600224,
+                "rom_reads": 5505024,
+                "macs": 88080384
+              },
+              {
+                "stage": "SILU",
+                "entries": 28,
+                "cycles": 688128,
+                "rom_reads": 5505024,
+                "macs": 88080384
+              },
+              {
+                "stage": "DOWN_PROJ",
+                "entries": 28,
+                "cycles": 5546464,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "MLP_RESIDUAL",
+                "entries": 28,
+                "cycles": 258048,
+                "rom_reads": 5505024,
+                "macs": 88080384
+              },
+              {
+                "stage": "NEXT_LAYER",
+                "entries": 27,
+                "cycles": 27,
+                "rom_reads": 0,
+                "macs": 442368
+              },
+              {
+                "stage": "FINAL_NORM",
+                "entries": 1,
+                "cycles": 7615,
+                "rom_reads": 0,
+                "macs": 16384
+              },
+              {
+                "stage": "LM_HEAD",
+                "entries": 1,
+                "cycles": 9875976,
+                "rom_reads": 1088,
+                "macs": 1024
+              },
+              {
+                "stage": "ARGMAX",
+                "entries": 1,
+                "cycles": 1,
+                "rom_reads": 9723904,
+                "macs": 155582464
+              },
+              {
+                "stage": "DONE",
+                "entries": 1,
+                "cycles": 2,
+                "rom_reads": 0,
+                "macs": 0
+              }
+            ]
+          }
+        },
+        {
+          "backend": "gpu_hbm",
+          "label": "GPU tile (HBM latency)",
+          "passed": true,
+          "mismatch_count": 0,
+          "error": null,
+          "cycles": 239337547,
+          "macs": 608945152,
+          "rom_reads": 38086208,
+          "sram_reads": 3269312,
+          "sram_writes": 481408,
+          "stalls": 0,
+          "argmax": 15846,
+          "memory": "hbm",
+          "ext_mem_lat": 40,
+          "hbm_weight_bytes": 1218758656,
+          "ondie_weight_reads": 3269312,
+          "work_dir": "/Users/saurabhkarn/trocr-asic/evidence/runs/hw_1tok_gpu_hbm",
+          "store_bytes_per_cycle": 5.092216709315568,
+          "hbm_utilization": 0.0007600323446739654,
+          "energy": {
+            "memory": "hbm",
+            "weight_energy_j": 0.034125242368,
+            "sram_energy_j": 8.36943872e-05,
+            "mac_energy_j": 0.00027402531840000006,
+            "total_energy_j": 0.0344829620736,
+            "weight_pj_per_bit": 3.5,
+            "constants": {
+              "rom_pj_per_bit": 0.08,
+              "sram_pj_per_bit": 0.1,
+              "hbm_pj_per_bit": 3.5,
+              "mac_pj_per_op": 0.45
+            },
+            "provenance": "lab/scale_1t.py N4 constants (rom 0.08 / sram 0.10 / hbm 3.5 pJ/bit, mac 0.45 pJ/op); counters from rtl_meta (measured)"
+          },
+          "stage_breakdown": {
+            "total_cycles": 239337547,
+            "stages": [
+              {
+                "stage": "IDLE",
+                "entries": 2,
+                "cycles": 2,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "EMBED",
+                "entries": 1,
+                "cycles": 46080,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "INPUT_NORM",
+                "entries": 28,
+                "cycles": 1431780,
+                "rom_reads": 1024,
+                "macs": 0
+              },
+              {
+                "stage": "Q_PROJ",
+                "entries": 28,
+                "cycles": 11542664,
+                "rom_reads": 30464,
+                "macs": 28672
+              },
+              {
+                "stage": "K_PROJ",
+                "entries": 28,
+                "cycles": 5773796,
+                "rom_reads": 3670016,
+                "macs": 58720256
+              },
+              {
+                "stage": "V_PROJ",
+                "entries": 28,
+                "cycles": 86274048,
+                "rom_reads": 1835008,
+                "macs": 29360128
+              },
+              {
+                "stage": "Q_NORM",
+                "entries": 28,
+                "cycles": 24199168,
+                "rom_reads": 1835008,
+                "macs": 29360128
+              },
+              {
+                "stage": "K_NORM",
+                "entries": 28,
+                "cycles": 12099584,
+                "rom_reads": 516096,
+                "macs": 7340032
+              },
+              {
+                "stage": "ROPE",
+                "entries": 28,
+                "cycles": 688128,
+                "rom_reads": 258048,
+                "macs": 3670016
+              },
+              {
+                "stage": "ATTN_SCORE",
+                "entries": 28,
+                "cycles": 29120,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "SOFTMAX",
+                "entries": 28,
+                "cycles": 6272,
+                "rom_reads": 0,
+                "macs": 57344
+              },
+              {
+                "stage": "ATTN_VALUE",
+                "entries": 28,
+                "cycles": 516096,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "O_PROJ",
+                "entries": 28,
+                "cycles": 11544456,
+                "rom_reads": 0,
+                "macs": 917504
+              },
+              {
+                "stage": "ATTN_RESIDUAL",
+                "entries": 28,
+                "cycles": 258048,
+                "rom_reads": 3670016,
+                "macs": 58720256
+              },
+              {
+                "stage": "POST_NORM",
+                "entries": 28,
+                "cycles": 1431780,
+                "rom_reads": 0,
+                "macs": 458752
+              },
+              {
+                "stage": "GATE_PROJ",
+                "entries": 28,
+                "cycles": 17311532,
+                "rom_reads": 30464,
+                "macs": 28672
+              },
+              {
+                "stage": "UP_PROJ",
+                "entries": 28,
+                "cycles": 17311532,
+                "rom_reads": 5505024,
+                "macs": 88080384
+              },
+              {
+                "stage": "SILU",
+                "entries": 28,
+                "cycles": 688128,
+                "rom_reads": 5505024,
+                "macs": 88080384
+              },
+              {
+                "stage": "DOWN_PROJ",
+                "entries": 28,
+                "cycles": 17315116,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "MLP_RESIDUAL",
+                "entries": 28,
+                "cycles": 258048,
+                "rom_reads": 5505024,
+                "macs": 88080384
+              },
+              {
+                "stage": "NEXT_LAYER",
+                "entries": 27,
+                "cycles": 27,
+                "rom_reads": 0,
+                "macs": 442368
+              },
+              {
+                "stage": "FINAL_NORM",
+                "entries": 1,
+                "cycles": 51135,
+                "rom_reads": 0,
+                "macs": 16384
+              },
+              {
+                "stage": "LM_HEAD",
+                "entries": 1,
+                "cycles": 30561004,
+                "rom_reads": 1088,
+                "macs": 1024
+              },
+              {
+                "stage": "ARGMAX",
+                "entries": 1,
+                "cycles": 1,
+                "rom_reads": 9723904,
+                "macs": 155582464
+              },
+              {
+                "stage": "DONE",
+                "entries": 1,
+                "cycles": 2,
+                "rom_reads": 0,
+                "macs": 0
+              }
+            ]
+          }
+        },
+        {
+          "backend": "lpu",
+          "label": "LPU (weight-stationary interleaved)",
+          "passed": true,
+          "mismatch_count": 0,
+          "error": null,
+          "cycles": 82736135,
+          "macs": 608945152,
+          "rom_reads": 38086208,
+          "sram_reads": 3269312,
+          "sram_writes": 481408,
+          "stalls": 0,
+          "argmax": 15846,
+          "memory": "rom",
+          "ext_mem_lat": 0,
+          "hbm_weight_bytes": 1218758656,
+          "ondie_weight_reads": 3269312,
+          "work_dir": "/Users/saurabhkarn/trocr-asic/evidence/runs/hw_1tok_lpu",
+          "store_bytes_per_cycle": 14.730669446910953,
+          "hbm_utilization": 0.002198607380135963,
+          "energy": {
+            "memory": "rom",
+            "weight_energy_j": 0.00078000553984,
+            "sram_energy_j": 8.36943872e-05,
+            "mac_energy_j": 0.00027402531840000006,
+            "total_energy_j": 0.00113772524544,
+            "weight_pj_per_bit": 0.08,
+            "constants": {
+              "rom_pj_per_bit": 0.08,
+              "sram_pj_per_bit": 0.1,
+              "hbm_pj_per_bit": 3.5,
+              "mac_pj_per_op": 0.45
+            },
+            "provenance": "lab/scale_1t.py N4 constants (rom 0.08 / sram 0.10 / hbm 3.5 pJ/bit, mac 0.45 pJ/op); counters from rtl_meta (measured)"
+          },
+          "stage_breakdown": {
+            "total_cycles": 82736135,
+            "stages": [
+              {
+                "stage": "IDLE",
+                "entries": 2,
+                "cycles": 2,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "EMBED",
+                "entries": 1,
+                "cycles": 5120,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "INPUT_NORM",
+                "entries": 28,
+                "cycles": 213220,
+                "rom_reads": 1024,
+                "macs": 0
+              },
+              {
+                "stage": "Q_PROJ",
+                "entries": 28,
+                "cycles": 7408324,
+                "rom_reads": 30464,
+                "macs": 28672
+              },
+              {
+                "stage": "K_PROJ",
+                "entries": 28,
+                "cycles": 3707844,
+                "rom_reads": 3670016,
+                "macs": 58720256
+              },
+              {
+                "stage": "V_PROJ",
+                "entries": 28,
+                "cycles": 12873728,
+                "rom_reads": 1835008,
+                "macs": 29360128
+              },
+              {
+                "stage": "Q_NORM",
+                "entries": 28,
+                "cycles": 3555328,
+                "rom_reads": 1835008,
+                "macs": 29360128
+              },
+              {
+                "stage": "K_NORM",
+                "entries": 28,
+                "cycles": 1777664,
+                "rom_reads": 516096,
+                "macs": 7340032
+              },
+              {
+                "stage": "ROPE",
+                "entries": 28,
+                "cycles": 688128,
+                "rom_reads": 258048,
+                "macs": 3670016
+              },
+              {
+                "stage": "ATTN_SCORE",
+                "entries": 28,
+                "cycles": 29120,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "SOFTMAX",
+                "entries": 28,
+                "cycles": 6272,
+                "rom_reads": 0,
+                "macs": 57344
+              },
+              {
+                "stage": "ATTN_VALUE",
+                "entries": 28,
+                "cycles": 516096,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "O_PROJ",
+                "entries": 28,
+                "cycles": 7381444,
+                "rom_reads": 0,
+                "macs": 917504
+              },
+              {
+                "stage": "ATTN_RESIDUAL",
+                "entries": 28,
+                "cycles": 258048,
+                "rom_reads": 3670016,
+                "macs": 58720256
+              },
+              {
+                "stage": "POST_NORM",
+                "entries": 28,
+                "cycles": 213220,
+                "rom_reads": 0,
+                "macs": 458752
+              },
+              {
+                "stage": "GATE_PROJ",
+                "entries": 28,
+                "cycles": 11108804,
+                "rom_reads": 30464,
+                "macs": 28672
+              },
+              {
+                "stage": "UP_PROJ",
+                "entries": 28,
+                "cycles": 11108804,
+                "rom_reads": 5505024,
+                "macs": 88080384
+              },
+              {
+                "stage": "SILU",
+                "entries": 28,
+                "cycles": 688128,
+                "rom_reads": 5505024,
+                "macs": 88080384
+              },
+              {
+                "stage": "DOWN_PROJ",
+                "entries": 28,
+                "cycles": 11055044,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "MLP_RESIDUAL",
+                "entries": 28,
+                "cycles": 258048,
+                "rom_reads": 5505024,
+                "macs": 88080384
+              },
+              {
+                "stage": "NEXT_LAYER",
+                "entries": 27,
+                "cycles": 27,
+                "rom_reads": 0,
+                "macs": 442368
+              },
+              {
+                "stage": "FINAL_NORM",
+                "entries": 1,
+                "cycles": 7615,
+                "rom_reads": 0,
+                "macs": 16384
+              },
+              {
+                "stage": "LM_HEAD",
+                "entries": 1,
+                "cycles": 9876104,
+                "rom_reads": 1088,
+                "macs": 1024
+              },
+              {
+                "stage": "ARGMAX",
+                "entries": 1,
+                "cycles": 1,
+                "rom_reads": 9723904,
+                "macs": 155582464
+              },
+              {
+                "stage": "DONE",
+                "entries": 1,
+                "cycles": 2,
+                "rom_reads": 0,
+                "macs": 0
+              }
+            ]
+          }
+        },
+        {
+          "backend": "lpu_hbm",
+          "label": "LPU (HBM latency)",
+          "passed": true,
+          "mismatch_count": 0,
+          "error": null,
+          "cycles": 210315563,
+          "macs": 608945152,
+          "rom_reads": 38086208,
+          "sram_reads": 3269312,
+          "sram_writes": 481408,
+          "stalls": 0,
+          "argmax": 15846,
+          "memory": "hbm",
+          "ext_mem_lat": 40,
+          "hbm_weight_bytes": 1218758656,
+          "ondie_weight_reads": 3269312,
+          "work_dir": "/Users/saurabhkarn/trocr-asic/evidence/runs/hw_1tok_lpu_hbm",
+          "store_bytes_per_cycle": 5.794904754623413,
+          "hbm_utilization": 0.0008649111574064796,
+          "energy": {
+            "memory": "hbm",
+            "weight_energy_j": 0.034125242368,
+            "sram_energy_j": 8.36943872e-05,
+            "mac_energy_j": 0.00027402531840000006,
+            "total_energy_j": 0.0344829620736,
+            "weight_pj_per_bit": 3.5,
+            "constants": {
+              "rom_pj_per_bit": 0.08,
+              "sram_pj_per_bit": 0.1,
+              "hbm_pj_per_bit": 3.5,
+              "mac_pj_per_op": 0.45
+            },
+            "provenance": "lab/scale_1t.py N4 constants (rom 0.08 / sram 0.10 / hbm 3.5 pJ/bit, mac 0.45 pJ/op); counters from rtl_meta (measured)"
+          },
+          "stage_breakdown": {
+            "total_cycles": 210315563,
+            "stages": [
+              {
+                "stage": "IDLE",
+                "entries": 2,
+                "cycles": 2,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "EMBED",
+                "entries": 1,
+                "cycles": 46080,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "INPUT_NORM",
+                "entries": 28,
+                "cycles": 1431780,
+                "rom_reads": 1024,
+                "macs": 0
+              },
+              {
+                "stage": "Q_PROJ",
+                "entries": 28,
+                "cycles": 7409444,
+                "rom_reads": 30464,
+                "macs": 28672
+              },
+              {
+                "stage": "K_PROJ",
+                "entries": 28,
+                "cycles": 3708964,
+                "rom_reads": 3670016,
+                "macs": 58720256
+              },
+              {
+                "stage": "V_PROJ",
+                "entries": 28,
+                "cycles": 86274048,
+                "rom_reads": 1835008,
+                "macs": 29360128
+              },
+              {
+                "stage": "Q_NORM",
+                "entries": 28,
+                "cycles": 24199168,
+                "rom_reads": 1835008,
+                "macs": 29360128
+              },
+              {
+                "stage": "K_NORM",
+                "entries": 28,
+                "cycles": 12099584,
+                "rom_reads": 516096,
+                "macs": 7340032
+              },
+              {
+                "stage": "ROPE",
+                "entries": 28,
+                "cycles": 688128,
+                "rom_reads": 258048,
+                "macs": 3670016
+              },
+              {
+                "stage": "ATTN_SCORE",
+                "entries": 28,
+                "cycles": 29120,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "SOFTMAX",
+                "entries": 28,
+                "cycles": 6272,
+                "rom_reads": 0,
+                "macs": 57344
+              },
+              {
+                "stage": "ATTN_VALUE",
+                "entries": 28,
+                "cycles": 516096,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "O_PROJ",
+                "entries": 28,
+                "cycles": 7382564,
+                "rom_reads": 0,
+                "macs": 917504
+              },
+              {
+                "stage": "ATTN_RESIDUAL",
+                "entries": 28,
+                "cycles": 258048,
+                "rom_reads": 3670016,
+                "macs": 58720256
+              },
+              {
+                "stage": "POST_NORM",
+                "entries": 28,
+                "cycles": 1431780,
+                "rom_reads": 0,
+                "macs": 458752
+              },
+              {
+                "stage": "GATE_PROJ",
+                "entries": 28,
+                "cycles": 11109924,
+                "rom_reads": 30464,
+                "macs": 28672
+              },
+              {
+                "stage": "UP_PROJ",
+                "entries": 28,
+                "cycles": 11109924,
+                "rom_reads": 5505024,
+                "macs": 88080384
+              },
+              {
+                "stage": "SILU",
+                "entries": 28,
+                "cycles": 688128,
+                "rom_reads": 5505024,
+                "macs": 88080384
+              },
+              {
+                "stage": "DOWN_PROJ",
+                "entries": 28,
+                "cycles": 11056164,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "MLP_RESIDUAL",
+                "entries": 28,
+                "cycles": 258048,
+                "rom_reads": 5505024,
+                "macs": 88080384
+              },
+              {
+                "stage": "NEXT_LAYER",
+                "entries": 27,
+                "cycles": 27,
+                "rom_reads": 0,
+                "macs": 442368
+              },
+              {
+                "stage": "FINAL_NORM",
+                "entries": 1,
+                "cycles": 51135,
+                "rom_reads": 0,
+                "macs": 16384
+              },
+              {
+                "stage": "LM_HEAD",
+                "entries": 1,
+                "cycles": 30561132,
+                "rom_reads": 1088,
+                "macs": 1024
+              },
+              {
+                "stage": "ARGMAX",
+                "entries": 1,
+                "cycles": 1,
+                "rom_reads": 9723904,
+                "macs": 155582464
+              },
+              {
+                "stage": "DONE",
+                "entries": 1,
+                "cycles": 2,
+                "rom_reads": 0,
+                "macs": 0
+              }
+            ]
+          }
+        },
+        {
+          "backend": "mask_rom",
+          "label": "Mask-ROM chip (unfused controller)",
+          "passed": true,
+          "mismatch_count": 0,
+          "error": null,
+          "cycles": 295368288,
+          "macs": 668655616,
+          "rom_reads": 41818112,
+          "sram_reads": 42399040,
+          "sram_writes": 777088,
+          "stalls": 0,
+          "argmax": 15846,
+          "memory": "rom",
+          "ext_mem_lat": 0,
+          "hbm_weight_bytes": 1338179584,
+          "ondie_weight_reads": 42399040,
+          "work_dir": "/Users/saurabhkarn/trocr-asic/evidence/runs/hw_1tok_mask_rom",
+          "store_bytes_per_cycle": 4.5305458925908795,
+          "hbm_utilization": 0.000676200879491176,
+          "energy": {
+            "memory": "rom",
+            "weight_energy_j": 0.00085643493376,
+            "sram_energy_j": 0.001085415424,
+            "mac_energy_j": 0.0003008950272,
+            "total_energy_j": 0.00224274538496,
+            "weight_pj_per_bit": 0.08,
+            "constants": {
+              "rom_pj_per_bit": 0.08,
+              "sram_pj_per_bit": 0.1,
+              "hbm_pj_per_bit": 3.5,
+              "mac_pj_per_op": 0.45
+            },
+            "provenance": "lab/scale_1t.py N4 constants (rom 0.08 / sram 0.10 / hbm 3.5 pJ/bit, mac 0.45 pJ/op); counters from rtl_meta (measured)"
+          },
+          "stage_breakdown": {
+            "total_cycles": 295368288,
+            "stages": [
+              {
+                "stage": "IDLE",
+                "entries": 2,
+                "cycles": 2,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "EMBED",
+                "entries": 1,
+                "cycles": 5120,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "INPUT_NORM",
+                "entries": 28,
+                "cycles": 13017088,
+                "rom_reads": 1024,
+                "macs": 0
+              },
+              {
+                "stage": "Q_PROJ",
+                "entries": 28,
+                "cycles": 25747456,
+                "rom_reads": 1863680,
+                "macs": 29360128
+              },
+              {
+                "stage": "K_PROJ",
+                "entries": 28,
+                "cycles": 12873728,
+                "rom_reads": 3670016,
+                "macs": 58720256
+              },
+              {
+                "stage": "V_PROJ",
+                "entries": 28,
+                "cycles": 12873728,
+                "rom_reads": 1835008,
+                "macs": 29360128
+              },
+              {
+                "stage": "Q_NORM",
+                "entries": 28,
+                "cycles": 3555328,
+                "rom_reads": 1835008,
+                "macs": 29360128
+              },
+              {
+                "stage": "K_NORM",
+                "entries": 28,
+                "cycles": 1777664,
+                "rom_reads": 516096,
+                "macs": 7340032
+              },
+              {
+                "stage": "ROPE",
+                "entries": 28,
+                "cycles": 688128,
+                "rom_reads": 258048,
+                "macs": 3670016
+              },
+              {
+                "stage": "ATTN_SCORE",
+                "entries": 28,
+                "cycles": 29120,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "SOFTMAX",
+                "entries": 28,
+                "cycles": 6272,
+                "rom_reads": 0,
+                "macs": 57344
+              },
+              {
+                "stage": "ATTN_VALUE",
+                "entries": 28,
+                "cycles": 516096,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "O_PROJ",
+                "entries": 28,
+                "cycles": 25718784,
+                "rom_reads": 0,
+                "macs": 917504
+              },
+              {
+                "stage": "ATTN_RESIDUAL",
+                "entries": 28,
+                "cycles": 258048,
+                "rom_reads": 3670016,
+                "macs": 58720256
+              },
+              {
+                "stage": "POST_NORM",
+                "entries": 28,
+                "cycles": 13017088,
+                "rom_reads": 0,
+                "macs": 458752
+              },
+              {
+                "stage": "GATE_PROJ",
+                "entries": 28,
+                "cycles": 38621184,
+                "rom_reads": 1863680,
+                "macs": 29360128
+              },
+              {
+                "stage": "UP_PROJ",
+                "entries": 28,
+                "cycles": 38621184,
+                "rom_reads": 5505024,
+                "macs": 88080384
+              },
+              {
+                "stage": "SILU",
+                "entries": 28,
+                "cycles": 688128,
+                "rom_reads": 5505024,
+                "macs": 88080384
+              },
+              {
+                "stage": "DOWN_PROJ",
+                "entries": 28,
+                "cycles": 38563840,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "MLP_RESIDUAL",
+                "entries": 28,
+                "cycles": 258048,
+                "rom_reads": 5505024,
+                "macs": 88080384
+              },
+              {
+                "stage": "NEXT_LAYER",
+                "entries": 27,
+                "cycles": 27,
+                "rom_reads": 0,
+                "macs": 442368
+              },
+              {
+                "stage": "FINAL_NORM",
+                "entries": 1,
+                "cycles": 464896,
+                "rom_reads": 0,
+                "macs": 16384
+              },
+              {
+                "stage": "LM_HEAD",
+                "entries": 1,
+                "cycles": 68067328,
+                "rom_reads": 66560,
+                "macs": 1048576
+              },
+              {
+                "stage": "ARGMAX",
+                "entries": 1,
+                "cycles": 1,
+                "rom_reads": 9723904,
+                "macs": 155582464
+              },
+              {
+                "stage": "DONE",
+                "entries": 1,
+                "cycles": 2,
+                "rom_reads": 0,
+                "macs": 0
+              }
+            ]
+          }
+        },
+        {
+          "backend": "mask_rom_fused",
+          "label": "Mask-ROM chip (fused 2D schedule)",
+          "passed": true,
+          "mismatch_count": 0,
+          "error": null,
+          "cycles": 57024559,
+          "macs": 608945152,
+          "rom_reads": 38086208,
+          "sram_reads": 3269312,
+          "sram_writes": 481408,
+          "stalls": 0,
+          "argmax": 15846,
+          "memory": "rom",
+          "ext_mem_lat": 0,
+          "hbm_weight_bytes": 1218758656,
+          "ondie_weight_reads": 3269312,
+          "work_dir": "/Users/saurabhkarn/trocr-asic/evidence/runs/hw_1tok_mask_rom_fused",
+          "store_bytes_per_cycle": 21.37252224958022,
+          "hbm_utilization": 0.0031899286939671974,
+          "energy": {
+            "memory": "rom",
+            "weight_energy_j": 0.00078000553984,
+            "sram_energy_j": 8.36943872e-05,
+            "mac_energy_j": 0.00027402531840000006,
+            "total_energy_j": 0.00113772524544,
+            "weight_pj_per_bit": 0.08,
+            "constants": {
+              "rom_pj_per_bit": 0.08,
+              "sram_pj_per_bit": 0.1,
+              "hbm_pj_per_bit": 3.5,
+              "mac_pj_per_op": 0.45
+            },
+            "provenance": "lab/scale_1t.py N4 constants (rom 0.08 / sram 0.10 / hbm 3.5 pJ/bit, mac 0.45 pJ/op); counters from rtl_meta (measured)"
+          },
+          "stage_breakdown": {
+            "total_cycles": 57024559,
+            "stages": [
+              {
+                "stage": "IDLE",
+                "entries": 2,
+                "cycles": 2,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "EMBED",
+                "entries": 1,
+                "cycles": 5120,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "INPUT_NORM",
+                "entries": 28,
+                "cycles": 213220,
+                "rom_reads": 1024,
+                "macs": 0
+              },
+              {
+                "stage": "Q_PROJ",
+                "entries": 28,
+                "cycles": 3734752,
+                "rom_reads": 30464,
+                "macs": 28672
+              },
+              {
+                "stage": "K_PROJ",
+                "entries": 28,
+                "cycles": 1869280,
+                "rom_reads": 3670016,
+                "macs": 58720256
+              },
+              {
+                "stage": "V_PROJ",
+                "entries": 28,
+                "cycles": 12873728,
+                "rom_reads": 1835008,
+                "macs": 29360128
+              },
+              {
+                "stage": "Q_NORM",
+                "entries": 28,
+                "cycles": 3555328,
+                "rom_reads": 1835008,
+                "macs": 29360128
+              },
+              {
+                "stage": "K_NORM",
+                "entries": 28,
+                "cycles": 1777664,
+                "rom_reads": 516096,
+                "macs": 7340032
+              },
+              {
+                "stage": "ROPE",
+                "entries": 28,
+                "cycles": 688128,
+                "rom_reads": 258048,
+                "macs": 3670016
+              },
+              {
+                "stage": "ATTN_SCORE",
+                "entries": 28,
+                "cycles": 29120,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "SOFTMAX",
+                "entries": 28,
+                "cycles": 6272,
+                "rom_reads": 0,
+                "macs": 57344
+              },
+              {
+                "stage": "ATTN_VALUE",
+                "entries": 28,
+                "cycles": 516096,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "O_PROJ",
+                "entries": 28,
+                "cycles": 3707872,
+                "rom_reads": 0,
+                "macs": 917504
+              },
+              {
+                "stage": "ATTN_RESIDUAL",
+                "entries": 28,
+                "cycles": 258048,
+                "rom_reads": 3670016,
+                "macs": 58720256
+              },
+              {
+                "stage": "POST_NORM",
+                "entries": 28,
+                "cycles": 213220,
+                "rom_reads": 0,
+                "macs": 458752
+              },
+              {
+                "stage": "GATE_PROJ",
+                "entries": 28,
+                "cycles": 5600224,
+                "rom_reads": 30464,
+                "macs": 28672
+              },
+              {
+                "stage": "UP_PROJ",
+                "entries": 28,
+                "cycles": 5600224,
+                "rom_reads": 5505024,
+                "macs": 88080384
+              },
+              {
+                "stage": "SILU",
+                "entries": 28,
+                "cycles": 688128,
+                "rom_reads": 5505024,
+                "macs": 88080384
+              },
+              {
+                "stage": "DOWN_PROJ",
+                "entries": 28,
+                "cycles": 5546464,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "MLP_RESIDUAL",
+                "entries": 28,
+                "cycles": 258048,
+                "rom_reads": 5505024,
+                "macs": 88080384
+              },
+              {
+                "stage": "NEXT_LAYER",
+                "entries": 27,
+                "cycles": 27,
+                "rom_reads": 0,
+                "macs": 442368
+              },
+              {
+                "stage": "FINAL_NORM",
+                "entries": 1,
+                "cycles": 7615,
+                "rom_reads": 0,
+                "macs": 16384
+              },
+              {
+                "stage": "LM_HEAD",
+                "entries": 1,
+                "cycles": 9875976,
+                "rom_reads": 1088,
+                "macs": 1024
+              },
+              {
+                "stage": "ARGMAX",
+                "entries": 1,
+                "cycles": 1,
+                "rom_reads": 9723904,
+                "macs": 155582464
+              },
+              {
+                "stage": "DONE",
+                "entries": 1,
+                "cycles": 2,
+                "rom_reads": 0,
+                "macs": 0
+              }
+            ]
+          }
+        },
+        {
+          "backend": "tpu",
+          "label": "TPU MXU (weight-stationary tile engine)",
+          "passed": true,
+          "mismatch_count": 0,
+          "error": null,
+          "cycles": 93372724,
+          "macs": 608945152,
+          "rom_reads": 38086208,
+          "sram_reads": 3269312,
+          "sram_writes": 481408,
+          "stalls": 0,
+          "argmax": 15846,
+          "memory": "rom",
+          "ext_mem_lat": 0,
+          "hbm_weight_bytes": 1218758656,
+          "ondie_weight_reads": 3269312,
+          "work_dir": "/Users/saurabhkarn/trocr-asic/evidence/runs/hw_1tok_tpu",
+          "store_bytes_per_cycle": 13.052619692234748,
+          "hbm_utilization": 0.0019481521928708578,
+          "energy": {
+            "memory": "rom",
+            "weight_energy_j": 0.00078000553984,
+            "sram_energy_j": 8.36943872e-05,
+            "mac_energy_j": 0.00027402531840000006,
+            "total_energy_j": 0.00113772524544,
+            "weight_pj_per_bit": 0.08,
+            "constants": {
+              "rom_pj_per_bit": 0.08,
+              "sram_pj_per_bit": 0.1,
+              "hbm_pj_per_bit": 3.5,
+              "mac_pj_per_op": 0.45
+            },
+            "provenance": "lab/scale_1t.py N4 constants (rom 0.08 / sram 0.10 / hbm 3.5 pJ/bit, mac 0.45 pJ/op); counters from rtl_meta (measured)"
+          },
+          "stage_breakdown": {
+            "total_cycles": 93372724,
+            "stages": [
+              {
+                "stage": "IDLE",
+                "entries": 2,
+                "cycles": 2,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "EMBED",
+                "entries": 1,
+                "cycles": 5120,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "INPUT_NORM",
+                "entries": 28,
+                "cycles": 213220,
+                "rom_reads": 1024,
+                "macs": 0
+              },
+              {
+                "stage": "Q_PROJ",
+                "entries": 28,
+                "cycles": 7519372,
+                "rom_reads": 30464,
+                "macs": 28672
+              },
+              {
+                "stage": "K_PROJ",
+                "entries": 28,
+                "cycles": 3761548,
+                "rom_reads": 3670016,
+                "macs": 58720256
+              },
+              {
+                "stage": "V_PROJ",
+                "entries": 28,
+                "cycles": 12873728,
+                "rom_reads": 1835008,
+                "macs": 29360128
+              },
+              {
+                "stage": "Q_NORM",
+                "entries": 28,
+                "cycles": 3555328,
+                "rom_reads": 1835008,
+                "macs": 29360128
+              },
+              {
+                "stage": "K_NORM",
+                "entries": 28,
+                "cycles": 1777664,
+                "rom_reads": 516096,
+                "macs": 7340032
+              },
+              {
+                "stage": "ROPE",
+                "entries": 28,
+                "cycles": 688128,
+                "rom_reads": 258048,
+                "macs": 3670016
+              },
+              {
+                "stage": "ATTN_SCORE",
+                "entries": 28,
+                "cycles": 29120,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "SOFTMAX",
+                "entries": 28,
+                "cycles": 6272,
+                "rom_reads": 0,
+                "macs": 57344
+              },
+              {
+                "stage": "ATTN_VALUE",
+                "entries": 28,
+                "cycles": 516096,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "O_PROJ",
+                "entries": 28,
+                "cycles": 7435148,
+                "rom_reads": 0,
+                "macs": 917504
+              },
+              {
+                "stage": "ATTN_RESIDUAL",
+                "entries": 28,
+                "cycles": 258048,
+                "rom_reads": 3670016,
+                "macs": 58720256
+              },
+              {
+                "stage": "POST_NORM",
+                "entries": 28,
+                "cycles": 213220,
+                "rom_reads": 0,
+                "macs": 458752
+              },
+              {
+                "stage": "GATE_PROJ",
+                "entries": 28,
+                "cycles": 11277196,
+                "rom_reads": 30464,
+                "macs": 28672
+              },
+              {
+                "stage": "UP_PROJ",
+                "entries": 28,
+                "cycles": 11277196,
+                "rom_reads": 5505024,
+                "macs": 88080384
+              },
+              {
+                "stage": "SILU",
+                "entries": 28,
+                "cycles": 688128,
+                "rom_reads": 5505024,
+                "macs": 88080384
+              },
+              {
+                "stage": "DOWN_PROJ",
+                "entries": 28,
+                "cycles": 11108748,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "MLP_RESIDUAL",
+                "entries": 28,
+                "cycles": 258048,
+                "rom_reads": 5505024,
+                "macs": 88080384
+              },
+              {
+                "stage": "NEXT_LAYER",
+                "entries": 27,
+                "cycles": 27,
+                "rom_reads": 0,
+                "macs": 442368
+              },
+              {
+                "stage": "FINAL_NORM",
+                "entries": 1,
+                "cycles": 7615,
+                "rom_reads": 0,
+                "macs": 16384
+              },
+              {
+                "stage": "LM_HEAD",
+                "entries": 1,
+                "cycles": 19903749,
+                "rom_reads": 1088,
+                "macs": 1024
+              },
+              {
+                "stage": "ARGMAX",
+                "entries": 1,
+                "cycles": 1,
+                "rom_reads": 9723904,
+                "macs": 155582464
+              },
+              {
+                "stage": "DONE",
+                "entries": 1,
+                "cycles": 2,
+                "rom_reads": 0,
+                "macs": 0
+              }
+            ]
+          }
+        },
+        {
+          "backend": "tpu_hbm",
+          "label": "TPU MXU (HBM latency)",
+          "passed": true,
+          "mismatch_count": 0,
+          "error": null,
+          "cycles": 218953524,
+          "macs": 608945152,
+          "rom_reads": 38086208,
+          "sram_reads": 3269312,
+          "sram_writes": 481408,
+          "stalls": 0,
+          "argmax": 15846,
+          "memory": "hbm",
+          "ext_mem_lat": 40,
+          "hbm_weight_bytes": 1218758656,
+          "ondie_weight_reads": 3269312,
+          "work_dir": "/Users/saurabhkarn/trocr-asic/evidence/runs/hw_1tok_tpu_hbm",
+          "store_bytes_per_cycle": 5.566289291603272,
+          "hbm_utilization": 0.000830789446507951,
+          "energy": {
+            "memory": "hbm",
+            "weight_energy_j": 0.034125242368,
+            "sram_energy_j": 8.36943872e-05,
+            "mac_energy_j": 0.00027402531840000006,
+            "total_energy_j": 0.0344829620736,
+            "weight_pj_per_bit": 3.5,
+            "constants": {
+              "rom_pj_per_bit": 0.08,
+              "sram_pj_per_bit": 0.1,
+              "hbm_pj_per_bit": 3.5,
+              "mac_pj_per_op": 0.45
+            },
+            "provenance": "lab/scale_1t.py N4 constants (rom 0.08 / sram 0.10 / hbm 3.5 pJ/bit, mac 0.45 pJ/op); counters from rtl_meta (measured)"
+          },
+          "stage_breakdown": {
+            "total_cycles": 218953524,
+            "stages": [
+              {
+                "stage": "IDLE",
+                "entries": 2,
+                "cycles": 2,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "EMBED",
+                "entries": 1,
+                "cycles": 46080,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "INPUT_NORM",
+                "entries": 28,
+                "cycles": 1431780,
+                "rom_reads": 1024,
+                "macs": 0
+              },
+              {
+                "stage": "Q_PROJ",
+                "entries": 28,
+                "cycles": 9813132,
+                "rom_reads": 30464,
+                "macs": 28672
+              },
+              {
+                "stage": "K_PROJ",
+                "entries": 28,
+                "cycles": 4908428,
+                "rom_reads": 3670016,
+                "macs": 58720256
+              },
+              {
+                "stage": "V_PROJ",
+                "entries": 28,
+                "cycles": 86274048,
+                "rom_reads": 1835008,
+                "macs": 29360128
+              },
+              {
+                "stage": "Q_NORM",
+                "entries": 28,
+                "cycles": 24199168,
+                "rom_reads": 1835008,
+                "macs": 29360128
+              },
+              {
+                "stage": "K_NORM",
+                "entries": 28,
+                "cycles": 12099584,
+                "rom_reads": 516096,
+                "macs": 7340032
+              },
+              {
+                "stage": "ROPE",
+                "entries": 28,
+                "cycles": 688128,
+                "rom_reads": 258048,
+                "macs": 3670016
+              },
+              {
+                "stage": "ATTN_SCORE",
+                "entries": 28,
+                "cycles": 29120,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "SOFTMAX",
+                "entries": 28,
+                "cycles": 6272,
+                "rom_reads": 0,
+                "macs": 57344
+              },
+              {
+                "stage": "ATTN_VALUE",
+                "entries": 28,
+                "cycles": 516096,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "O_PROJ",
+                "entries": 28,
+                "cycles": 8582028,
+                "rom_reads": 0,
+                "macs": 917504
+              },
+              {
+                "stage": "ATTN_RESIDUAL",
+                "entries": 28,
+                "cycles": 258048,
+                "rom_reads": 3670016,
+                "macs": 58720256
+              },
+              {
+                "stage": "POST_NORM",
+                "entries": 28,
+                "cycles": 1431780,
+                "rom_reads": 0,
+                "macs": 458752
+              },
+              {
+                "stage": "GATE_PROJ",
+                "entries": 28,
+                "cycles": 14717836,
+                "rom_reads": 30464,
+                "macs": 28672
+              },
+              {
+                "stage": "UP_PROJ",
+                "entries": 28,
+                "cycles": 14717836,
+                "rom_reads": 5505024,
+                "macs": 88080384
+              },
+              {
+                "stage": "SILU",
+                "entries": 28,
+                "cycles": 688128,
+                "rom_reads": 5505024,
+                "macs": 88080384
+              },
+              {
+                "stage": "DOWN_PROJ",
+                "entries": 28,
+                "cycles": 12255628,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "MLP_RESIDUAL",
+                "entries": 28,
+                "cycles": 258048,
+                "rom_reads": 5505024,
+                "macs": 88080384
+              },
+              {
+                "stage": "NEXT_LAYER",
+                "entries": 27,
+                "cycles": 27,
+                "rom_reads": 0,
+                "macs": 442368
+              },
+              {
+                "stage": "FINAL_NORM",
+                "entries": 1,
+                "cycles": 51135,
+                "rom_reads": 0,
+                "macs": 16384
+              },
+              {
+                "stage": "LM_HEAD",
+                "entries": 1,
+                "cycles": 25981189,
+                "rom_reads": 1088,
+                "macs": 1024
+              },
+              {
+                "stage": "ARGMAX",
+                "entries": 1,
+                "cycles": 1,
+                "rom_reads": 9723904,
+                "macs": 155582464
+              },
+              {
+                "stage": "DONE",
+                "entries": 1,
+                "cycles": 2,
+                "rom_reads": 0,
+                "macs": 0
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "run_key": "hw_3tok",
+      "token_count": 3,
+      "tier": "T4",
+      "oracle_argmax": 279,
+      "same_compute": true,
+      "engine_macs": 1827122176,
+      "mask_rom_extra_macs": 179131392,
+      "backends": [
+        {
+          "backend": "gpu",
+          "label": "GPU tile (fused streaming GEMM)",
+          "passed": true,
+          "mismatch_count": 0,
+          "error": null,
+          "cycles": 171215693,
+          "macs": 1827122176,
+          "rom_reads": 114258624,
+          "sram_reads": 9840640,
+          "sram_writes": 1446912,
+          "stalls": 0,
+          "argmax": 279,
+          "memory": "rom",
+          "ext_mem_lat": 0,
+          "hbm_weight_bytes": 3656275968,
+          "ondie_weight_reads": 9840640,
+          "work_dir": "/Users/saurabhkarn/trocr-asic/evidence/runs/hw_3tok_gpu",
+          "store_bytes_per_cycle": 21.35479466826677,
+          "hbm_utilization": 0.0031872827863084732,
+          "energy": {
+            "memory": "rom",
+            "weight_energy_j": 0.00234001661952,
+            "sram_energy_j": 0.000251920384,
+            "mac_energy_j": 0.0008222049792,
+            "total_energy_j": 0.00341414198272,
+            "weight_pj_per_bit": 0.08,
+            "constants": {
+              "rom_pj_per_bit": 0.08,
+              "sram_pj_per_bit": 0.1,
+              "hbm_pj_per_bit": 3.5,
+              "mac_pj_per_op": 0.45
+            },
+            "provenance": "lab/scale_1t.py N4 constants (rom 0.08 / sram 0.10 / hbm 3.5 pJ/bit, mac 0.45 pJ/op); counters from rtl_meta (measured)"
+          },
+          "stage_breakdown": {
+            "total_cycles": 171215693,
+            "stages": [
+              {
+                "stage": "IDLE",
+                "entries": 4,
+                "cycles": 6,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "EMBED",
+                "entries": 3,
+                "cycles": 15360,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "INPUT_NORM",
+                "entries": 84,
+                "cycles": 639660,
+                "rom_reads": 3072,
+                "macs": 0
+              },
+              {
+                "stage": "Q_PROJ",
+                "entries": 84,
+                "cycles": 11204256,
+                "rom_reads": 91392,
+                "macs": 86016
+              },
+              {
+                "stage": "K_PROJ",
+                "entries": 84,
+                "cycles": 5607840,
+                "rom_reads": 11010048,
+                "macs": 176160768
+              },
+              {
+                "stage": "V_PROJ",
+                "entries": 84,
+                "cycles": 38621184,
+                "rom_reads": 5505024,
+                "macs": 88080384
+              },
+              {
+                "stage": "Q_NORM",
+                "entries": 84,
+                "cycles": 10665984,
+                "rom_reads": 5505024,
+                "macs": 88080384
+              },
+              {
+                "stage": "K_NORM",
+                "entries": 84,
+                "cycles": 5332992,
+                "rom_reads": 1548288,
+                "macs": 22020096
+              },
+              {
+                "stage": "ROPE",
+                "entries": 84,
+                "cycles": 2064384,
+                "rom_reads": 774144,
+                "macs": 11010048
+              },
+              {
+                "stage": "ATTN_SCORE",
+                "entries": 84,
+                "cycles": 174720,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "SOFTMAX",
+                "entries": 84,
+                "cycles": 37632,
+                "rom_reads": 0,
+                "macs": 344064
+              },
+              {
+                "stage": "ATTN_VALUE",
+                "entries": 84,
+                "cycles": 1584128,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "O_PROJ",
+                "entries": 84,
+                "cycles": 11123616,
+                "rom_reads": 0,
+                "macs": 2867200
+              },
+              {
+                "stage": "ATTN_RESIDUAL",
+                "entries": 84,
+                "cycles": 774144,
+                "rom_reads": 11010048,
+                "macs": 176160768
+              },
+              {
+                "stage": "POST_NORM",
+                "entries": 84,
+                "cycles": 639660,
+                "rom_reads": 0,
+                "macs": 1376256
+              },
+              {
+                "stage": "GATE_PROJ",
+                "entries": 84,
+                "cycles": 16800672,
+                "rom_reads": 91392,
+                "macs": 86016
+              },
+              {
+                "stage": "UP_PROJ",
+                "entries": 84,
+                "cycles": 16800672,
+                "rom_reads": 16515072,
+                "macs": 264241152
+              },
+              {
+                "stage": "SILU",
+                "entries": 84,
+                "cycles": 2064384,
+                "rom_reads": 16515072,
+                "macs": 264241152
+              },
+              {
+                "stage": "DOWN_PROJ",
+                "entries": 84,
+                "cycles": 16639392,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "MLP_RESIDUAL",
+                "entries": 84,
+                "cycles": 774144,
+                "rom_reads": 16515072,
+                "macs": 264241152
+              },
+              {
+                "stage": "NEXT_LAYER",
+                "entries": 81,
+                "cycles": 81,
+                "rom_reads": 0,
+                "macs": 1327104
+              },
+              {
+                "stage": "FINAL_NORM",
+                "entries": 3,
+                "cycles": 22845,
+                "rom_reads": 0,
+                "macs": 49152
+              },
+              {
+                "stage": "LM_HEAD",
+                "entries": 3,
+                "cycles": 29627928,
+                "rom_reads": 3264,
+                "macs": 3072
+              },
+              {
+                "stage": "ARGMAX",
+                "entries": 3,
+                "cycles": 3,
+                "rom_reads": 29171712,
+                "macs": 466747392
+              },
+              {
+                "stage": "DONE",
+                "entries": 3,
+                "cycles": 6,
+                "rom_reads": 0,
+                "macs": 0
+              }
+            ]
+          }
+        },
+        {
+          "backend": "gpu_hbm",
+          "label": "GPU tile (HBM latency)",
+          "passed": true,
+          "mismatch_count": 0,
+          "error": null,
+          "cycles": 718154657,
+          "macs": 1827122176,
+          "rom_reads": 114258624,
+          "sram_reads": 9840640,
+          "sram_writes": 1446912,
+          "stalls": 0,
+          "argmax": 279,
+          "memory": "hbm",
+          "ext_mem_lat": 40,
+          "hbm_weight_bytes": 3656275968,
+          "ondie_weight_reads": 9840640,
+          "work_dir": "/Users/saurabhkarn/trocr-asic/evidence/runs/hw_3tok_gpu_hbm",
+          "store_bytes_per_cycle": 5.091209716962123,
+          "hbm_utilization": 0.0007598820473077795,
+          "energy": {
+            "memory": "hbm",
+            "weight_energy_j": 0.102375727104,
+            "sram_energy_j": 0.000251920384,
+            "mac_energy_j": 0.0008222049792,
+            "total_energy_j": 0.10344985246720001,
+            "weight_pj_per_bit": 3.5,
+            "constants": {
+              "rom_pj_per_bit": 0.08,
+              "sram_pj_per_bit": 0.1,
+              "hbm_pj_per_bit": 3.5,
+              "mac_pj_per_op": 0.45
+            },
+            "provenance": "lab/scale_1t.py N4 constants (rom 0.08 / sram 0.10 / hbm 3.5 pJ/bit, mac 0.45 pJ/op); counters from rtl_meta (measured)"
+          },
+          "stage_breakdown": {
+            "total_cycles": 718154657,
+            "stages": [
+              {
+                "stage": "IDLE",
+                "entries": 4,
+                "cycles": 6,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "EMBED",
+                "entries": 3,
+                "cycles": 138240,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "INPUT_NORM",
+                "entries": 84,
+                "cycles": 4295340,
+                "rom_reads": 3072,
+                "macs": 0
+              },
+              {
+                "stage": "Q_PROJ",
+                "entries": 84,
+                "cycles": 34627992,
+                "rom_reads": 91392,
+                "macs": 86016
+              },
+              {
+                "stage": "K_PROJ",
+                "entries": 84,
+                "cycles": 17321388,
+                "rom_reads": 11010048,
+                "macs": 176160768
+              },
+              {
+                "stage": "V_PROJ",
+                "entries": 84,
+                "cycles": 258822144,
+                "rom_reads": 5505024,
+                "macs": 88080384
+              },
+              {
+                "stage": "Q_NORM",
+                "entries": 84,
+                "cycles": 72597504,
+                "rom_reads": 5505024,
+                "macs": 88080384
+              },
+              {
+                "stage": "K_NORM",
+                "entries": 84,
+                "cycles": 36298752,
+                "rom_reads": 1548288,
+                "macs": 22020096
+              },
+              {
+                "stage": "ROPE",
+                "entries": 84,
+                "cycles": 2064384,
+                "rom_reads": 774144,
+                "macs": 11010048
+              },
+              {
+                "stage": "ATTN_SCORE",
+                "entries": 84,
+                "cycles": 174720,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "SOFTMAX",
+                "entries": 84,
+                "cycles": 37632,
+                "rom_reads": 0,
+                "macs": 344064
+              },
+              {
+                "stage": "ATTN_VALUE",
+                "entries": 84,
+                "cycles": 1584128,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "O_PROJ",
+                "entries": 84,
+                "cycles": 34633368,
+                "rom_reads": 0,
+                "macs": 2867200
+              },
+              {
+                "stage": "ATTN_RESIDUAL",
+                "entries": 84,
+                "cycles": 774144,
+                "rom_reads": 11010048,
+                "macs": 176160768
+              },
+              {
+                "stage": "POST_NORM",
+                "entries": 84,
+                "cycles": 4295340,
+                "rom_reads": 0,
+                "macs": 1376256
+              },
+              {
+                "stage": "GATE_PROJ",
+                "entries": 84,
+                "cycles": 51934596,
+                "rom_reads": 91392,
+                "macs": 86016
+              },
+              {
+                "stage": "UP_PROJ",
+                "entries": 84,
+                "cycles": 51934596,
+                "rom_reads": 16515072,
+                "macs": 264241152
+              },
+              {
+                "stage": "SILU",
+                "entries": 84,
+                "cycles": 2064384,
+                "rom_reads": 16515072,
+                "macs": 264241152
+              },
+              {
+                "stage": "DOWN_PROJ",
+                "entries": 84,
+                "cycles": 51945348,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "MLP_RESIDUAL",
+                "entries": 84,
+                "cycles": 774144,
+                "rom_reads": 16515072,
+                "macs": 264241152
+              },
+              {
+                "stage": "NEXT_LAYER",
+                "entries": 81,
+                "cycles": 81,
+                "rom_reads": 0,
+                "macs": 1327104
+              },
+              {
+                "stage": "FINAL_NORM",
+                "entries": 3,
+                "cycles": 153405,
+                "rom_reads": 0,
+                "macs": 49152
+              },
+              {
+                "stage": "LM_HEAD",
+                "entries": 3,
+                "cycles": 91683012,
+                "rom_reads": 3264,
+                "macs": 3072
+              },
+              {
+                "stage": "ARGMAX",
+                "entries": 3,
+                "cycles": 3,
+                "rom_reads": 29171712,
+                "macs": 466747392
+              },
+              {
+                "stage": "DONE",
+                "entries": 3,
+                "cycles": 6,
+                "rom_reads": 0,
+                "macs": 0
+              }
+            ]
+          }
+        },
+        {
+          "backend": "lpu",
+          "label": "LPU (weight-stationary interleaved)",
+          "passed": true,
+          "mismatch_count": 0,
+          "error": null,
+          "cycles": 402490085,
+          "macs": 1827122176,
+          "rom_reads": 114258624,
+          "sram_reads": 9840640,
+          "sram_writes": 1446912,
+          "stalls": 0,
+          "argmax": 279,
+          "memory": "rom",
+          "ext_mem_lat": 0,
+          "hbm_weight_bytes": 3656275968,
+          "ondie_weight_reads": 9840640,
+          "work_dir": "/Users/saurabhkarn/trocr-asic/evidence/runs/hw_3tok_lpu",
+          "store_bytes_per_cycle": 9.084139222957505,
+          "hbm_utilization": 0.0013558416750682845,
+          "energy": {
+            "memory": "rom",
+            "weight_energy_j": 0.00234001661952,
+            "sram_energy_j": 0.000251920384,
+            "mac_energy_j": 0.0008222049792,
+            "total_energy_j": 0.00341414198272,
+            "weight_pj_per_bit": 0.08,
+            "constants": {
+              "rom_pj_per_bit": 0.08,
+              "sram_pj_per_bit": 0.1,
+              "hbm_pj_per_bit": 3.5,
+              "mac_pj_per_op": 0.45
+            },
+            "provenance": "lab/scale_1t.py N4 constants (rom 0.08 / sram 0.10 / hbm 3.5 pJ/bit, mac 0.45 pJ/op); counters from rtl_meta (measured)"
+          },
+          "stage_breakdown": {
+            "total_cycles": 402490085,
+            "stages": [
+              {
+                "stage": "IDLE",
+                "entries": 4,
+                "cycles": 6,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "EMBED",
+                "entries": 3,
+                "cycles": 15360,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "INPUT_NORM",
+                "entries": 84,
+                "cycles": 639660,
+                "rom_reads": 3072,
+                "macs": 0
+              },
+              {
+                "stage": "Q_PROJ",
+                "entries": 84,
+                "cycles": 44244900,
+                "rom_reads": 91392,
+                "macs": 86016
+              },
+              {
+                "stage": "K_PROJ",
+                "entries": 84,
+                "cycles": 22133412,
+                "rom_reads": 11010048,
+                "macs": 176160768
+              },
+              {
+                "stage": "V_PROJ",
+                "entries": 84,
+                "cycles": 38621184,
+                "rom_reads": 5505024,
+                "macs": 88080384
+              },
+              {
+                "stage": "Q_NORM",
+                "entries": 84,
+                "cycles": 10665984,
+                "rom_reads": 5505024,
+                "macs": 88080384
+              },
+              {
+                "stage": "K_NORM",
+                "entries": 84,
+                "cycles": 5332992,
+                "rom_reads": 1548288,
+                "macs": 22020096
+              },
+              {
+                "stage": "ROPE",
+                "entries": 84,
+                "cycles": 2064384,
+                "rom_reads": 774144,
+                "macs": 11010048
+              },
+              {
+                "stage": "ATTN_SCORE",
+                "entries": 84,
+                "cycles": 174720,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "SOFTMAX",
+                "entries": 84,
+                "cycles": 37632,
+                "rom_reads": 0,
+                "macs": 344064
+              },
+              {
+                "stage": "ATTN_VALUE",
+                "entries": 84,
+                "cycles": 1584128,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "O_PROJ",
+                "entries": 84,
+                "cycles": 44164260,
+                "rom_reads": 0,
+                "macs": 2867200
+              },
+              {
+                "stage": "ATTN_RESIDUAL",
+                "entries": 84,
+                "cycles": 774144,
+                "rom_reads": 11010048,
+                "macs": 176160768
+              },
+              {
+                "stage": "POST_NORM",
+                "entries": 84,
+                "cycles": 639660,
+                "rom_reads": 0,
+                "macs": 1376256
+              },
+              {
+                "stage": "GATE_PROJ",
+                "entries": 84,
+                "cycles": 66356388,
+                "rom_reads": 91392,
+                "macs": 86016
+              },
+              {
+                "stage": "UP_PROJ",
+                "entries": 84,
+                "cycles": 66356388,
+                "rom_reads": 16515072,
+                "macs": 264241152
+              },
+              {
+                "stage": "SILU",
+                "entries": 84,
+                "cycles": 2064384,
+                "rom_reads": 16515072,
+                "macs": 264241152
+              },
+              {
+                "stage": "DOWN_PROJ",
+                "entries": 84,
+                "cycles": 66195108,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "MLP_RESIDUAL",
+                "entries": 84,
+                "cycles": 774144,
+                "rom_reads": 16515072,
+                "macs": 264241152
+              },
+              {
+                "stage": "NEXT_LAYER",
+                "entries": 81,
+                "cycles": 81,
+                "rom_reads": 0,
+                "macs": 1327104
+              },
+              {
+                "stage": "FINAL_NORM",
+                "entries": 3,
+                "cycles": 22845,
+                "rom_reads": 0,
+                "macs": 49152
+              },
+              {
+                "stage": "LM_HEAD",
+                "entries": 3,
+                "cycles": 29628312,
+                "rom_reads": 3264,
+                "macs": 3072
+              },
+              {
+                "stage": "ARGMAX",
+                "entries": 3,
+                "cycles": 3,
+                "rom_reads": 29171712,
+                "macs": 466747392
+              },
+              {
+                "stage": "DONE",
+                "entries": 3,
+                "cycles": 6,
+                "rom_reads": 0,
+                "macs": 0
+              }
+            ]
+          }
+        },
+        {
+          "backend": "lpu_hbm",
+          "label": "LPU (HBM latency)",
+          "passed": true,
+          "mismatch_count": 0,
+          "error": null,
+          "cycles": 3868021649,
+          "macs": 1827122176,
+          "rom_reads": 114258624,
+          "sram_reads": 9840640,
+          "sram_writes": 1446912,
+          "stalls": 0,
+          "argmax": 279,
+          "memory": "hbm",
+          "ext_mem_lat": 40,
+          "hbm_weight_bytes": 3656275968,
+          "ondie_weight_reads": 9840640,
+          "work_dir": "/Users/saurabhkarn/trocr-asic/evidence/runs/hw_3tok_lpu_hbm",
+          "store_bytes_per_cycle": 0.945257369214895,
+          "hbm_utilization": 0.00014108318943505897,
+          "energy": {
+            "memory": "hbm",
+            "weight_energy_j": 0.102375727104,
+            "sram_energy_j": 0.000251920384,
+            "mac_energy_j": 0.0008222049792,
+            "total_energy_j": 0.10344985246720001,
+            "weight_pj_per_bit": 3.5,
+            "constants": {
+              "rom_pj_per_bit": 0.08,
+              "sram_pj_per_bit": 0.1,
+              "hbm_pj_per_bit": 3.5,
+              "mac_pj_per_op": 0.45
+            },
+            "provenance": "lab/scale_1t.py N4 constants (rom 0.08 / sram 0.10 / hbm 3.5 pJ/bit, mac 0.45 pJ/op); counters from rtl_meta (measured)"
+          },
+          "stage_breakdown": {
+            "total_cycles": 3868021649,
+            "stages": [
+              {
+                "stage": "IDLE",
+                "entries": 4,
+                "cycles": 6,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "EMBED",
+                "entries": 3,
+                "cycles": 138240,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "INPUT_NORM",
+                "entries": 84,
+                "cycles": 4295340,
+                "rom_reads": 3072,
+                "macs": 0
+              },
+              {
+                "stage": "Q_PROJ",
+                "entries": 84,
+                "cycles": 484646820,
+                "rom_reads": 91392,
+                "macs": 86016
+              },
+              {
+                "stage": "K_PROJ",
+                "entries": 84,
+                "cycles": 242334372,
+                "rom_reads": 11010048,
+                "macs": 176160768
+              },
+              {
+                "stage": "V_PROJ",
+                "entries": 84,
+                "cycles": 258822144,
+                "rom_reads": 5505024,
+                "macs": 88080384
+              },
+              {
+                "stage": "Q_NORM",
+                "entries": 84,
+                "cycles": 72597504,
+                "rom_reads": 5505024,
+                "macs": 88080384
+              },
+              {
+                "stage": "K_NORM",
+                "entries": 84,
+                "cycles": 36298752,
+                "rom_reads": 1548288,
+                "macs": 22020096
+              },
+              {
+                "stage": "ROPE",
+                "entries": 84,
+                "cycles": 2064384,
+                "rom_reads": 774144,
+                "macs": 11010048
+              },
+              {
+                "stage": "ATTN_SCORE",
+                "entries": 84,
+                "cycles": 174720,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "SOFTMAX",
+                "entries": 84,
+                "cycles": 37632,
+                "rom_reads": 0,
+                "macs": 344064
+              },
+              {
+                "stage": "ATTN_VALUE",
+                "entries": 84,
+                "cycles": 1584128,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "O_PROJ",
+                "entries": 84,
+                "cycles": 484566180,
+                "rom_reads": 0,
+                "macs": 2867200
+              },
+              {
+                "stage": "ATTN_RESIDUAL",
+                "entries": 84,
+                "cycles": 774144,
+                "rom_reads": 11010048,
+                "macs": 176160768
+              },
+              {
+                "stage": "POST_NORM",
+                "entries": 84,
+                "cycles": 4295340,
+                "rom_reads": 0,
+                "macs": 1376256
+              },
+              {
+                "stage": "GATE_PROJ",
+                "entries": 84,
+                "cycles": 726959268,
+                "rom_reads": 91392,
+                "macs": 86016
+              },
+              {
+                "stage": "UP_PROJ",
+                "entries": 84,
+                "cycles": 726959268,
+                "rom_reads": 16515072,
+                "macs": 264241152
+              },
+              {
+                "stage": "SILU",
+                "entries": 84,
+                "cycles": 2064384,
+                "rom_reads": 16515072,
+                "macs": 264241152
+              },
+              {
+                "stage": "DOWN_PROJ",
+                "entries": 84,
+                "cycles": 726797988,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "MLP_RESIDUAL",
+                "entries": 84,
+                "cycles": 774144,
+                "rom_reads": 16515072,
+                "macs": 264241152
+              },
+              {
+                "stage": "NEXT_LAYER",
+                "entries": 81,
+                "cycles": 81,
+                "rom_reads": 0,
+                "macs": 1327104
+              },
+              {
+                "stage": "FINAL_NORM",
+                "entries": 3,
+                "cycles": 153405,
+                "rom_reads": 0,
+                "macs": 49152
+              },
+              {
+                "stage": "LM_HEAD",
+                "entries": 3,
+                "cycles": 91683396,
+                "rom_reads": 3264,
+                "macs": 3072
+              },
+              {
+                "stage": "ARGMAX",
+                "entries": 3,
+                "cycles": 3,
+                "rom_reads": 29171712,
+                "macs": 466747392
+              },
+              {
+                "stage": "DONE",
+                "entries": 3,
+                "cycles": 6,
+                "rom_reads": 0,
+                "macs": 0
+              }
+            ]
+          }
+        },
+        {
+          "backend": "mask_rom",
+          "label": "Mask-ROM chip (unfused controller)",
+          "passed": true,
+          "mismatch_count": 0,
+          "error": null,
+          "cycles": 886246880,
+          "macs": 2006253568,
+          "rom_reads": 125454336,
+          "sram_reads": 127229824,
+          "sram_writes": 2333952,
+          "stalls": 0,
+          "argmax": 279,
+          "memory": "rom",
+          "ext_mem_lat": 0,
+          "hbm_weight_bytes": 4014538752,
+          "ondie_weight_reads": 127229824,
+          "work_dir": "/Users/saurabhkarn/trocr-asic/evidence/runs/hw_3tok_mask_rom",
+          "store_bytes_per_cycle": 4.52981989849149,
+          "hbm_utilization": 0.0006760925221629089,
+          "energy": {
+            "memory": "rom",
+            "weight_energy_j": 0.0025693048012800004,
+            "sram_energy_j": 0.0032570834944,
+            "mac_energy_j": 0.0009028141056,
+            "total_energy_j": 0.006729202401280001,
+            "weight_pj_per_bit": 0.08,
+            "constants": {
+              "rom_pj_per_bit": 0.08,
+              "sram_pj_per_bit": 0.1,
+              "hbm_pj_per_bit": 3.5,
+              "mac_pj_per_op": 0.45
+            },
+            "provenance": "lab/scale_1t.py N4 constants (rom 0.08 / sram 0.10 / hbm 3.5 pJ/bit, mac 0.45 pJ/op); counters from rtl_meta (measured)"
+          },
+          "stage_breakdown": {
+            "total_cycles": 886246880,
+            "stages": [
+              {
+                "stage": "IDLE",
+                "entries": 4,
+                "cycles": 6,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "EMBED",
+                "entries": 3,
+                "cycles": 15360,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "INPUT_NORM",
+                "entries": 84,
+                "cycles": 39051264,
+                "rom_reads": 3072,
+                "macs": 0
+              },
+              {
+                "stage": "Q_PROJ",
+                "entries": 84,
+                "cycles": 77242368,
+                "rom_reads": 5591040,
+                "macs": 88080384
+              },
+              {
+                "stage": "K_PROJ",
+                "entries": 84,
+                "cycles": 38621184,
+                "rom_reads": 11010048,
+                "macs": 176160768
+              },
+              {
+                "stage": "V_PROJ",
+                "entries": 84,
+                "cycles": 38621184,
+                "rom_reads": 5505024,
+                "macs": 88080384
+              },
+              {
+                "stage": "Q_NORM",
+                "entries": 84,
+                "cycles": 10665984,
+                "rom_reads": 5505024,
+                "macs": 88080384
+              },
+              {
+                "stage": "K_NORM",
+                "entries": 84,
+                "cycles": 5332992,
+                "rom_reads": 1548288,
+                "macs": 22020096
+              },
+              {
+                "stage": "ROPE",
+                "entries": 84,
+                "cycles": 2064384,
+                "rom_reads": 774144,
+                "macs": 11010048
+              },
+              {
+                "stage": "ATTN_SCORE",
+                "entries": 84,
+                "cycles": 174720,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "SOFTMAX",
+                "entries": 84,
+                "cycles": 37632,
+                "rom_reads": 0,
+                "macs": 344064
+              },
+              {
+                "stage": "ATTN_VALUE",
+                "entries": 84,
+                "cycles": 1584128,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "O_PROJ",
+                "entries": 84,
+                "cycles": 77156352,
+                "rom_reads": 0,
+                "macs": 2867200
+              },
+              {
+                "stage": "ATTN_RESIDUAL",
+                "entries": 84,
+                "cycles": 774144,
+                "rom_reads": 11010048,
+                "macs": 176160768
+              },
+              {
+                "stage": "POST_NORM",
+                "entries": 84,
+                "cycles": 39051264,
+                "rom_reads": 0,
+                "macs": 1376256
+              },
+              {
+                "stage": "GATE_PROJ",
+                "entries": 84,
+                "cycles": 115863552,
+                "rom_reads": 5591040,
+                "macs": 88080384
+              },
+              {
+                "stage": "UP_PROJ",
+                "entries": 84,
+                "cycles": 115863552,
+                "rom_reads": 16515072,
+                "macs": 264241152
+              },
+              {
+                "stage": "SILU",
+                "entries": 84,
+                "cycles": 2064384,
+                "rom_reads": 16515072,
+                "macs": 264241152
+              },
+              {
+                "stage": "DOWN_PROJ",
+                "entries": 84,
+                "cycles": 115691520,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "MLP_RESIDUAL",
+                "entries": 84,
+                "cycles": 774144,
+                "rom_reads": 16515072,
+                "macs": 264241152
+              },
+              {
+                "stage": "NEXT_LAYER",
+                "entries": 81,
+                "cycles": 81,
+                "rom_reads": 0,
+                "macs": 1327104
+              },
+              {
+                "stage": "FINAL_NORM",
+                "entries": 3,
+                "cycles": 1394688,
+                "rom_reads": 0,
+                "macs": 49152
+              },
+              {
+                "stage": "LM_HEAD",
+                "entries": 3,
+                "cycles": 204201984,
+                "rom_reads": 199680,
+                "macs": 3145728
+              },
+              {
+                "stage": "ARGMAX",
+                "entries": 3,
+                "cycles": 3,
+                "rom_reads": 29171712,
+                "macs": 466747392
+              },
+              {
+                "stage": "DONE",
+                "entries": 3,
+                "cycles": 6,
+                "rom_reads": 0,
+                "macs": 0
+              }
+            ]
+          }
+        },
+        {
+          "backend": "mask_rom_fused",
+          "label": "Mask-ROM chip (fused 2D schedule)",
+          "passed": true,
+          "mismatch_count": 0,
+          "error": null,
+          "cycles": 171215693,
+          "macs": 1827122176,
+          "rom_reads": 114258624,
+          "sram_reads": 9840640,
+          "sram_writes": 1446912,
+          "stalls": 0,
+          "argmax": 279,
+          "memory": "rom",
+          "ext_mem_lat": 0,
+          "hbm_weight_bytes": 3656275968,
+          "ondie_weight_reads": 9840640,
+          "work_dir": "/Users/saurabhkarn/trocr-asic/evidence/runs/hw_3tok_mask_rom_fused",
+          "store_bytes_per_cycle": 21.35479466826677,
+          "hbm_utilization": 0.0031872827863084732,
+          "energy": {
+            "memory": "rom",
+            "weight_energy_j": 0.00234001661952,
+            "sram_energy_j": 0.000251920384,
+            "mac_energy_j": 0.0008222049792,
+            "total_energy_j": 0.00341414198272,
+            "weight_pj_per_bit": 0.08,
+            "constants": {
+              "rom_pj_per_bit": 0.08,
+              "sram_pj_per_bit": 0.1,
+              "hbm_pj_per_bit": 3.5,
+              "mac_pj_per_op": 0.45
+            },
+            "provenance": "lab/scale_1t.py N4 constants (rom 0.08 / sram 0.10 / hbm 3.5 pJ/bit, mac 0.45 pJ/op); counters from rtl_meta (measured)"
+          },
+          "stage_breakdown": {
+            "total_cycles": 171215693,
+            "stages": [
+              {
+                "stage": "IDLE",
+                "entries": 4,
+                "cycles": 6,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "EMBED",
+                "entries": 3,
+                "cycles": 15360,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "INPUT_NORM",
+                "entries": 84,
+                "cycles": 639660,
+                "rom_reads": 3072,
+                "macs": 0
+              },
+              {
+                "stage": "Q_PROJ",
+                "entries": 84,
+                "cycles": 11204256,
+                "rom_reads": 91392,
+                "macs": 86016
+              },
+              {
+                "stage": "K_PROJ",
+                "entries": 84,
+                "cycles": 5607840,
+                "rom_reads": 11010048,
+                "macs": 176160768
+              },
+              {
+                "stage": "V_PROJ",
+                "entries": 84,
+                "cycles": 38621184,
+                "rom_reads": 5505024,
+                "macs": 88080384
+              },
+              {
+                "stage": "Q_NORM",
+                "entries": 84,
+                "cycles": 10665984,
+                "rom_reads": 5505024,
+                "macs": 88080384
+              },
+              {
+                "stage": "K_NORM",
+                "entries": 84,
+                "cycles": 5332992,
+                "rom_reads": 1548288,
+                "macs": 22020096
+              },
+              {
+                "stage": "ROPE",
+                "entries": 84,
+                "cycles": 2064384,
+                "rom_reads": 774144,
+                "macs": 11010048
+              },
+              {
+                "stage": "ATTN_SCORE",
+                "entries": 84,
+                "cycles": 174720,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "SOFTMAX",
+                "entries": 84,
+                "cycles": 37632,
+                "rom_reads": 0,
+                "macs": 344064
+              },
+              {
+                "stage": "ATTN_VALUE",
+                "entries": 84,
+                "cycles": 1584128,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "O_PROJ",
+                "entries": 84,
+                "cycles": 11123616,
+                "rom_reads": 0,
+                "macs": 2867200
+              },
+              {
+                "stage": "ATTN_RESIDUAL",
+                "entries": 84,
+                "cycles": 774144,
+                "rom_reads": 11010048,
+                "macs": 176160768
+              },
+              {
+                "stage": "POST_NORM",
+                "entries": 84,
+                "cycles": 639660,
+                "rom_reads": 0,
+                "macs": 1376256
+              },
+              {
+                "stage": "GATE_PROJ",
+                "entries": 84,
+                "cycles": 16800672,
+                "rom_reads": 91392,
+                "macs": 86016
+              },
+              {
+                "stage": "UP_PROJ",
+                "entries": 84,
+                "cycles": 16800672,
+                "rom_reads": 16515072,
+                "macs": 264241152
+              },
+              {
+                "stage": "SILU",
+                "entries": 84,
+                "cycles": 2064384,
+                "rom_reads": 16515072,
+                "macs": 264241152
+              },
+              {
+                "stage": "DOWN_PROJ",
+                "entries": 84,
+                "cycles": 16639392,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "MLP_RESIDUAL",
+                "entries": 84,
+                "cycles": 774144,
+                "rom_reads": 16515072,
+                "macs": 264241152
+              },
+              {
+                "stage": "NEXT_LAYER",
+                "entries": 81,
+                "cycles": 81,
+                "rom_reads": 0,
+                "macs": 1327104
+              },
+              {
+                "stage": "FINAL_NORM",
+                "entries": 3,
+                "cycles": 22845,
+                "rom_reads": 0,
+                "macs": 49152
+              },
+              {
+                "stage": "LM_HEAD",
+                "entries": 3,
+                "cycles": 29627928,
+                "rom_reads": 3264,
+                "macs": 3072
+              },
+              {
+                "stage": "ARGMAX",
+                "entries": 3,
+                "cycles": 3,
+                "rom_reads": 29171712,
+                "macs": 466747392
+              },
+              {
+                "stage": "DONE",
+                "entries": 3,
+                "cycles": 6,
+                "rom_reads": 0,
+                "macs": 0
+              }
+            ]
+          }
+        },
+        {
+          "backend": "tpu",
+          "label": "TPU MXU (weight-stationary tile engine)",
+          "passed": true,
+          "mismatch_count": 0,
+          "error": null,
+          "cycles": 280260188,
+          "macs": 1827122176,
+          "rom_reads": 114258624,
+          "sram_reads": 9840640,
+          "sram_writes": 1446912,
+          "stalls": 0,
+          "argmax": 279,
+          "memory": "rom",
+          "ext_mem_lat": 0,
+          "hbm_weight_bytes": 3656275968,
+          "ondie_weight_reads": 9840640,
+          "work_dir": "/Users/saurabhkarn/trocr-asic/evidence/runs/hw_3tok_tpu",
+          "store_bytes_per_cycle": 13.046005549671579,
+          "hbm_utilization": 0.0019471650074136685,
+          "energy": {
+            "memory": "rom",
+            "weight_energy_j": 0.00234001661952,
+            "sram_energy_j": 0.000251920384,
+            "mac_energy_j": 0.0008222049792,
+            "total_energy_j": 0.00341414198272,
+            "weight_pj_per_bit": 0.08,
+            "constants": {
+              "rom_pj_per_bit": 0.08,
+              "sram_pj_per_bit": 0.1,
+              "hbm_pj_per_bit": 3.5,
+              "mac_pj_per_op": 0.45
+            },
+            "provenance": "lab/scale_1t.py N4 constants (rom 0.08 / sram 0.10 / hbm 3.5 pJ/bit, mac 0.45 pJ/op); counters from rtl_meta (measured)"
+          },
+          "stage_breakdown": {
+            "total_cycles": 280260188,
+            "stages": [
+              {
+                "stage": "IDLE",
+                "entries": 4,
+                "cycles": 6,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "EMBED",
+                "entries": 3,
+                "cycles": 15360,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "INPUT_NORM",
+                "entries": 84,
+                "cycles": 639660,
+                "rom_reads": 3072,
+                "macs": 0
+              },
+              {
+                "stage": "Q_PROJ",
+                "entries": 84,
+                "cycles": 22558116,
+                "rom_reads": 91392,
+                "macs": 86016
+              },
+              {
+                "stage": "K_PROJ",
+                "entries": 84,
+                "cycles": 11284644,
+                "rom_reads": 11010048,
+                "macs": 176160768
+              },
+              {
+                "stage": "V_PROJ",
+                "entries": 84,
+                "cycles": 38621184,
+                "rom_reads": 5505024,
+                "macs": 88080384
+              },
+              {
+                "stage": "Q_NORM",
+                "entries": 84,
+                "cycles": 10665984,
+                "rom_reads": 5505024,
+                "macs": 88080384
+              },
+              {
+                "stage": "K_NORM",
+                "entries": 84,
+                "cycles": 5332992,
+                "rom_reads": 1548288,
+                "macs": 22020096
+              },
+              {
+                "stage": "ROPE",
+                "entries": 84,
+                "cycles": 2064384,
+                "rom_reads": 774144,
+                "macs": 11010048
+              },
+              {
+                "stage": "ATTN_SCORE",
+                "entries": 84,
+                "cycles": 174720,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "SOFTMAX",
+                "entries": 84,
+                "cycles": 37632,
+                "rom_reads": 0,
+                "macs": 344064
+              },
+              {
+                "stage": "ATTN_VALUE",
+                "entries": 84,
+                "cycles": 1584128,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "O_PROJ",
+                "entries": 84,
+                "cycles": 22305444,
+                "rom_reads": 0,
+                "macs": 2867200
+              },
+              {
+                "stage": "ATTN_RESIDUAL",
+                "entries": 84,
+                "cycles": 774144,
+                "rom_reads": 11010048,
+                "macs": 176160768
+              },
+              {
+                "stage": "POST_NORM",
+                "entries": 84,
+                "cycles": 639660,
+                "rom_reads": 0,
+                "macs": 1376256
+              },
+              {
+                "stage": "GATE_PROJ",
+                "entries": 84,
+                "cycles": 33831588,
+                "rom_reads": 91392,
+                "macs": 86016
+              },
+              {
+                "stage": "UP_PROJ",
+                "entries": 84,
+                "cycles": 33831588,
+                "rom_reads": 16515072,
+                "macs": 264241152
+              },
+              {
+                "stage": "SILU",
+                "entries": 84,
+                "cycles": 2064384,
+                "rom_reads": 16515072,
+                "macs": 264241152
+              },
+              {
+                "stage": "DOWN_PROJ",
+                "entries": 84,
+                "cycles": 33326244,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "MLP_RESIDUAL",
+                "entries": 84,
+                "cycles": 774144,
+                "rom_reads": 16515072,
+                "macs": 264241152
+              },
+              {
+                "stage": "NEXT_LAYER",
+                "entries": 81,
+                "cycles": 81,
+                "rom_reads": 0,
+                "macs": 1327104
+              },
+              {
+                "stage": "FINAL_NORM",
+                "entries": 3,
+                "cycles": 22845,
+                "rom_reads": 0,
+                "macs": 49152
+              },
+              {
+                "stage": "LM_HEAD",
+                "entries": 3,
+                "cycles": 59711247,
+                "rom_reads": 3264,
+                "macs": 3072
+              },
+              {
+                "stage": "ARGMAX",
+                "entries": 3,
+                "cycles": 3,
+                "rom_reads": 29171712,
+                "macs": 466747392
+              },
+              {
+                "stage": "DONE",
+                "entries": 3,
+                "cycles": 6,
+                "rom_reads": 0,
+                "macs": 0
+              }
+            ]
+          }
+        },
+        {
+          "backend": "tpu_hbm",
+          "label": "TPU MXU (HBM latency)",
+          "passed": true,
+          "mismatch_count": 0,
+          "error": null,
+          "cycles": 657002588,
+          "macs": 1827122176,
+          "rom_reads": 114258624,
+          "sram_reads": 9840640,
+          "sram_writes": 1446912,
+          "stalls": 0,
+          "argmax": 279,
+          "memory": "hbm",
+          "ext_mem_lat": 40,
+          "hbm_weight_bytes": 3656275968,
+          "ondie_weight_reads": 9840640,
+          "work_dir": "/Users/saurabhkarn/trocr-asic/evidence/runs/hw_3tok_tpu_hbm",
+          "store_bytes_per_cycle": 5.56508609673848,
+          "hbm_utilization": 0.0008306098651848478,
+          "energy": {
+            "memory": "hbm",
+            "weight_energy_j": 0.102375727104,
+            "sram_energy_j": 0.000251920384,
+            "mac_energy_j": 0.0008222049792,
+            "total_energy_j": 0.10344985246720001,
+            "weight_pj_per_bit": 3.5,
+            "constants": {
+              "rom_pj_per_bit": 0.08,
+              "sram_pj_per_bit": 0.1,
+              "hbm_pj_per_bit": 3.5,
+              "mac_pj_per_op": 0.45
+            },
+            "provenance": "lab/scale_1t.py N4 constants (rom 0.08 / sram 0.10 / hbm 3.5 pJ/bit, mac 0.45 pJ/op); counters from rtl_meta (measured)"
+          },
+          "stage_breakdown": {
+            "total_cycles": 657002588,
+            "stages": [
+              {
+                "stage": "IDLE",
+                "entries": 4,
+                "cycles": 6,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "EMBED",
+                "entries": 3,
+                "cycles": 138240,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "INPUT_NORM",
+                "entries": 84,
+                "cycles": 4295340,
+                "rom_reads": 3072,
+                "macs": 0
+              },
+              {
+                "stage": "Q_PROJ",
+                "entries": 84,
+                "cycles": 29439396,
+                "rom_reads": 91392,
+                "macs": 86016
+              },
+              {
+                "stage": "K_PROJ",
+                "entries": 84,
+                "cycles": 14725284,
+                "rom_reads": 11010048,
+                "macs": 176160768
+              },
+              {
+                "stage": "V_PROJ",
+                "entries": 84,
+                "cycles": 258822144,
+                "rom_reads": 5505024,
+                "macs": 88080384
+              },
+              {
+                "stage": "Q_NORM",
+                "entries": 84,
+                "cycles": 72597504,
+                "rom_reads": 5505024,
+                "macs": 88080384
+              },
+              {
+                "stage": "K_NORM",
+                "entries": 84,
+                "cycles": 36298752,
+                "rom_reads": 1548288,
+                "macs": 22020096
+              },
+              {
+                "stage": "ROPE",
+                "entries": 84,
+                "cycles": 2064384,
+                "rom_reads": 774144,
+                "macs": 11010048
+              },
+              {
+                "stage": "ATTN_SCORE",
+                "entries": 84,
+                "cycles": 174720,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "SOFTMAX",
+                "entries": 84,
+                "cycles": 37632,
+                "rom_reads": 0,
+                "macs": 344064
+              },
+              {
+                "stage": "ATTN_VALUE",
+                "entries": 84,
+                "cycles": 1584128,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "O_PROJ",
+                "entries": 84,
+                "cycles": 25746084,
+                "rom_reads": 0,
+                "macs": 2867200
+              },
+              {
+                "stage": "ATTN_RESIDUAL",
+                "entries": 84,
+                "cycles": 774144,
+                "rom_reads": 11010048,
+                "macs": 176160768
+              },
+              {
+                "stage": "POST_NORM",
+                "entries": 84,
+                "cycles": 4295340,
+                "rom_reads": 0,
+                "macs": 1376256
+              },
+              {
+                "stage": "GATE_PROJ",
+                "entries": 84,
+                "cycles": 44153508,
+                "rom_reads": 91392,
+                "macs": 86016
+              },
+              {
+                "stage": "UP_PROJ",
+                "entries": 84,
+                "cycles": 44153508,
+                "rom_reads": 16515072,
+                "macs": 264241152
+              },
+              {
+                "stage": "SILU",
+                "entries": 84,
+                "cycles": 2064384,
+                "rom_reads": 16515072,
+                "macs": 264241152
+              },
+              {
+                "stage": "DOWN_PROJ",
+                "entries": 84,
+                "cycles": 36766884,
+                "rom_reads": 0,
+                "macs": 0
+              },
+              {
+                "stage": "MLP_RESIDUAL",
+                "entries": 84,
+                "cycles": 774144,
+                "rom_reads": 16515072,
+                "macs": 264241152
+              },
+              {
+                "stage": "NEXT_LAYER",
+                "entries": 81,
+                "cycles": 81,
+                "rom_reads": 0,
+                "macs": 1327104
+              },
+              {
+                "stage": "FINAL_NORM",
+                "entries": 3,
+                "cycles": 153405,
+                "rom_reads": 0,
+                "macs": 49152
+              },
+              {
+                "stage": "LM_HEAD",
+                "entries": 3,
+                "cycles": 77943567,
+                "rom_reads": 3264,
+                "macs": 3072
+              },
+              {
+                "stage": "ARGMAX",
+                "entries": 3,
+                "cycles": 3,
+                "rom_reads": 29171712,
+                "macs": 466747392
+              },
+              {
+                "stage": "DONE",
+                "entries": 3,
+                "cycles": 6,
+                "rom_reads": 0,
+                "macs": 0
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

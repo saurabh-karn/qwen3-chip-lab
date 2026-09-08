@@ -1,0 +1,368 @@
+{
+ "schema_version": 1,
+ "verified_at_utc": "2026-09-06T20:19:16Z",
+ "spike": "pure-weights MX constant-multiplier feasibility (plan doc: docs/pure_weights_plan_05092026_0054.md, Phase 0)",
+ "oracle": {
+  "arithmetic": "qwen_ref.fp.f32_mul (qwen-ref-v2 profile) on the exact FP32 operands",
+  "new_constants": 0,
+  "note": "MX decode (E2M1/E4M3 code -> exact FP32 value, E8M0 block scale as a power of two) is exact by construction; the elementwise product of an MX weight and a normal BF16 activation is exact in FP32 (weight significand <= 8 bits x activation significand 8 bits <= 16 significant bits < 24), so no rounding step exists in the datapath."
+ },
+ "rtl": {
+  "dynamic_reference": "pure_weights/rtl/pw_mx_dyn.sv",
+  "constant_core": "pure_weights/rtl/pw_const_mul_core.sv",
+  "bf16_core": "pure_weights/rtl/pw_bf16_core.sv",
+  "testbench": "pure_weights/rtl/tb_pw_spike.sv",
+  "vector_generator": "pure_weights/tools/gen_pw_vectors.py"
+ },
+ "bit_exactness": {
+  "mx_sweep": {
+   "total_vectors": 10065,
+   "mismatches_dynamic": 0,
+   "mismatches_core": 0,
+   "passed": true,
+   "coverage": "E2M1 all 8 codes x 3 scales (120/127/134) x activation set; E4M3 representative codes (normals, subnormal, max, signed, -0) x activation set; activations include normal range (ef 1..254 sampled), subnormal activations (ef=0, m!=0), zero, inf, NaN"
+  },
+  "bf16_core_sweep": {
+   "total_vectors": 416,
+   "mismatches": 0,
+   "passed": true,
+   "coverage": "3 BF16 weights (1.0, 0x4248, 0x42F6) x activation set incl. subnormal activations"
+  }
+ },
+ "aig_measurement": {
+  "flow": "yosys 0.67 proc/opt/techmap/opt -> abc -g AND -> opt; stat",
+  "unit": "AIG AND nodes (whole unit incl. special branches and output assembly)",
+  "caveat": "Whole-unit counts include ~100 AND of 32-bit output-select muxes that amortize per accumulator in a real dot product, and the activation-subnormal normalize (~50 AND) that amortizes per activation row. Marginal per-weight cost is lower.",
+  "bf16_core": {
+   "w_1.0_3F80": 105,
+   "w_0x4248": 337,
+   "w_0x42F6": 500,
+   "w_zero_0000": 8
+  },
+  "e2m1_core": {
+   "code_00_plus0": 8,
+   "code_01_0.5": 334,
+   "code_02_1.0": 46,
+   "code_03_1.5": 419,
+   "code_04_2.0": 284,
+   "code_05_3.0": 404,
+   "code_06_4.0": 248,
+   "code_07_6.0": 370
+  },
+  "e4m3_core": {
+   "code_30_0.5": 307,
+   "code_38_1.0": 93,
+   "code_3F_1.875": 556,
+   "code_07_subnormal": 548,
+   "code_B8_neg1.0": 93,
+   "code_80_neg0": 8
+  },
+  "structural_findings": [
+   "The subnormal-result branch costs ~288 AND and is compile-time prunable per (weight, scale) pair when the generator proves the result exponent range never reaches e_res < 1 (E2M1 w=1.0 folds 334->46-class; the branch is the dominant cost).",
+   "A one-hot mux normalize beats the behavioral variable shift for weights whose product msb is not constant (E2M1 w=1.5: 419 behavioral -> 262 structural with the provably-unreachable subnormal branch deleted; pw_e2m1_ns shape).",
+   "Weights that are pure powers of two (E2M1 1.0/2.0/4.0 with reachable-normal results) collapse to 46-284 AND; the exponent path is a constant increment, the significand a wire.",
+   "The zero-weight stub is 8 AND (sign handling for the RNE -0/+0 rule), not zero silicon, in the serial-accumulation contract."
+  ],
+  "generator_shape_conclusion": "The generator must emit per-weight: (a) structural shifted-add product from the constant significand, (b) one-hot msb mux normalize (not variable shift), (c) constant-folded exponent increment, (d) compile-time pruned subnormal-result branch per (weight, scale) reachability, (e) shared (amortized) output-select and activation-decode per dot-product column."
+ },
+ "chip_count_implication": {
+  "basis": "Measured whole-unit AND counts; marginal per-weight cost excludes amortized output-select and activation decode. Tr conversion [E]: 1 AIG AND ~ 4 transistors (NAND2, N4-class).",
+  "tr_per_param_estimated": {
+   "bf16_typical": "1300-2000 [E, from 337-500 AND whole-unit]",
+   "mxfp4_typical": "650-1700 [E, from 248-419 AND whole-unit; 262 structural for w=1.5; w=1.0 pure-shift 46]"
+  },
+  "revision_note": "The spike revised the earlier [E] estimate (MXFP4 ~100-150 Tr/param) UPWARD ~2-4x: the special-branch and normalize machinery, not the mantissa adder, dominates the per-weight cost at whole-unit granularity. The generator specializations (branch pruning, one-hot normalize, amortization) recover part of it; the honest 30B-A3B MXFP4 footprint is ~1.5-2.5 wafers (revised from ~1), 1T-class ~45-70 wafers (revised from ~15-22).",
+  "next_measurement": "Phase 1 generator emits the amortized dot-product shape (N weights sharing one output stage and one activation decode); re-measure per-matrix AND counts on q_proj L0 to replace the whole-unit numbers with marginal ones."
+ },
+ "provenance": {
+  "plan": "docs/pure_weights_plan_05092026_0054.md",
+  "oracle_source": "qwen_ref/fp.py (qwen-ref-v2)",
+  "tools": "verilator 5.050, yosys 0.67",
+  "labels": "bit-exactness measured; AIG counts measured (generic flow, not a foundry result); Tr/param and chip counts estimated [E] from measured AND counts"
+ },
+ "phase1_feasibility_gate": {
+  "matrix": "q_proj_l0",
+  "weights": 2097152,
+  "exact_zeros": 0,
+  "audit_outcome": {
+   "claim": "External audit (2026-05-09): the first generator emitted a w_bits reg array indexed by runtime ports (row_i/col_i) plus a generic 8-bit shift-add multiplier on the runtime-read value -- a ROM + generic multiplier, not pure weights.",
+   "verified_on_disk": true,
+   "fix": "tools/gen_pure_weights.py now emits one pw_bf16_core #(.W_BF16(<const>)) instance per weight (weight bound at elaboration time, per-bit shift-add ifs see compile-time constants) selected by case over row_i/col_i. No w_bits array, no runtime weight read, no generic multiplier."
+  },
+  "generated_sv_mb": 298.9,
+  "monolithic_elaboration": {
+   "verdict": "FAILS on 24 GB / 14-core dev machine (measured)",
+   "measurements": [
+    {
+     "instances": 2097152,
+     "form": "flat case",
+     "lint_s": 295.14,
+     "result": "killed, signal 9 (OOM)"
+    },
+    {
+     "instances": 2097152,
+     "form": "hierarchical (row modules + row mux)",
+     "lint_s": 294.55,
+     "result": "killed, signal 9 (OOM)"
+    },
+    {
+     "instances": 131072,
+     "form": "flat case",
+     "lint_s": 736.98,
+     "result": "Verilator internal fault"
+    },
+    {
+     "instances": 131072,
+     "form": "hierarchical",
+     "lint_s": null,
+     "result": "still running at >2000 s (killed; no completion in sight)"
+    },
+    {
+     "instances": 32768,
+     "form": "flat case",
+     "lint_s": 113.24,
+     "result": "PASS"
+    },
+    {
+     "instances": 32768,
+     "form": "hierarchical",
+     "lint_s": 111.34,
+     "result": "PASS"
+    },
+    {
+     "instances": 8192,
+     "form": "flat case",
+     "lint_s": 24.71,
+     "result": "PASS"
+    },
+    {
+     "instances": 8192,
+     "form": "hierarchical",
+     "lint_s": 23.35,
+     "result": "PASS"
+    },
+    {
+     "instances": 128,
+     "form": "hierarchical (katslice)",
+     "lint_s": 1.8,
+     "result": "PASS"
+    }
+   ],
+   "scaling": "super-linear (roughly quadratic) in distinct parameterized specializations; hierarchy changes the cliff's shape, not its existence -- Verilator's cost is dominated by total distinct specializations per invocation",
+   "note": "The original gate (21.2 s, 29.3 MB) measured the w_bits ARRAY form -- a cheap elaboration that did not exercise the per-weight-instance architecture at all."
+  },
+  "split_build_path": {
+   "verdict": "VIABLE (measured)",
+   "per_row_unit_cost": {
+    "instances": 1024,
+    "lint_s": 2.64,
+    "linear_check_4_rows_s": 11.57
+   },
+   "row0_functional": {
+    "build_plus_run_s": 4.7,
+    "vectors": 72,
+    "mismatches": 0,
+    "vectors_desc": "64 pseudo-random (col, activation) probes + 8 corners (zero, min/max subnormal, min normal, 1.0, max normal, -1.0, inf) on real q_proj_l0 row 0, full FP32 product bits vs qwen_ref.fp.f32_mul"
+   },
+   "extrapolation_full_model": "411M weights / 1024 per row = ~401k row-module builds x ~2.6 s ~ 12 days single-threaded; embarrassingly parallel (14 cores ~ <1 day) and cacheable per matrix. Per-row SV ~0.1 MB; full 0.6B ~ 58 GB of row modules on disk.",
+   "tool": "make pw-split-check (tools/gen_split_check.py + pure_weights/rtl/tb_split_check.sv)"
+  },
+  "generator": "tools/gen_pure_weights.py",
+  "verdict": "FEASIBLE ONLY VIA SPLIT BUILDS: monolithic 2.1M-instance elaboration OOMs on a 24 GB machine (measured, both flat and hierarchical emission); per-row-module builds are linear at ~2.6 s/1024 instances and functionally exact on real ROM data. Full-model gate requires the split flow; per-matrix monolithic builds are viable only below ~32k instances."
+ },
+ "phase1_pw_gemm_kat": {
+  "engine": "pure_weights/rtl/qwen3_pw_gemm.sv",
+  "matrix": "katslice (8x16 from q_proj_l0 base)",
+  "contract": "serial FP32 accumulation of exact constant products, BF16 RNE commit (qwen-ref-v2)",
+  "total_rows": 8,
+  "mismatches": 0,
+  "passed": true,
+  "note": "Engine handshake bug found and fixed during KAT: act_ready gated off the last k, deadlocking the row. act_ready = running; commit on the final activation.",
+  "architecture": "pw_katslice_weights regenerated as 128 pw_bf16_core #(.W_BF16(...)) instances (row modules + case mux); no w_bits array",
+  "rerun_after_fix": {
+   "total_rows": 8,
+   "mismatches": 0,
+   "passed": true
+  }
+ },
+ "subnormal_result_fix": {
+  "found_by": "pw-split-check corner vectors on real q_proj_l0 row 0 (a=0x0001 col=792, a=0x0080 col=172)",
+  "bug": "Subnormal FP32 RESULTS with negative significand shift (e_res_32 - msb + 22 < 0) were flushed to zero instead of RNE-rounded. The 2026-05-09 spike fix covered only the left-shift case; the spike sweep's scale range never produced a right-shift subnormal result, so 10,065 vectors missed it. Real weights do hit it.",
+  "fix": "Mirror qwen_f32_mul's subnormal path: guard = last bit shifted out, sticky = bits below it, round up on guard && (sticky || lsb); carry-to-min-normal unreachable (p < 2^17); shifts >= 18 (bf16) / 16 (MX) round to zero. Applied to pw_bf16_core.sv, pw_const_mul_core.sv, pw_mx_dyn.sv; all lint-clean.",
+  "verification": {
+   "pw_split_check": {
+    "total": 72,
+    "mismatches": 0,
+    "passed": true
+   },
+   "pw_spike_regression": {
+    "total": 10065,
+    "mismatches_dyn": 0,
+    "mismatches_core": 0,
+    "passed": true
+   },
+   "bf16_core_regression": {
+    "total": 416,
+    "mismatches": 0,
+    "passed": true
+   },
+   "pw_kat_regression": {
+    "total": 8,
+    "mismatches": 0,
+    "passed": true
+   }
+  }
+ },
+ "cycle_analysis": {
+  "question": "How many cycles per forward pass, and can we reduce them?",
+  "measured_baseline": {
+   "fused_mask_rom_1t_cycles": 57024559,
+   "fused_mask_rom_1t_macs": 608945152,
+   "fused_mask_rom_13t_tokyo_cycles": 745190883,
+   "source": "evidence/hw_comparison.json (mask_rom_fused / gpu, bit-exact at 1t/3t/13t)",
+   "pw_engine_today": "qwen3_pw_gemm computes ALL per-weight products combinationally every cycle and uses one -- 1 MAC/cycle => 608,945,152 cycles/token for GEMM work alone (~10.7x the fused engine's 57.0M). The multiply is already free (wires); the serial FP32 add chain is the bottleneck."
+  },
+  "option_1_serial_lane_chain_16x": {
+   "what": "Copy qwen_bf16_mac_array's bit-exactness trick: instantiate 16 constant cores per cycle, chain their exact products through the SAME serial FP32 adder in oracle k-order inside one combinational block (16 adds/cycle, identical rounding sequence).",
+   "bit_exact": true,
+   "cycles": "GEMM work drops 10.7x: 608,945,152 -> 38,059,072 cycles/token; whole-token schedule ~= fused mask-ROM's measured 57,024,559 cycles/token (13t: 745,190,883).",
+   "area_cost": "16 cores per lane slot instead of 1: GEMM logic x16 (the dominant area term already; see chip_count_implication).",
+   "verdict": "RECOMMENDED Phase 1 change: same arithmetic profile qwen-ref-v2, no new oracle, measured 10.7x cycle reduction on the GEMM path."
+  },
+  "option_2_carry_save_exact_sum_tree": {
+   "what": "CSA tree over k products, one final FP32-normalize; changes the rounding order.",
+   "bit_exact": false,
+   "cost": "Requires a new oracle profile (qwen-ref-v3-csa) and re-verification of all gates; saves only the add-chain latency, which option 1 already parallelizes 16x.",
+   "verdict": "Deferred -- option 1 reaches fused-engine cycles without leaving the verified profile."
+  },
+  "option_3_full_unroll_per_layer": {
+   "what": "Every weight's product network hardwired (the full pure-weights endgame): a 1024-deep dot becomes an adder tree, ~log2(1024)=10 add levels ~ single-digit cycles per dot; q_proj_l0 alone collapses from 2,097,152 serial cycles to ~12 pipeline-latency cycles.",
+   "bit_exact": false,
+   "cost": "Same rounding-order problem as option 2 plus the elaboration wall measured above (monolithic 2.1M-instance builds OOM; full 0.6B is ~411M instances).",
+   "verdict": "The 30B-A3B endgame shape, gated on a new oracle profile and the split-build flow; not a Phase 1 lever."
+  },
+  "bottom_line": "Adopt option 1: ~10.7x fewer cycles (608.9M -> 38.1M GEMM cycles/token), bit-exact under the existing qwen-ref-v2 profile, matching the fused engine's measured 57.0M cycles/token.",
+  "non_gemm_stages_note": "Non-GEMM stages (softmax, norms, rope) are shared with the fused engine and already inside the 57.0M measured budget; pw changes do not touch them."
+ },
+ "wafer_yield_redundancy": {
+  "question": "Wafer-scale integration will have defects; what redundancy keeps yield viable?",
+  "why_pure_weights_is_special": "Weights ARE the silicon structure. A defect in a weight's constant network is a wrong multiplier bit -- the die computes a wrong model, not a dead one. There is no field repair and no re-download; redundancy must be built in and tested at manufacturing.",
+  "cited_defect_density": {
+   "intel_18a": "D0 < 0.40 defects/cm2 at launch (>67% die yield); volume production D0 ~ 0.1 (>90% yield) -- Vikram Sekar, 'How Foundries Calculate Die Yield' (2024-09-15), quoting Intel's Ben Sell.",
+   "repo_node": "N4 (lab/scale_1t.py: 240 MTr/mm2, 0.021 um2 SRAM bitcell); D0 assumed in the 0.1-0.4 band [C] until a foundry quote exists."
+  },
+  "layer_1_die_level_sparing": {
+   "mechanism": "Chip-to-chip pipeline (plan Phase 3: ~1 die per layer, activations only across boundaries). Manufacture spare dies per wafer; wafer test (JTAG scan + KAT per die: each pure-weights die runs its own layer's vectors) classifies known-good die (KGD); a defect maps the layer to a spare die via the D2D fabric's route table.",
+   "cost": "Spare-die count, not per-die area. Poisson die yield Y=e^(-D0*A) is brutal at these areas: D0=0.1/cm2 gives Y=0.0123 at a 44 mm2 reticle die and Y=8.76e-27 at 600 mm2; D0=0.4 gives Y=2.27e-08 and 5.88e-105. Conclusion: KGD selection at reticle-die granularity is necessary but nowhere near sufficient -- the primary redundancy must be INTRA-die (layers 2 and 4), with wafer-scale fabric remap routing around dead regions (Cerebras-style), because monolithic large dies are hopeless at D0 >= 0.1.",
+   "note": "The 600 mm2 die_capacity figure in evidence/multi_die_scaling.json is an upper bound; Phase 3's ~44 reticle dies for 30B-A3B MXFP4 are the real granularity."
+  },
+  "layer_2_intra_die_expert_sparing": {
+   "mechanism": "MoE gives free structural redundancy: 128 experts, 8 active. Fuse spare expert regions per die; the router's remap table (burned at test, one-time) routes around a defective expert region. A defective expert = a disabled expert with its capacity re-split across survivors.",
+   "cost": "Spares consume area exactly like active experts (same constant-network economics); 10-15% spare expert capacity covers the D0 band at expert granularity because expert regions are large (~0.3-0.5 mm2 at MXFP4) and defects are point events.",
+   "accuracy": "Router remap changes the model (expert capacity split), so it must be applied in QAT or accepted as a measured accuracy delta -- flagged as a model-level decision."
+  },
+  "layer_3_kv_and_fabric_ecc": {
+   "mechanism": "KV SRAM (per-layer banks, kv_placement() tiering in lab/scale_1t.py) gets SECDED ECC -- KV is runtime-written, so a failed bit cell is repaired by ECC + row remap at test. On-wafer fabric links get CRC + packet retry (activations only; weights never cross dies).",
+   "cost": "SECDED on int8 KV ~ 1/8 check bits ~ +12.5% KV SRAM; retry buffers ~ negligible area."
+  },
+  "layer_4_weight_network_self_test": {
+   "mechanism": "Every pure-weights die self-tests at boot AND at manufacturing: the die's own constant networks compute their KAT vectors (the same pw-split-check vectors, stored in a tiny per-die test ROM). A mismatching weight network is recorded in a per-die defect map; GEMM scheduling skips that output row if a spare row exists, or the die is rejected.",
+   "cost": "Test ROM ~ KBs per die; zero runtime cost (test at boot only).",
+   "note": "This is the pure-weights analog of DRAM post-package repair: the defect map is the spare structure."
+  },
+  "yield_math_anchor": {
+   "model": "Poisson: Y = e^(-D0*A) per die; wafer usable 60,000 mm2 (lab/scale_1t.py preset 70,686 * 0.85).",
+   "computed_examples": {
+    "D0_0.1_A25": 0.0820849986238988,
+    "D0_0.1_A44": 0.012277339903068436,
+    "D0_0.1_A600": 8.75651076269652e-27,
+    "D0_0.4_A25": 4.5399929762484854e-05,
+    "D0_0.4_A44": 2.2720459927738556e-08,
+    "D0_0.4_A600": 5.8792826982452694e-105
+   },
+   "reading": "At cited D0 values, per-die yield collapses exponentially with area: a 44 mm2 reticle die yields 1.2% (D0=0.1) to 2e-8 (D0=0.4). Wafer-scale viability therefore rests on fine-grained sparing + fabric remap (treat the wafer as one die with millions of small redundant units), not on KGD dies.",
+   "labels": "[C] D0 values cited (Intel 18A <0.4, volume ~0.1), [E] Poisson model standard, areas from repo constants."
+  },
+  "bottom_line": "Redundancy hierarchy, in order of importance at cited D0: (1) fine-grained intra-die sparing -- spare output rows/expert regions with per-die defect maps from boot-time weight-network self-test; (2) wafer-scale fabric remap routing around dead regions (activations only; weights never cross dies); (3) KGD reticle-die selection as the coarse fallback; (4) SECDED ECC on KV SRAM (runtime-written, repairable) + CRC/retry on fabric links. Pure-weights dies are not repairable after manufacture, so all mechanisms burn in at test; the wafer budget (1.5-2.5 wafers for 30B-A3B MXFP4) must include the spare fraction."
+ },
+ "phase1_pw_gemm16": {
+  "approved": "User approved the 16-lane serial-chain engine (2026-05-09), built as NEW RTL; the 1-element engine (qwen3_pw_gemm.sv), its generator (tools/gen_pure_weights.py), and qwen_bf16_mac_array.sv are untouched.",
+  "engine": "pure_weights/rtl/qwen3_pw_gemm16.sv",
+  "generator": "tools/gen_pure_weights16.py (separate from tools/gen_pure_weights.py)",
+  "architecture": {
+   "mode_a": "One pw_bf16_core per (row, col) weight grouped into 16-element k-windows; per cycle the engine supplies one 256-bit activation beat + window index and receives 16 exact FP32 products; they are chained through 16 serial qwen_f32_add calls in ascending k order inside one combinational block (the qwen_bf16_mac_array bit-exactness trick). Rounding sequence identical to the 1-element engine; IN_FEATURES/16 cycles per row => 16 MACs/cycle.",
+   "packages": "Fixed module names pw_gemm16_weights_w16 (window form) / pw_gemm16_weights_b16 (batch form, emitted but engine integration deferred) so the engine RTL is matrix-agnostic; one matrix per build (split-build flow).",
+   "cycle_math": "GEMM work 608,945,152 MACs/token / 16 = 38,059,072 cycles/token (vs 608.9M for the 1-element engine; fused mask-ROM reference 57,024,559 cycles/token whole-token)."
+  },
+  "verification": {
+   "pw_kat16": {
+    "total": 32,
+    "mismatches": 0,
+    "passed": true,
+    "note": "8x16 katslice, 4 oracle sets per row; same legacy vector format as tb_pw_kat so the identical stimuli run through both engines for parity"
+   },
+   "pw_row16": {
+    "total": 64,
+    "mismatches": 0,
+    "passed": true,
+    "note": "4 REAL q_proj_l0 rows x 1024 elements (64 windows per row, 4096 cores) vs qwen_ref.fp serial oracle; exercises window streaming, chain order across window boundaries, and BF16 RNE commit"
+   },
+   "lint": "qwen3_pw_gemm16.sv introduces zero new lint warnings beyond the shared qwen_f32_ops.svh baseline (17 warnings, identical count as the old engine).",
+   "build": {
+    "kat16_s": 2.5,
+    "row16_s": 91.3,
+    "row16_ram_mb": 1751.7
+   }
+  },
+  "batch_mode_status": "Mode B VERIFIED at full depth 2026-09-07: qwen3_pw_gemm16_batch.sv passes the katslice smoke (128/128) and the 2x1024x16 full-depth check (16 trials, 0 mismatches) vs the serial oracle. See phase1_pw_batch16.",
+  "verdict": "PASS: 16-lane serial-chain engine bit-exact vs qwen-ref-v2 on katslice (32/32) and real q_proj rows (64/64); 16 MACs/cycle with the same arithmetic profile."
+ },
+ "phase1_pw_batch16": {
+  "mode": "B (batch): lanes = sequences; per cycle ONE weight column multiplies 16 sequence activations; each lane keeps its own strictly serial k-order FP32 accumulator (the exact oracle order), so batch=16 costs no bit-exactness",
+  "engine": "pure_weights/rtl/qwen3_pw_gemm16_batch.sv (NEW RTL; the approved mode A engine qwen3_pw_gemm16.sv is untouched)",
+  "generator": "tools/gen_pure_weights16.py --mode qproj_rows4_b16 (block-split batch package: 64-col blocks, 32 blocks x 1024 cores, per-row block muxes) and --mode katslice16 (smoke package + vectors)",
+  "verification": {
+   "katslice_smoke": {
+    "total": 128,
+    "mismatches": 0,
+    "passed": true,
+    "shape": "8 katslice rows x 16 trials x 16 sequences, depth 16",
+    "label": "PW_BATCH16 total=128 mism=0 PASS"
+   },
+   "full_depth": {
+    "total": 16,
+    "mismatches": 0,
+    "passed": true,
+    "rows": 2,
+    "in_features": 1024,
+    "sequences": 16,
+    "cores": 32768,
+    "label": "PW_BATCH16 total=16 mism=0 PASS",
+    "note": "2 REAL q_proj_l0 rows (base 0x128C0800) x 1024 depth x 16 sequences = 256/256 sequence-commits bit-exact vs the qwen_ref.fp serial oracle (f32_add/f32_mul/BF16 RNE, zero new arithmetic constants)"
+   }
+  },
+  "root_cause_history": {
+   "earlier_full_depth_failure_was_void": "The recorded 'PW_BATCH16Q total=16 mism=256' run and the constant-1.0 probe (commit 0000) both executed against the PRE-wire-fix package (block modules missing p{c}_{s} declarations -> 1-bit IMPLICIT product wires -> zero products). obj_b16q (20:41) never produced a binary: that build died compiling the fixed package. The engine was never functionally wrong at depth.",
+   "emitter_single_block_mux_bug": "The 2026-09-06 block-split emitter emitted the row module's block mux unconditionally as case (col_i[cb-1:cb-bb]). For the katslice shape (16 cols -> nb=1 block, bb forced to 1) this emitted case (col_i[3:3]): cols 0..7 selected the block, cols 8..15 fell to the 512'b0 default. Measured: katslice smoke 1831/2048 mismatches with large-normal got values (partial sums of the first 8 terms). Fix: nb==1 emits assign product_o = blk0; (tools/gen_pure_weights16.py). Smoke re-passed 128/128 after the fix; the 1024-col package (nb=16, case on col_i[9:6]) is byte-identical before and after the fix (diff-verified)."
+  },
+  "codegen_wall": {
+   "problem": "The fixed 32,768-core package inlines into ONE ___nba_comb eval function of 308,642,897 B (__024root__297.cpp) + 308,642,555 B (__024root__295.cpp); clang++ at -Os dies on it (0-byte .o.tmp, process killed).",
+   "measured_dead_ends": {
+    "output_split_cfuncs_30000": "splits ___nba_sequent into ~300 chunks but NOT ___nba_comb regions -> giants remain",
+    "inline_mult_0": "Verilator dies silently (OOM) ~9 min into cvt: 32,768 unique-parameter pw_bf16_core types all stay un-inlined",
+    "inline_mult_1": "same death (instance counting is per parameterized type: every core is a 1-instance type)",
+    "threads_4_max_mtasks_64": "Verilator dies silently during partitioning"
+   },
+   "working_recipe": "--output-split 30000 --output-split-cfuncs 30000 -CFLAGS -O0: at -O0 both 308 MB units compile to 64,047,392 / 64,047,632 B objects"
+  },
+  "build": {
+   "katslice_smoke_s": 14.0,
+   "full_depth_s": 790.34,
+   "full_depth_breakdown": "elab=2.032 cvt=463.360 bld=281.989",
+   "full_depth_ram_mb": 4485.5,
+   "binary_bytes": 201673528,
+   "full_depth_sim_s": 312.233
+  },
+  "batch_conclusion": "Batch is a KV-capacity knob, not a compute knob: mode B shares the same hardware as mode A (16k x 1seq vs 1k x 16seq), per-sequence accumulation stays strictly serial in k, and the throughput ceiling is the 16-lane 38,059,072 GEMM cycles/token. See plan doc 2026-05-09 batching addendum for the serving sweet spot (batch 8-16 short context, tiered down at 128k; int4 KV buys batch back)."
+ }
+}

@@ -1,0 +1,801 @@
+{
+  "schema_version": 1,
+  "tech_node": "N4",
+  "description": "Multi-die scaling: dies, MoE sparsity, D2D interconnect",
+  "key_principles": [
+    "dies = ceil(stored_params / per_die_capacity)",
+    "MoE: only active experts powered (routing_fraction)",
+    "D2D carries activations ONLY \u2014 weights never cross dies"
+  ],
+  "die_capacity": {
+    "die_area_mm2": 600,
+    "rom_utilization": 0.7,
+    "rom_bitcell_um2": 0.02,
+    "params_bf16_billions": 200,
+    "params_int8_billions": 400,
+    "params_int4_billions": 800
+  },
+  "d2d_options": {
+    "ucie_standard": {
+      "name": "UCIe Standard",
+      "bandwidth_gbps": 256,
+      "energy_pj_per_bit": 0.5,
+      "ref": "UCIe 2.0 specification (2024)"
+    },
+    "ucie_advanced": {
+      "name": "UCIe Advanced",
+      "bandwidth_gbps": 1024,
+      "energy_pj_per_bit": 0.25,
+      "ref": "UCIe 2.0 advanced packaging (2024)"
+    },
+    "bow": {
+      "name": "Bunch of Wires (BoW)",
+      "bandwidth_gbps": 2048,
+      "energy_pj_per_bit": 0.15,
+      "ref": "Intel Ponte Vecchio BoW (2023)"
+    }
+  },
+  "moe_configs": {
+    "dense": {
+      "name": "Dense (no MoE)",
+      "total_experts": 1,
+      "active_experts": 1,
+      "routing_fraction": 1.0
+    },
+    "moe_8x": {
+      "name": "MoE 8 experts (top-2)",
+      "total_experts": 8,
+      "active_experts": 2,
+      "routing_fraction": 0.25
+    },
+    "moe_64x": {
+      "name": "MoE 64 experts (top-2)",
+      "total_experts": 64,
+      "active_experts": 2,
+      "routing_fraction": 0.03125
+    },
+    "moe_128x": {
+      "name": "MoE 128 experts (top-8)",
+      "total_experts": 128,
+      "active_experts": 8,
+      "routing_fraction": 0.0625,
+      "ref": "DeepSeek-V3, Mixtral architecture"
+    },
+    "moe_256x": {
+      "name": "MoE 256 experts (top-8)",
+      "total_experts": 256,
+      "active_experts": 8,
+      "routing_fraction": 0.03125,
+      "ref": "Kimi K2 architecture (2025)"
+    }
+  },
+  "energy_references": {
+    "baseline": "Horowitz, 'Computing's energy problem', ISSCC 2014",
+    "d2d": "UCIe 2.0 specification, Intel BoW (2023-2024)"
+  },
+  "results": [
+    {
+      "config": {
+        "name": "Qwen3-0.6B (16b)",
+        "total_params_billions": 0.6,
+        "precision_bits": 16,
+        "moe_config": "dense",
+        "tech_node": "N4",
+        "d2d_type": "ucie_advanced"
+      },
+      "dies": {
+        "n_dies": 1,
+        "params_per_die_billions": 0.6
+      },
+      "moe": {
+        "total_experts": 1,
+        "active_experts": 1,
+        "routing_fraction": 1.0,
+        "active_params_billions": 0.6
+      },
+      "interconnect": {
+        "d2d_bandwidth_gbps": 1024,
+        "activation_bytes_per_token": 57344,
+        "d2d_latency_us": 0.448,
+        "d2d_energy_per_token_uj": 0.114688,
+        "weight_bytes_crossing_dies": 0
+      },
+      "energy_per_token": {
+        "compute_mj": 0.54,
+        "weight_mj": 0.336,
+        "d2d_mj": 0.000114688,
+        "total_mj": 0.8761146880000001
+      },
+      "provenance": {
+        "kind": "analytical_estimate",
+        "die_capacity_ref": "N4 reticle-limited 600mm\u00b2 die",
+        "d2d_ref": "UCIe 2.0 advanced packaging (2024)",
+        "moe_ref": "standard MoE architecture",
+        "invariant": "weight_bytes_crossing_dies = 0 (verified)"
+      }
+    },
+    {
+      "config": {
+        "name": "Qwen3-0.6B (8b)",
+        "total_params_billions": 0.6,
+        "precision_bits": 8,
+        "moe_config": "dense",
+        "tech_node": "N4",
+        "d2d_type": "ucie_advanced"
+      },
+      "dies": {
+        "n_dies": 1,
+        "params_per_die_billions": 0.6
+      },
+      "moe": {
+        "total_experts": 1,
+        "active_experts": 1,
+        "routing_fraction": 1.0,
+        "active_params_billions": 0.6
+      },
+      "interconnect": {
+        "d2d_bandwidth_gbps": 1024,
+        "activation_bytes_per_token": 57344,
+        "d2d_latency_us": 0.448,
+        "d2d_energy_per_token_uj": 0.114688,
+        "weight_bytes_crossing_dies": 0
+      },
+      "energy_per_token": {
+        "compute_mj": 0.54,
+        "weight_mj": 0.168,
+        "d2d_mj": 0.000114688,
+        "total_mj": 0.7081146880000001
+      },
+      "provenance": {
+        "kind": "analytical_estimate",
+        "die_capacity_ref": "N4 reticle-limited 600mm\u00b2 die",
+        "d2d_ref": "UCIe 2.0 advanced packaging (2024)",
+        "moe_ref": "standard MoE architecture",
+        "invariant": "weight_bytes_crossing_dies = 0 (verified)"
+      }
+    },
+    {
+      "config": {
+        "name": "Qwen3-0.6B (4b)",
+        "total_params_billions": 0.6,
+        "precision_bits": 4,
+        "moe_config": "dense",
+        "tech_node": "N4",
+        "d2d_type": "ucie_advanced"
+      },
+      "dies": {
+        "n_dies": 1,
+        "params_per_die_billions": 0.6
+      },
+      "moe": {
+        "total_experts": 1,
+        "active_experts": 1,
+        "routing_fraction": 1.0,
+        "active_params_billions": 0.6
+      },
+      "interconnect": {
+        "d2d_bandwidth_gbps": 1024,
+        "activation_bytes_per_token": 57344,
+        "d2d_latency_us": 0.448,
+        "d2d_energy_per_token_uj": 0.114688,
+        "weight_bytes_crossing_dies": 0
+      },
+      "energy_per_token": {
+        "compute_mj": 0.54,
+        "weight_mj": 0.084,
+        "d2d_mj": 0.000114688,
+        "total_mj": 0.624114688
+      },
+      "provenance": {
+        "kind": "analytical_estimate",
+        "die_capacity_ref": "N4 reticle-limited 600mm\u00b2 die",
+        "d2d_ref": "UCIe 2.0 advanced packaging (2024)",
+        "moe_ref": "standard MoE architecture",
+        "invariant": "weight_bytes_crossing_dies = 0 (verified)"
+      }
+    },
+    {
+      "config": {
+        "name": "Llama-70B (16b)",
+        "total_params_billions": 70,
+        "precision_bits": 16,
+        "moe_config": "dense",
+        "tech_node": "N4",
+        "d2d_type": "ucie_advanced"
+      },
+      "dies": {
+        "n_dies": 1,
+        "params_per_die_billions": 70.0
+      },
+      "moe": {
+        "total_experts": 1,
+        "active_experts": 1,
+        "routing_fraction": 1.0,
+        "active_params_billions": 70.0
+      },
+      "interconnect": {
+        "d2d_bandwidth_gbps": 1024,
+        "activation_bytes_per_token": 1310720,
+        "d2d_latency_us": 10.24,
+        "d2d_energy_per_token_uj": 2.6214399999999998,
+        "weight_bytes_crossing_dies": 0
+      },
+      "energy_per_token": {
+        "compute_mj": 63.0,
+        "weight_mj": 39.199999999999996,
+        "d2d_mj": 0.00262144,
+        "total_mj": 102.20262143999999
+      },
+      "provenance": {
+        "kind": "analytical_estimate",
+        "die_capacity_ref": "N4 reticle-limited 600mm\u00b2 die",
+        "d2d_ref": "UCIe 2.0 advanced packaging (2024)",
+        "moe_ref": "standard MoE architecture",
+        "invariant": "weight_bytes_crossing_dies = 0 (verified)"
+      }
+    },
+    {
+      "config": {
+        "name": "Llama-70B (8b)",
+        "total_params_billions": 70,
+        "precision_bits": 8,
+        "moe_config": "dense",
+        "tech_node": "N4",
+        "d2d_type": "ucie_advanced"
+      },
+      "dies": {
+        "n_dies": 1,
+        "params_per_die_billions": 70.0
+      },
+      "moe": {
+        "total_experts": 1,
+        "active_experts": 1,
+        "routing_fraction": 1.0,
+        "active_params_billions": 70.0
+      },
+      "interconnect": {
+        "d2d_bandwidth_gbps": 1024,
+        "activation_bytes_per_token": 1310720,
+        "d2d_latency_us": 10.24,
+        "d2d_energy_per_token_uj": 2.6214399999999998,
+        "weight_bytes_crossing_dies": 0
+      },
+      "energy_per_token": {
+        "compute_mj": 63.0,
+        "weight_mj": 19.599999999999998,
+        "d2d_mj": 0.00262144,
+        "total_mj": 82.60262144
+      },
+      "provenance": {
+        "kind": "analytical_estimate",
+        "die_capacity_ref": "N4 reticle-limited 600mm\u00b2 die",
+        "d2d_ref": "UCIe 2.0 advanced packaging (2024)",
+        "moe_ref": "standard MoE architecture",
+        "invariant": "weight_bytes_crossing_dies = 0 (verified)"
+      }
+    },
+    {
+      "config": {
+        "name": "Llama-70B (4b)",
+        "total_params_billions": 70,
+        "precision_bits": 4,
+        "moe_config": "dense",
+        "tech_node": "N4",
+        "d2d_type": "ucie_advanced"
+      },
+      "dies": {
+        "n_dies": 1,
+        "params_per_die_billions": 70.0
+      },
+      "moe": {
+        "total_experts": 1,
+        "active_experts": 1,
+        "routing_fraction": 1.0,
+        "active_params_billions": 70.0
+      },
+      "interconnect": {
+        "d2d_bandwidth_gbps": 1024,
+        "activation_bytes_per_token": 1310720,
+        "d2d_latency_us": 10.24,
+        "d2d_energy_per_token_uj": 2.6214399999999998,
+        "weight_bytes_crossing_dies": 0
+      },
+      "energy_per_token": {
+        "compute_mj": 63.0,
+        "weight_mj": 9.799999999999999,
+        "d2d_mj": 0.00262144,
+        "total_mj": 72.80262144
+      },
+      "provenance": {
+        "kind": "analytical_estimate",
+        "die_capacity_ref": "N4 reticle-limited 600mm\u00b2 die",
+        "d2d_ref": "UCIe 2.0 advanced packaging (2024)",
+        "moe_ref": "standard MoE architecture",
+        "invariant": "weight_bytes_crossing_dies = 0 (verified)"
+      }
+    },
+    {
+      "config": {
+        "name": "Mixtral-8x22B (16b)",
+        "total_params_billions": 141,
+        "precision_bits": 16,
+        "moe_config": "moe_8x",
+        "tech_node": "N4",
+        "d2d_type": "ucie_advanced"
+      },
+      "dies": {
+        "n_dies": 1,
+        "params_per_die_billions": 141.0
+      },
+      "moe": {
+        "total_experts": 8,
+        "active_experts": 2,
+        "routing_fraction": 0.25,
+        "active_params_billions": 77.55000000000001
+      },
+      "interconnect": {
+        "d2d_bandwidth_gbps": 1024,
+        "activation_bytes_per_token": 688128,
+        "d2d_latency_us": 5.3759999999999994,
+        "d2d_energy_per_token_uj": 1.376256,
+        "weight_bytes_crossing_dies": 0
+      },
+      "energy_per_token": {
+        "compute_mj": 69.79500000000002,
+        "weight_mj": 43.42800000000002,
+        "d2d_mj": 0.001376256,
+        "total_mj": 113.22437625600004
+      },
+      "provenance": {
+        "kind": "analytical_estimate",
+        "die_capacity_ref": "N4 reticle-limited 600mm\u00b2 die",
+        "d2d_ref": "UCIe 2.0 advanced packaging (2024)",
+        "moe_ref": "standard MoE architecture",
+        "invariant": "weight_bytes_crossing_dies = 0 (verified)"
+      }
+    },
+    {
+      "config": {
+        "name": "Mixtral-8x22B (8b)",
+        "total_params_billions": 141,
+        "precision_bits": 8,
+        "moe_config": "moe_8x",
+        "tech_node": "N4",
+        "d2d_type": "ucie_advanced"
+      },
+      "dies": {
+        "n_dies": 1,
+        "params_per_die_billions": 141.0
+      },
+      "moe": {
+        "total_experts": 8,
+        "active_experts": 2,
+        "routing_fraction": 0.25,
+        "active_params_billions": 77.55000000000001
+      },
+      "interconnect": {
+        "d2d_bandwidth_gbps": 1024,
+        "activation_bytes_per_token": 688128,
+        "d2d_latency_us": 5.3759999999999994,
+        "d2d_energy_per_token_uj": 1.376256,
+        "weight_bytes_crossing_dies": 0
+      },
+      "energy_per_token": {
+        "compute_mj": 69.79500000000002,
+        "weight_mj": 21.71400000000001,
+        "d2d_mj": 0.001376256,
+        "total_mj": 91.51037625600003
+      },
+      "provenance": {
+        "kind": "analytical_estimate",
+        "die_capacity_ref": "N4 reticle-limited 600mm\u00b2 die",
+        "d2d_ref": "UCIe 2.0 advanced packaging (2024)",
+        "moe_ref": "standard MoE architecture",
+        "invariant": "weight_bytes_crossing_dies = 0 (verified)"
+      }
+    },
+    {
+      "config": {
+        "name": "Mixtral-8x22B (4b)",
+        "total_params_billions": 141,
+        "precision_bits": 4,
+        "moe_config": "moe_8x",
+        "tech_node": "N4",
+        "d2d_type": "ucie_advanced"
+      },
+      "dies": {
+        "n_dies": 1,
+        "params_per_die_billions": 141.0
+      },
+      "moe": {
+        "total_experts": 8,
+        "active_experts": 2,
+        "routing_fraction": 0.25,
+        "active_params_billions": 77.55000000000001
+      },
+      "interconnect": {
+        "d2d_bandwidth_gbps": 1024,
+        "activation_bytes_per_token": 688128,
+        "d2d_latency_us": 5.3759999999999994,
+        "d2d_energy_per_token_uj": 1.376256,
+        "weight_bytes_crossing_dies": 0
+      },
+      "energy_per_token": {
+        "compute_mj": 69.79500000000002,
+        "weight_mj": 10.857000000000005,
+        "d2d_mj": 0.001376256,
+        "total_mj": 80.65337625600002
+      },
+      "provenance": {
+        "kind": "analytical_estimate",
+        "die_capacity_ref": "N4 reticle-limited 600mm\u00b2 die",
+        "d2d_ref": "UCIe 2.0 advanced packaging (2024)",
+        "moe_ref": "standard MoE architecture",
+        "invariant": "weight_bytes_crossing_dies = 0 (verified)"
+      }
+    },
+    {
+      "config": {
+        "name": "DeepSeek-V3 (16b)",
+        "total_params_billions": 671,
+        "precision_bits": 16,
+        "moe_config": "moe_128x",
+        "tech_node": "N4",
+        "d2d_type": "ucie_advanced"
+      },
+      "dies": {
+        "n_dies": 4,
+        "params_per_die_billions": 167.75
+      },
+      "moe": {
+        "total_experts": 128,
+        "active_experts": 8,
+        "routing_fraction": 0.0625,
+        "active_params_billions": 293.56250000000006
+      },
+      "interconnect": {
+        "d2d_bandwidth_gbps": 1024,
+        "activation_bytes_per_token": 874496,
+        "d2d_latency_us": 6.832,
+        "d2d_energy_per_token_uj": 1.748992,
+        "weight_bytes_crossing_dies": 0
+      },
+      "energy_per_token": {
+        "compute_mj": 264.20625000000007,
+        "weight_mj": 164.39500000000007,
+        "d2d_mj": 0.001748992,
+        "total_mj": 428.60299899200015
+      },
+      "provenance": {
+        "kind": "analytical_estimate",
+        "die_capacity_ref": "N4 reticle-limited 600mm\u00b2 die",
+        "d2d_ref": "UCIe 2.0 advanced packaging (2024)",
+        "moe_ref": "DeepSeek-V3, Mixtral architecture",
+        "invariant": "weight_bytes_crossing_dies = 0 (verified)"
+      }
+    },
+    {
+      "config": {
+        "name": "DeepSeek-V3 (8b)",
+        "total_params_billions": 671,
+        "precision_bits": 8,
+        "moe_config": "moe_128x",
+        "tech_node": "N4",
+        "d2d_type": "ucie_advanced"
+      },
+      "dies": {
+        "n_dies": 2,
+        "params_per_die_billions": 335.5
+      },
+      "moe": {
+        "total_experts": 128,
+        "active_experts": 8,
+        "routing_fraction": 0.0625,
+        "active_params_billions": 293.56250000000006
+      },
+      "interconnect": {
+        "d2d_bandwidth_gbps": 1024,
+        "activation_bytes_per_token": 874496,
+        "d2d_latency_us": 6.832,
+        "d2d_energy_per_token_uj": 1.748992,
+        "weight_bytes_crossing_dies": 0
+      },
+      "energy_per_token": {
+        "compute_mj": 264.20625000000007,
+        "weight_mj": 82.19750000000003,
+        "d2d_mj": 0.001748992,
+        "total_mj": 346.4054989920001
+      },
+      "provenance": {
+        "kind": "analytical_estimate",
+        "die_capacity_ref": "N4 reticle-limited 600mm\u00b2 die",
+        "d2d_ref": "UCIe 2.0 advanced packaging (2024)",
+        "moe_ref": "DeepSeek-V3, Mixtral architecture",
+        "invariant": "weight_bytes_crossing_dies = 0 (verified)"
+      }
+    },
+    {
+      "config": {
+        "name": "DeepSeek-V3 (4b)",
+        "total_params_billions": 671,
+        "precision_bits": 4,
+        "moe_config": "moe_128x",
+        "tech_node": "N4",
+        "d2d_type": "ucie_advanced"
+      },
+      "dies": {
+        "n_dies": 1,
+        "params_per_die_billions": 671.0
+      },
+      "moe": {
+        "total_experts": 128,
+        "active_experts": 8,
+        "routing_fraction": 0.0625,
+        "active_params_billions": 293.56250000000006
+      },
+      "interconnect": {
+        "d2d_bandwidth_gbps": 1024,
+        "activation_bytes_per_token": 874496,
+        "d2d_latency_us": 6.832,
+        "d2d_energy_per_token_uj": 1.748992,
+        "weight_bytes_crossing_dies": 0
+      },
+      "energy_per_token": {
+        "compute_mj": 264.20625000000007,
+        "weight_mj": 41.09875000000002,
+        "d2d_mj": 0.001748992,
+        "total_mj": 305.30674899200005
+      },
+      "provenance": {
+        "kind": "analytical_estimate",
+        "die_capacity_ref": "N4 reticle-limited 600mm\u00b2 die",
+        "d2d_ref": "UCIe 2.0 advanced packaging (2024)",
+        "moe_ref": "DeepSeek-V3, Mixtral architecture",
+        "invariant": "weight_bytes_crossing_dies = 0 (verified)"
+      }
+    },
+    {
+      "config": {
+        "name": "GPT-4 class (16b)",
+        "total_params_billions": 500,
+        "precision_bits": 16,
+        "moe_config": "moe_128x",
+        "tech_node": "N4",
+        "d2d_type": "ucie_advanced"
+      },
+      "dies": {
+        "n_dies": 3,
+        "params_per_die_billions": 166.66666666666666
+      },
+      "moe": {
+        "total_experts": 128,
+        "active_experts": 8,
+        "routing_fraction": 0.0625,
+        "active_params_billions": 218.75
+      },
+      "interconnect": {
+        "d2d_bandwidth_gbps": 1024,
+        "activation_bytes_per_token": 1966080,
+        "d2d_latency_us": 15.36,
+        "d2d_energy_per_token_uj": 3.93216,
+        "weight_bytes_crossing_dies": 0
+      },
+      "energy_per_token": {
+        "compute_mj": 196.875,
+        "weight_mj": 122.50000000000001,
+        "d2d_mj": 0.00393216,
+        "total_mj": 319.37893216
+      },
+      "provenance": {
+        "kind": "analytical_estimate",
+        "die_capacity_ref": "N4 reticle-limited 600mm\u00b2 die",
+        "d2d_ref": "UCIe 2.0 advanced packaging (2024)",
+        "moe_ref": "DeepSeek-V3, Mixtral architecture",
+        "invariant": "weight_bytes_crossing_dies = 0 (verified)"
+      }
+    },
+    {
+      "config": {
+        "name": "GPT-4 class (8b)",
+        "total_params_billions": 500,
+        "precision_bits": 8,
+        "moe_config": "moe_128x",
+        "tech_node": "N4",
+        "d2d_type": "ucie_advanced"
+      },
+      "dies": {
+        "n_dies": 2,
+        "params_per_die_billions": 250.0
+      },
+      "moe": {
+        "total_experts": 128,
+        "active_experts": 8,
+        "routing_fraction": 0.0625,
+        "active_params_billions": 218.75
+      },
+      "interconnect": {
+        "d2d_bandwidth_gbps": 1024,
+        "activation_bytes_per_token": 1966080,
+        "d2d_latency_us": 15.36,
+        "d2d_energy_per_token_uj": 3.93216,
+        "weight_bytes_crossing_dies": 0
+      },
+      "energy_per_token": {
+        "compute_mj": 196.875,
+        "weight_mj": 61.25000000000001,
+        "d2d_mj": 0.00393216,
+        "total_mj": 258.12893216
+      },
+      "provenance": {
+        "kind": "analytical_estimate",
+        "die_capacity_ref": "N4 reticle-limited 600mm\u00b2 die",
+        "d2d_ref": "UCIe 2.0 advanced packaging (2024)",
+        "moe_ref": "DeepSeek-V3, Mixtral architecture",
+        "invariant": "weight_bytes_crossing_dies = 0 (verified)"
+      }
+    },
+    {
+      "config": {
+        "name": "GPT-4 class (4b)",
+        "total_params_billions": 500,
+        "precision_bits": 4,
+        "moe_config": "moe_128x",
+        "tech_node": "N4",
+        "d2d_type": "ucie_advanced"
+      },
+      "dies": {
+        "n_dies": 1,
+        "params_per_die_billions": 500.0
+      },
+      "moe": {
+        "total_experts": 128,
+        "active_experts": 8,
+        "routing_fraction": 0.0625,
+        "active_params_billions": 218.75
+      },
+      "interconnect": {
+        "d2d_bandwidth_gbps": 1024,
+        "activation_bytes_per_token": 1966080,
+        "d2d_latency_us": 15.36,
+        "d2d_energy_per_token_uj": 3.93216,
+        "weight_bytes_crossing_dies": 0
+      },
+      "energy_per_token": {
+        "compute_mj": 196.875,
+        "weight_mj": 30.625000000000004,
+        "d2d_mj": 0.00393216,
+        "total_mj": 227.50393216
+      },
+      "provenance": {
+        "kind": "analytical_estimate",
+        "die_capacity_ref": "N4 reticle-limited 600mm\u00b2 die",
+        "d2d_ref": "UCIe 2.0 advanced packaging (2024)",
+        "moe_ref": "DeepSeek-V3, Mixtral architecture",
+        "invariant": "weight_bytes_crossing_dies = 0 (verified)"
+      }
+    },
+    {
+      "config": {
+        "name": "1T params MoE (16b)",
+        "total_params_billions": 1000,
+        "precision_bits": 16,
+        "moe_config": "moe_256x",
+        "tech_node": "N4",
+        "d2d_type": "ucie_advanced"
+      },
+      "dies": {
+        "n_dies": 5,
+        "params_per_die_billions": 200.0
+      },
+      "moe": {
+        "total_experts": 256,
+        "active_experts": 8,
+        "routing_fraction": 0.03125,
+        "active_params_billions": 418.75
+      },
+      "interconnect": {
+        "d2d_bandwidth_gbps": 1024,
+        "activation_bytes_per_token": 3145728,
+        "d2d_latency_us": 24.576,
+        "d2d_energy_per_token_uj": 6.291456,
+        "weight_bytes_crossing_dies": 0
+      },
+      "energy_per_token": {
+        "compute_mj": 376.875,
+        "weight_mj": 234.50000000000003,
+        "d2d_mj": 0.006291456,
+        "total_mj": 611.381291456
+      },
+      "provenance": {
+        "kind": "analytical_estimate",
+        "die_capacity_ref": "N4 reticle-limited 600mm\u00b2 die",
+        "d2d_ref": "UCIe 2.0 advanced packaging (2024)",
+        "moe_ref": "Kimi K2 architecture (2025)",
+        "invariant": "weight_bytes_crossing_dies = 0 (verified)"
+      }
+    },
+    {
+      "config": {
+        "name": "1T params MoE (8b)",
+        "total_params_billions": 1000,
+        "precision_bits": 8,
+        "moe_config": "moe_256x",
+        "tech_node": "N4",
+        "d2d_type": "ucie_advanced"
+      },
+      "dies": {
+        "n_dies": 3,
+        "params_per_die_billions": 333.3333333333333
+      },
+      "moe": {
+        "total_experts": 256,
+        "active_experts": 8,
+        "routing_fraction": 0.03125,
+        "active_params_billions": 418.75
+      },
+      "interconnect": {
+        "d2d_bandwidth_gbps": 1024,
+        "activation_bytes_per_token": 3145728,
+        "d2d_latency_us": 24.576,
+        "d2d_energy_per_token_uj": 6.291456,
+        "weight_bytes_crossing_dies": 0
+      },
+      "energy_per_token": {
+        "compute_mj": 376.875,
+        "weight_mj": 117.25000000000001,
+        "d2d_mj": 0.006291456,
+        "total_mj": 494.131291456
+      },
+      "provenance": {
+        "kind": "analytical_estimate",
+        "die_capacity_ref": "N4 reticle-limited 600mm\u00b2 die",
+        "d2d_ref": "UCIe 2.0 advanced packaging (2024)",
+        "moe_ref": "Kimi K2 architecture (2025)",
+        "invariant": "weight_bytes_crossing_dies = 0 (verified)"
+      }
+    },
+    {
+      "config": {
+        "name": "1T params MoE (4b)",
+        "total_params_billions": 1000,
+        "precision_bits": 4,
+        "moe_config": "moe_256x",
+        "tech_node": "N4",
+        "d2d_type": "ucie_advanced"
+      },
+      "dies": {
+        "n_dies": 2,
+        "params_per_die_billions": 500.0
+      },
+      "moe": {
+        "total_experts": 256,
+        "active_experts": 8,
+        "routing_fraction": 0.03125,
+        "active_params_billions": 418.75
+      },
+      "interconnect": {
+        "d2d_bandwidth_gbps": 1024,
+        "activation_bytes_per_token": 3145728,
+        "d2d_latency_us": 24.576,
+        "d2d_energy_per_token_uj": 6.291456,
+        "weight_bytes_crossing_dies": 0
+      },
+      "energy_per_token": {
+        "compute_mj": 376.875,
+        "weight_mj": 58.62500000000001,
+        "d2d_mj": 0.006291456,
+        "total_mj": 435.506291456
+      },
+      "provenance": {
+        "kind": "analytical_estimate",
+        "die_capacity_ref": "N4 reticle-limited 600mm\u00b2 die",
+        "d2d_ref": "UCIe 2.0 advanced packaging (2024)",
+        "moe_ref": "Kimi K2 architecture (2025)",
+        "invariant": "weight_bytes_crossing_dies = 0 (verified)"
+      }
+    }
+  ],
+  "invariants_verified": {
+    "weight_bytes_crossing_dies_always_zero": true
+  }
+}

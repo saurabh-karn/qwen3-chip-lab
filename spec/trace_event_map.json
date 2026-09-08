@@ -1,0 +1,126 @@
+{
+  "arithmetic_profile": "qwen-ref-v2",
+  "max_positions": 128,
+  "geometry": {
+    "layers": 28,
+    "hidden": 1024,
+    "intermediate": 3072,
+    "q_heads": 16,
+    "kv_heads": 8,
+    "head_dim": 128,
+    "vocab": 151936
+  },
+  "commit_kinds": {
+    "0": "stage_commit",
+    "1": "logit",
+    "2": "silu",
+    "3": "token_done",
+    "4": "run_meta"
+  },
+  "stages": {
+    "1": {
+      "event": "embedding",
+      "layout": "seq_hidden",
+      "layer": false
+    },
+    "2": {
+      "event": "layer.{layer}.input_norm",
+      "layout": "seq_hidden"
+    },
+    "3": {
+      "event": "layer.{layer}.q_proj",
+      "layout": "seq_q_heads"
+    },
+    "4": {
+      "event": "layer.{layer}.k_proj",
+      "layout": "seq_kv_heads"
+    },
+    "5": {
+      "event": "layer.{layer}.v_proj",
+      "layout": "seq_kv_heads"
+    },
+    "6": {
+      "event": "layer.{layer}.q_norm",
+      "layout": "seq_q_heads"
+    },
+    "7": {
+      "event": "layer.{layer}.k_norm",
+      "layout": "seq_kv_heads"
+    },
+    "8": {
+      "split": [
+        {
+          "event": "layer.{layer}.q_rope",
+          "layout": "seq_q_heads",
+          "index_end": 2048
+        },
+        {
+          "event": "layer.{layer}.k_rope",
+          "layout": "seq_kv_heads",
+          "index_start": 2048,
+          "index_end": 3072
+        }
+      ]
+    },
+    "9": {
+      "event": "layer.{layer}.token.{token}.attention_scores",
+      "layout": "heads_context",
+      "per_token": true
+    },
+    "10": {
+      "event": "layer.{layer}.token.{token}.attention_softmax",
+      "layout": "heads_context",
+      "per_token": true
+    },
+    "11": {
+      "event": "layer.{layer}.causal_gqa",
+      "layout": "seq_q_heads"
+    },
+    "12": {
+      "event": "layer.{layer}.o_proj",
+      "layout": "seq_hidden"
+    },
+    "13": {
+      "event": "layer.{layer}.attention_residual",
+      "layout": "seq_hidden"
+    },
+    "14": {
+      "event": "layer.{layer}.post_norm",
+      "layout": "seq_hidden"
+    },
+    "15": {
+      "event": "layer.{layer}.gate_proj",
+      "layout": "seq_intermediate"
+    },
+    "16": {
+      "event": "layer.{layer}.up_proj",
+      "layout": "seq_intermediate"
+    },
+    "17": {
+      "event": "layer.{layer}.swiglu",
+      "layout": "seq_intermediate"
+    },
+    "18": {
+      "event": "layer.{layer}.down_proj",
+      "layout": "seq_hidden"
+    },
+    "19": {
+      "event": "layer.{layer}.output",
+      "layout": "seq_hidden"
+    },
+    "21": {
+      "event": "final_norm",
+      "layout": "seq_hidden",
+      "layer": false
+    }
+  },
+  "logit_event": {
+    "event": "logits",
+    "layout": "seq_vocab",
+    "layer": false
+  },
+  "silu_event": {
+    "event": "layer.{layer}.silu",
+    "layout": "seq_intermediate"
+  }
+}

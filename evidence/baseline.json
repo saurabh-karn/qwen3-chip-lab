@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "name": "archived_behavioral_rtl",
+  "branch": "cursor/qwen-archive-dfce",
+  "commit": "66dbced",
+  "correctness": {
+    "tiny_rom_rtl_scoreboard": "passed",
+    "full_qwen3_0_6b": "not_run",
+    "reason": "full BF16 ROM artifact was not staged"
+  },
+  "implementation": {
+    "python_standard_library_only": false,
+    "rtl_synthesizable": false,
+    "rtl_uses_systemverilog_real": true,
+    "rtl_trace_visualized": false
+  },
+  "metrics": {
+    "kind": "unavailable",
+    "measured": false
+  }
+}

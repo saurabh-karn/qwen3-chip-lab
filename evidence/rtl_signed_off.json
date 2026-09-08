@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "passed": true,
+  "rom_sha256": "18602c6adf0658763eae602b44a6436a6b25ffdabddec508fa66633624e90979",
+  "layout_sha256": "90862bab24f0ff234a57c3d069de4279b2b7603342d391781e17ebf906a44e45",
+  "fused": true,
+  "tier": "T4",
+  "work_dir": "/Users/saurabhkarn/trocr-asic/evidence/runs/5aa10952cbdfdab7",
+  "text": "Yellow",
+  "git_commit": "93c7fc012bc75bac2d4a56cdade008daac6ea9ca"
+}

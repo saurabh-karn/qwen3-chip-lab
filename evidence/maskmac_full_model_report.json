@@ -1,0 +1,138 @@
+{
+  "scope": "All real GEMM projection weights in Qwen3-0.6B: q/k/v/o/gate/up/down_proj across 28 layers + shared embed_tokens/lm_head table. Norm gamma vectors excluded (elementwise scale, not MAC-array weight-stationary operands, and negligible byte share).",
+  "method": "Statistical survey via numpy-vectorized rounding (exact for the adder-count question except at rare cross-octave rounding boundaries -- see module docstring). NOT the bit-exact encoder used for the RTL-verified demo block in evidence/maskmac_report.json.",
+  "n_tensors": 197,
+  "total_elements": 595984384,
+  "mxfp4": {
+    "mean_adders_per_lane": 0.26781259758644954,
+    "max_adders_per_lane": 1,
+    "histogram": [
+      436372258,
+      159612126
+    ]
+  },
+  "mxfp8": {
+    "mean_adders_per_lane": 1.1472339164510728,
+    "max_adders_per_lane": 2,
+    "histogram": [
+      56299284,
+      395636701,
+      144048399
+    ]
+  },
+  "by_category": {
+    "embed_tokens": {
+      "n_elements": 155582464,
+      "mxfp4_mean_adders": 0.27568247665752355,
+      "mxfp4_histogram": [
+        112691105,
+        42891359
+      ],
+      "mxfp8_mean_adders": 1.1472352179741798,
+      "mxfp8_histogram": [
+        14713202,
+        103248842,
+        37620420
+      ]
+    },
+    "q_proj": {
+      "n_elements": 58720256,
+      "mxfp4_mean_adders": 0.2647652455738613,
+      "mxfp4_histogram": [
+        43173173,
+        15547083
+      ],
+      "mxfp8_mean_adders": 1.147161330495562,
+      "mxfp8_histogram": [
+        5548427,
+        38982051,
+        14189778
+      ]
+    },
+    "k_proj": {
+      "n_elements": 29360128,
+      "mxfp4_mean_adders": 0.26595612934657503,
+      "mxfp4_histogram": [
+        21551622,
+        7808506
+      ],
+      "mxfp8_mean_adders": 1.147169521876744,
+      "mxfp8_histogram": [
+        2772585,
+        19494042,
+        7093501
+      ]
+    },
+    "v_proj": {
+      "n_elements": 29360128,
+      "mxfp4_mean_adders": 0.26116987637111116,
+      "mxfp4_histogram": [
+        21692147,
+        7667981
+      ],
+      "mxfp8_mean_adders": 1.1471618924822127,
+      "mxfp8_histogram": [
+        2775666,
+        19488104,
+        7096358
+      ]
+    },
+    "o_proj": {
+      "n_elements": 58720256,
+      "mxfp4_mean_adders": 0.2682860238211496,
+      "mxfp4_histogram": [
+        42966432,
+        15753824
+      ],
+      "mxfp8_mean_adders": 1.1473832641329085,
+      "mxfp8_histogram": [
+        5537126,
+        38991621,
+        14191509
+      ]
+    },
+    "gate_proj": {
+      "n_elements": 88080384,
+      "mxfp4_mean_adders": 0.2689948422568185,
+      "mxfp4_histogram": [
+        64387215,
+        23693169
+      ],
+      "mxfp8_mean_adders": 1.1471628007434664,
+      "mxfp8_histogram": [
+        8322675,
+        58472878,
+        21284831
+      ]
+    },
+    "up_proj": {
+      "n_elements": 88080384,
+      "mxfp4_mean_adders": 0.26649213972545804,
+      "mxfp4_histogram": [
+        64607654,
+        23472730
+      ],
+      "mxfp8_mean_adders": 1.14719557762146,
+      "mxfp8_histogram": [
+        8316909,
+        58481523,
+        21281952
+      ]
+    },
+    "down_proj": {
+      "n_elements": 88080384,
+      "mxfp4_mean_adders": 0.25859871364775155,
+      "mxfp4_histogram": [
+        65302910,
+        22777474
+      ],
+      "mxfp8_mean_adders": 1.147335370381673,
+      "mxfp8_histogram": [
+        8312694,
+        58477640,
+        21290050
+      ]
+    }
+  },
+  "elapsed_s": 20.86
+}

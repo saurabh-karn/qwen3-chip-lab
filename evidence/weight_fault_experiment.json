@@ -1,0 +1,151 @@
+{
+  "method": "Uniform-random weight corruption across all real GEMM weights (595,984,384 elements, q/k/v/o/gate/up/down_proj + embed_tokens, all 28 layers), using lab/fast_forward.py (numpy, cross-validated against the certified qwen-ref-v2 oracle argmax on a clean run, and internally validated for causal-masking correctness -- NOT itself the bit-exact oracle).",
+  "cross_validation": {
+    "token": 785,
+    "fast_forward_argmax": 15846,
+    "certified_oracle_argmax": 15846,
+    "source": "evidence/hw_comparison.json (hw_1tok run)",
+    "passed": true
+  },
+  "total_gemm_weights": 595984384,
+  "rng_seed": 20260905,
+  "prompts": {
+    "single_token_785": {
+      "clean_argmax": 15846,
+      "configs": {
+        "single_zero": {
+          "n_trials": 200,
+          "corrupted_weight_count": 1,
+          "argmax_flip_rate": 0.0,
+          "argmax_flip_count": 0,
+          "mean_top1_prob_delta": -1.0819596040368556e-09,
+          "mean_relative_logit_l2": 1.4748507297502012e-05,
+          "max_relative_logit_l2": 0.0006178310744471928
+        },
+        "single_random_other": {
+          "n_trials": 200,
+          "corrupted_weight_count": 1,
+          "argmax_flip_rate": 0.0,
+          "argmax_flip_count": 0,
+          "mean_top1_prob_delta": -7.104487978418922e-09,
+          "mean_relative_logit_l2": 1.83051572918814e-05,
+          "max_relative_logit_l2": 0.00043919250405412773
+        },
+        "row_disable": {
+          "n_trials": 100,
+          "corrupted_weight_count": null,
+          "argmax_flip_rate": 0.0,
+          "argmax_flip_count": 0,
+          "mean_top1_prob_delta": -7.459449230460755e-07,
+          "mean_relative_logit_l2": 0.0003750187764406207,
+          "max_relative_logit_l2": 0.008980623704736245
+        },
+        "fraction_zero:1e-6": {
+          "n_trials": 30,
+          "corrupted_weight_count": 595,
+          "argmax_flip_rate": 0.0,
+          "argmax_flip_count": 0,
+          "mean_top1_prob_delta": -4.977133953625151e-07,
+          "mean_relative_logit_l2": 0.0013092301483298076,
+          "max_relative_logit_l2": 0.002614588445646386
+        },
+        "fraction_zero:1e-5": {
+          "n_trials": 30,
+          "corrupted_weight_count": 5959,
+          "argmax_flip_rate": 0.0,
+          "argmax_flip_count": 0,
+          "mean_top1_prob_delta": 3.6173535238022124e-05,
+          "mean_relative_logit_l2": 0.005647112859321555,
+          "max_relative_logit_l2": 0.011866018579286198
+        },
+        "fraction_zero:1e-4": {
+          "n_trials": 20,
+          "corrupted_weight_count": 59598,
+          "argmax_flip_rate": 0.0,
+          "argmax_flip_count": 0,
+          "mean_top1_prob_delta": -0.0002609716599762237,
+          "mean_relative_logit_l2": 0.022404156472833215,
+          "max_relative_logit_l2": 0.044713189304957004
+        },
+        "fraction_zero:1e-3": {
+          "n_trials": 10,
+          "corrupted_weight_count": 595984,
+          "argmax_flip_rate": 0.2,
+          "argmax_flip_count": 2,
+          "mean_top1_prob_delta": -8.421709238690939e-05,
+          "mean_relative_logit_l2": 0.07315134748653244,
+          "max_relative_logit_l2": 0.1139657897884426
+        }
+      }
+    },
+    "thirteen_token_real": {
+      "clean_argmax": 26194,
+      "configs": {
+        "single_zero": {
+          "n_trials": 200,
+          "corrupted_weight_count": 1,
+          "argmax_flip_rate": 0.0,
+          "argmax_flip_count": 0,
+          "mean_top1_prob_delta": -2.1333087949215735e-07,
+          "mean_relative_logit_l2": 3.739126280297823e-05,
+          "max_relative_logit_l2": 0.0009923877057016097
+        },
+        "single_random_other": {
+          "n_trials": 200,
+          "corrupted_weight_count": 1,
+          "argmax_flip_rate": 0.0,
+          "argmax_flip_count": 0,
+          "mean_top1_prob_delta": -1.3140322007970662e-06,
+          "mean_relative_logit_l2": 5.983280899774717e-05,
+          "max_relative_logit_l2": 0.0009139118627296247
+        },
+        "row_disable": {
+          "n_trials": 100,
+          "corrupted_weight_count": null,
+          "argmax_flip_rate": 0.0,
+          "argmax_flip_count": 0,
+          "mean_top1_prob_delta": 0.00020298759571338643,
+          "mean_relative_logit_l2": 0.00270842823950618,
+          "max_relative_logit_l2": 0.050411191576108016
+        },
+        "fraction_zero:1e-6": {
+          "n_trials": 30,
+          "corrupted_weight_count": 595,
+          "argmax_flip_rate": 0.0,
+          "argmax_flip_count": 0,
+          "mean_top1_prob_delta": -0.00012288677976280972,
+          "mean_relative_logit_l2": 0.0020707208266290277,
+          "max_relative_logit_l2": 0.004448316254068098
+        },
+        "fraction_zero:1e-5": {
+          "n_trials": 30,
+          "corrupted_weight_count": 5959,
+          "argmax_flip_rate": 0.0,
+          "argmax_flip_count": 0,
+          "mean_top1_prob_delta": 0.0002444370346189532,
+          "mean_relative_logit_l2": 0.006719941557421213,
+          "max_relative_logit_l2": 0.01807889330056085
+        },
+        "fraction_zero:1e-4": {
+          "n_trials": 20,
+          "corrupted_weight_count": 59598,
+          "argmax_flip_rate": 0.0,
+          "argmax_flip_count": 0,
+          "mean_top1_prob_delta": -0.0017541407172102952,
+          "mean_relative_logit_l2": 0.02442706239847984,
+          "max_relative_logit_l2": 0.0744264116685182
+        },
+        "fraction_zero:1e-3": {
+          "n_trials": 10,
+          "corrupted_weight_count": 595984,
+          "argmax_flip_rate": 0.0,
+          "argmax_flip_count": 0,
+          "mean_top1_prob_delta": 0.001882817953945104,
+          "mean_relative_logit_l2": 0.06489133625779622,
+          "max_relative_logit_l2": 0.08378559163497906
+        }
+      }
+    }
+  },
+  "elapsed_s": 1235.2
+}

@@ -1,0 +1,1827 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="data:,">
+  <title>Mask-ROM LLM: Weights Burned Into Silicon</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css">
+  <link rel="stylesheet" href="styles.css?v=20260907h">
+  <link rel="stylesheet" href="gpu-experience.css?v=20260907-3d">
+  <link rel="stylesheet" href="hw-packages.css?v=20260907-pkg">
+</head>
+<body class="deck on-title">
+  <p class="demo-banner">Recorded full-statement compare · the run button is off · scrub the graph, it does not re-simulate</p>
+  <header>
+    <div>
+      <p class="eyebrow">Mask-ROM LLM · Bit-exact RTL Simulator · Qwen3-0.6B Demo</p>
+      <h1>Fixed-Weight ROM for LLM Inference</h1>
+    </div>
+    <div class="status-stack">
+      <span id="readyBadge" class="badge">checking ROM…</span>
+    </div>
+  </header>
+
+  <main>
+    <nav class="deck-nav" aria-label="slides">
+      <button type="button" class="deck-dot active" data-slide="0" data-slide-id="title" title="1 · The Idea"><span>1</span> <em>The Idea</em></button>
+      <button type="button" class="deck-dot" data-slide="1" data-slide-id="gpu" title="2 · The GPU"><span>2</span> <em>The GPU</em></button>
+      <button type="button" class="deck-dot" data-slide="2" data-slide-id="replica" title="3 · We Built It"><span>3</span> <em>We Built It</em></button>
+      <button type="button" class="deck-dot" data-slide="3" data-slide-id="2d" title="4 · 2D MXU"><span>4</span> <em>2D MXU</em></button>
+      <button type="button" class="deck-dot" data-slide="4" data-slide-id="eqs" title="5 · Q = yW"><span>5</span> <em>Q = yW</em></button>
+      <button type="button" class="deck-dot" data-slide="5" data-slide-id="workload" title="6 · The Workload"><span>6</span> <em>The Workload</em></button>
+      <button type="button" class="deck-dot" data-slide="6" data-slide-id="packages" title="7 · Packages"><span>7</span> <em>Packages</em></button>
+      <button type="button" class="deck-dot" data-slide="7" data-slide-id="kpis" title="8 · The Machines"><span>8</span> <em>The Machines</em></button>
+      <button type="button" class="deck-dot" data-slide="8" data-slide-id="scaling" title="9 · Scaling"><span>9</span> <em>Scaling</em></button>
+      <button type="button" class="deck-dot" data-slide="9" data-slide-id="cost" title="10 · Cost"><span>10</span> <em>Cost</em></button>
+      <button type="button" class="deck-dot" data-slide="10" data-slide-id="mechanisms" title="11 · Mechanisms"><span>11</span> <em>Mechanisms</em></button>
+      <button type="button" class="deck-dot" data-slide="11" data-slide-id="moe" title="12 · MoE"><span>12</span> <em>MoE</em></button>
+      <button type="button" class="deck-dot" data-slide="12" data-slide-id="thanks" title="13 · Thank you"><span>13</span> <em>Thank you</em></button>
+    </nav>
+
+    <!-- ===================== SLIDE 1 · TITLE ===================== -->
+    <section class="slide slide-title" data-slide="0" data-slide-id="title">
+      <p class="title-kicker">Mask-ROM LLM · Qwen3-0.6B · Team NeoChip</p>
+      <h1 class="slide-h deck-title">Eliminate HBM.</h1>
+      <p class="deck-sub">Burn the weights into silicon. The host sends token IDs; nothing streams 1.19&nbsp;GB of DRAM on every token.</p>
+      <ul class="title-metrics">
+        <li><b>166×</b><span>less energy than an H100 · 0.6B, N4 constants</span></li>
+        <li><b>21×</b><span>lower $/token</span></li>
+        <li><b>1.19 mJ</b><span>vs 197 mJ per token</span></li>
+      </ul>
+      <div class="title-split">
+        <article class="title-card is-gpu">
+          <p class="title-card-k">GPU today</p>
+          <h2>Weights stream from HBM</h2>
+          <div class="title-viz" aria-hidden="true">
+            <div class="title-die">
+              <span class="title-die-k">die · cores</span>
+              <div class="title-die-cells"></div>
+            </div>
+            <div class="title-flow">
+              <i></i>
+              <b>W every token</b>
+            </div>
+            <div class="title-hbm">
+              <span>HBM</span>
+              <span>HBM</span>
+              <span>HBM</span>
+            </div>
+          </div>
+          <p class="title-card-n"><span>1.19 GB off-package</span><strong>197 mJ / token</strong></p>
+        </article>
+        <p class="title-vs" aria-hidden="true">vs</p>
+        <article class="title-card is-rom">
+          <p class="title-card-k">This chip</p>
+          <h2>Weights are the die</h2>
+          <div class="title-viz" aria-hidden="true">
+            <div class="title-die rom">
+              <span class="title-die-k">die · mask ROM</span>
+              <div class="title-die-cells rom"></div>
+            </div>
+            <div class="title-flow idle">
+              <i></i>
+              <b>token IDs only</b>
+            </div>
+            <div class="title-host">
+              <span>host</span>
+            </div>
+          </div>
+          <p class="title-card-n"><span>burnt-in ROM</span><strong>1.19 mJ / token</strong></p>
+        </article>
+      </div>
+    </section>
+
+    <!-- ===================== SLIDE 2 · GPU (HBM → cores, the machine we beat) ===================== -->
+    <section class="slide slide-gpu" data-slide="1" data-slide-id="gpu" hidden>
+      <div id="gpuExperience"></div>
+      <h1 class="slide-h gpu-title">How a GPU produces one token</h1>
+      <p class="gpu-lead">Start with the overview: token IDs enter the package, each layer fetches its weights from HBM, then the SMs multiply and accumulate. The detailed package and RTL views are one click away.</p>
+      <div class="gpu-runbar">
+        <p class="gpu-prompt-k">prompt</p>
+        <p class="gpu-prompt-line" id="gpuPromptLine">The capital of India is Delhi, and the capital of Japan is <em id="gpuPredTok" hidden></em></p>
+        <div class="gpu-tokens" id="gpuTokens" aria-label="tokenized prompt"></div>
+        <div class="gpu-transport">
+          <button type="button" id="gpuPlayBtn" class="ghost">Pause</button>
+          <button type="button" id="gpuStepBack" class="ghost">Prev</button>
+          <button type="button" id="gpuStepFwd" class="ghost">Next</button>
+          <label class="gpu-speed" title="1–2× pauses on every GEMM MAC. 4× and up skip those pauses and reach decode in about a second.">
+            <span>speed <b id="gpuSpeedLab">8×</b></span>
+            <input id="gpuSpeed" type="range" min="0" max="4" value="3" step="1" aria-label="playback speed">
+          </label>
+          <button type="button" id="gpuJumpDecode" class="ghost gpu-jump">Jump to Tokyo</button>
+          <label class="scrub">
+            <span id="gpuPlayLabel">cycle 0 / 0</span>
+            <input id="gpuPlaySlider" type="range" min="0" max="0" value="0">
+          </label>
+          <button type="button" id="gpuZoomBtn" class="ghost" aria-pressed="false" aria-expanded="false">Zoom into one tile</button>
+          <button type="button" id="gpuFlowBtn" class="ghost" aria-pressed="false">Inspect live RTL</button>
+        </div>
+      </div>
+      <aside class="gpu-bottleneck" aria-label="Why HBM weight movement is the bottleneck" hidden>
+        <div class="gpu-bottleneck-intro">
+          <p class="gpu-bottleneck-k">The bottleneck this simulation exposes</p>
+          <p>At batch 1, the GPU repeats the same pattern for every token: do the math, but first move the model&rsquo;s weights from HBM to the MACs.</p>
+        </div>
+        <div class="gpu-bottleneck-metrics">
+          <article>
+            <span class="gpu-bottleneck-k">Compute / token</span>
+            <strong id="gpuHotMacs" data-provenance="measured">&mdash;</strong>
+            <small>MACs executed by the live RTL schedule</small>
+          </article>
+          <article class="is-hot">
+            <span class="gpu-bottleneck-k">HBM weights / token</span>
+            <strong id="gpuHotWeightBytes" data-provenance="analytical_estimate">&mdash;</strong>
+            <small>re-read at batch 1; no full-model cache fit</small>
+          </article>
+          <article class="is-hot">
+            <span class="gpu-bottleneck-k">Largest single fetch</span>
+            <strong id="gpuHotStage" data-provenance="analytical_estimate">&mdash;</strong>
+            <small id="gpuHotStageNote">&mdash;</small>
+          </article>
+          <article class="is-win">
+            <span class="gpu-bottleneck-k">HBM energy / token</span>
+            <strong id="gpuHotWeightEnergy" data-provenance="analytical_estimate">&mdash;</strong>
+            <small>energy spent moving weights before useful MAC work</small>
+          </article>
+        </div>
+        <div class="gpu-accrual" id="gpuAccrual" hidden>
+          <p class="gpu-accrual-k">live accrual &middot; <span id="gpuAccrualMach">H100</span> model &middot; <span id="gpuAccrualTotal">&mdash;</span> / token</p>
+          <div class="gpu-accrual-lane"><span>HBM weight movement</span><div class="gpu-accrual-bar"><i id="gpuAccrualMem"></i></div><b id="gpuAccrualMemVal">&mdash;</b></div>
+          <div class="gpu-accrual-lane"><span>compute</span><div class="gpu-accrual-bar"><i id="gpuAccrualMac"></i></div><b id="gpuAccrualMacVal">&mdash;</b></div>
+        </div>
+        <p class="gpu-bottleneck-takeaway"><strong>The win:</strong> keep the same computation, but make W local to the die. Then this recurring HBM weight walk disappears.</p>
+      </aside>
+      <section class="gpu-story" id="gpuStory" aria-label="GPU inference in four steps">
+        <div class="gpu-story-head">
+          <p class="gpu-story-k">One token, four steps</p>
+          <p>Follow the only path that repeats for every generated token.</p>
+        </div>
+        <ol class="gpu-story-steps">
+          <li>
+            <span class="gpu-story-n">1</span>
+            <div><strong>Send a token ID</strong><p>The host sends a tiny token ID. The GPU turns it into activation <code>x</code>.</p></div>
+          </li>
+          <li class="is-hot">
+            <span class="gpu-story-n">2</span>
+            <div><strong>Fetch the weights from HBM</strong><p><b id="gpuStoryWeightBytes">&mdash;</b> of model weights move into the GPU for this token. This is the expensive, repeated trip.</p></div>
+          </li>
+          <li>
+            <span class="gpu-story-n">3</span>
+            <div><strong>Multiply in the SMs</strong><p><b id="gpuStoryMacs">&mdash;</b> MACs combine <code>x</code> and <code>W</code>. The math is fast once the weights arrive.</p></div>
+          </li>
+          <li class="is-win">
+            <span class="gpu-story-n">4</span>
+            <div><strong>Repeat, then choose the next token</strong><p>Across 28 layers and the output head, the GPU keeps fetching new weights. The analytical H100 model estimates <b id="gpuStoryWeightEnergy">&mdash;</b> of HBM weight-movement energy per token.</p></div>
+          </li>
+        </ol>
+        <div class="gpu-story-visuals">
+          <figure class="gpu-story-figure gpu-story-package">
+            <figcaption><span>Architectural illustration · H100-style package</span> Where the weights live</figcaption>
+            <div class="story-package-diagram" aria-label="H100-style package: HBM stacks surround a GPU compute die">
+              <div class="story-host">host<br><small>token IDs</small></div>
+              <div class="story-link">IDs →</div>
+              <div class="story-package">
+                <span class="story-hbm hbm-0">HBM 0</span><span class="story-hbm hbm-1">HBM 1</span><span class="story-hbm hbm-2">HBM 2</span>
+                <span class="story-hbm hbm-3">HBM 3</span><span class="story-hbm hbm-4">HBM 4</span>
+                <div class="story-gpu-die"><b>GPU compute die</b><small>SMs · caches · MACs</small><em>W →</em></div>
+                <span class="story-package-note note-hbm">weights stored here</span>
+                <span class="story-package-note note-die">compute happens here</span>
+                <span class="story-package-note note-link">package interconnect</span>
+              </div>
+            </div>
+            <p>Weights sit in five HBM stacks. For each GEMM, they cross the package interconnect into the compute die.</p>
+          </figure>
+          <figure class="gpu-story-figure gpu-story-network">
+            <figcaption><span>Neural network</span> What runs for one token</figcaption>
+            <div class="story-network-diagram" aria-label="A transformer forward pass: token enters embedding, repeats 28 transformer layers, then passes through the language-model head to produce the next token">
+              <div class="story-net-node">token ID</div><i>→</i>
+              <div class="story-net-node">embed</div><i>→</i>
+              <div class="story-net-layer"><b>Transformer layer ×28</b><small>norm → QKV <mark>GEMM: fetch W from HBM</mark> → attention → MLP <mark>GEMM: fetch W from HBM</mark></small><p><span>largest repeated traffic</span> MLP projections: <b id="gpuStoryMlpTraffic">&mdash;</b> / token<br><span>largest one-off fetch</span> LM head: <b id="gpuStoryLmTraffic">&mdash;</b></p></div><i>→</i>
+              <div class="story-net-node">LM head<br><small>next token</small></div>
+            </div>
+            <p>The neural-network math repeats across 28 layers. The highlighted GEMMs are where the weight traffic recurs.</p>
+          </figure>
+        </div>
+        <p class="gpu-story-takeaway"><strong>Why mask-ROM matters:</strong> the computation is unchanged, but the weights are already on the die—so step 2 no longer crosses an HBM bus.</p>
+      </section>
+      <div class="gpu-tri" id="gpuTri" hidden>
+        <section class="gpu-pane gpu-pane-flow" id="gpuFlowPane" hidden aria-label="Full circuit flow">
+          <p class="gpu-pane-k">One token · follow the data</p>
+          <p class="gpu-pane-sub" id="gpuFlowSub">Start here: every GEMM fetches W from HBM before the MAC can run. Click a hop to inspect it.</p>
+          <div class="gpu-flow-layers" id="gpuFlowLayers" aria-label="decoder layers"></div>
+          <div class="gpu-flow" id="gpuFlow"></div>
+        </section>
+        <div class="gpu-left-col">
+        <div class="gpu-tab-bar" role="tablist" aria-label="GPU detail view">
+          <button type="button" class="gpu-tab-btn" id="gpuTabBoardBtn" role="tab" aria-pressed="true">Package</button>
+          <button type="button" class="gpu-tab-btn" id="gpuTabNetBtn" role="tab" aria-pressed="false">Model</button>
+          <button type="button" class="gpu-tab-btn" id="gpuTabNotesBtn" role="tab" aria-pressed="false">Evidence</button>
+        </div>
+        <div class="gpu-board-wrap" id="gpuBoardWrap">
+            <div class="gpu-board-head">
+              <p class="gpu-pane-k" id="gpuBoardPaneK">Package architecture · schematic</p>
+              <div class="gpu-mach-toggle" role="group" aria-label="GPU generation">
+                <button type="button" class="ghost gpu-mach-btn" id="gpuMachH100" aria-pressed="true">H100 · 3.35 TB/s</button>
+                <button type="button" class="ghost gpu-mach-btn" id="gpuMachB200" aria-pressed="false">B200 · 8 TB/s</button>
+              </div>
+            </div>
+            <div class="gpu-fig gpu-ohp" id="gpuBoard">
+              <div class="gpu-pkg-frame">
+              <div class="gpu-pkg-fig">
+                <div class="blk io gpu-host-mini" data-board="host" id="gpuBoardHostBlk">
+                  <b class="gpu-num">1</b>
+                  <span class="blk-k">host</span>
+                  <strong>CPU + DDR5</strong>
+                  <small class="gpu-fit" data-fit="00 ids · last 000000"><span id="gpuBoardHost">token IDs</span></small>
+                </div>
+                <div class="bus h gpu-pcie-mini" data-board-wire="pcie" id="gpuBoardPcie">
+                  <b class="gpu-num">2</b>
+                  <span>PCIe</span>
+                </div>
+                <div class="gpu-floor" id="gpuBoardFloor">
+                  <div class="gpu-floor-top" id="gpuFloorTop"></div>
+                  <div class="gpu-floor-left" id="gpuFloorLeft"></div>
+                  <div class="gpu-floor-die" data-board="die">
+                    <span class="gpu-floor-die-k gpu-fit" data-fit="Hopper die · 814 mm² [P]"><span id="gpuBoardDieK">Hopper die · 814 mm² [P]</span></span>
+                    <div class="gpu-pnr-mini">
+                      <span class="gpu-die-cell pnr-phy" data-die="phy">HBM PHY · placed</span>
+                      <span class="gpu-die-cell pnr-l2 gpu-fit wrap" data-die="l2" data-fit="L2 128 MB · macro"><span id="gpuDieL2">L2 50 MB · macro</span></span>
+                      <span class="gpu-die-cell pnr-std gpu-fit wrap" data-die="sm" data-fit="148 SMs · std-cell"><span id="gpuDieSm"><b class="gpu-num">5</b>132 SMs · std-cell</span></span>
+                      <span class="gpu-die-cell pnr-mc" data-die="mc"><b class="gpu-num">4</b>Mem ctrl · placed</span>
+                    </div>
+                    <div class="gpu-pnr-rdl" data-board-wire="phy" id="gpuBoardPhy"><span>RDL routes · CA/DQ</span></div>
+                  </div>
+                  <div class="gpu-floor-right" id="gpuFloorRight"></div>
+                  <div class="gpu-floor-bot" id="gpuFloorBot"></div>
+                </div>
+                <p class="gpu-xsect">
+                  <span class="gpu-xsect-hbm">HBM</span>
+                  <span class="gpu-xsect-die">GPU die</span>
+                  <span class="gpu-xsect-rdl">CoWoS RDL · HBM is the VRAM, not GDDR on the PCB</span>
+                </p>
+              </div>
+              </div>
+              <ul class="gpu-leg" id="gpuPrLeg" aria-label="P&amp;R legend">
+                <li data-leg="1"><i></i>host · last <span id="gpuBitId">&mdash;</span> <span class="gpu-leg-mono" id="gpuBitHex">&mdash;</span></li>
+                <li data-leg="2"><i></i>PCIe · ids only, never W</li>
+                <li data-leg="3"><i></i><span id="gpuCall3t">HBM3 stacks</span> · on-package VRAM</li>
+                <li data-leg="4"><i></i>PHY / mem ctrl · <span id="gpuBitAddr">id → E[id]</span></li>
+                <li data-leg="5"><i></i>SMs · 16-lane MAC, W not on die</li>
+              </ul>
+            </div>
+          </div>
+        <section class="gpu-pane gpu-pane-net" id="gpuNetPane" aria-label="Network" hidden>
+          <div class="gpu-net-head">
+            <div class="gpu-net-status" id="gpuNetLayer" role="status">
+              <span class="gpu-net-badge" id="gpuNetNowLayer">idle</span>
+              <span class="gpu-net-op" id="gpuNetNowOp">play to light layer + op</span>
+            </div>
+            <p class="gpu-net-eq" id="gpuNetEq" aria-live="polite">—</p>
+            <ul class="gpu-net-legend" id="gpuNetLegend" aria-label="operation class">
+              <li data-cls="embed" title="embedding"><i></i><span>embed</span></li>
+              <li data-cls="norm" title="RMSNorm"><i></i><span>norm</span></li>
+              <li data-cls="proj" title="GEMM"><i></i><span>GEMM</span></li>
+              <li data-cls="rope" title="RoPE"><i></i><span>rope</span></li>
+              <li data-cls="attn" title="attention"><i></i><span>attn</span></li>
+              <li data-cls="act" title="SiLU"><i></i><span>act</span></li>
+              <li data-cls="resid" title="residual"><i></i><span>+</span></li>
+              <li data-cls="head" title="lm_head"><i></i><span>head</span></li>
+            </ul>
+          </div>
+          <div id="gpuNet" class="network gpu-net"></div>
+        </section>
+        <section class="gpu-pane gpu-pane-notes" id="gpuNotesPane" aria-label="Notes" hidden>
+          <div class="gpu-notes-head">
+            <p class="gpu-notes-now" id="gpuNotesNow">&mdash;</p>
+            <p class="gpu-notes-phase" id="gpuNotesPhase">idle</p>
+          </div>
+          <div class="gpu-notes-grid">
+          <article class="gpu-note-card is-keep">
+            <p class="gpu-note-k">evidence class</p>
+            <p class="gpu-note-b" id="gpuNotesEvidence">RTL is cycle-true Verilator of our stream core, not GH100’s netlist. Physical evidence of the GPU is CoWoS P&amp;R: Hopper 814 mm² + five HBM3 stacks [P]. This repo has no Innovus/OpenROAD of NVIDIA’s chip — and no P&amp;R flow of ours yet. ASIC area on slide 3 is cell-area [E], not a GDS.</p>
+          </article>
+          <article class="gpu-note-card is-path">
+            <p class="gpu-note-k">weight path</p>
+            <p class="gpu-note-b" id="gpuNotesPath">x (from the token IDs, after embedding) sits in SM scratch. W walks u_hbm. u_mac multiplies them only after fetch_done: activation_i ← x, weight_i ← W, acc += x·W.</p>
+          </article>
+          <article class="gpu-note-card">
+            <p class="gpu-note-k">what&rsquo;s happening</p>
+            <p class="gpu-note-b" id="gpuNotesWhat">Play the pass. Network · CoWoS P&amp;R · RTL. Legends label what lights up.</p>
+          </article>
+          <article class="gpu-note-card">
+            <p class="gpu-note-k">this stage</p>
+            <p class="gpu-note-b" id="gpuNotesCost">&mdash;</p>
+          </article>
+          <article class="gpu-note-card is-keep">
+            <p class="gpu-note-k">the bill</p>
+            <p class="gpu-note-b" id="gpuNotesBill">Host sends token IDs. Embedding writes x on-die. Every GEMM still re-fetches unique W from u_hbm (1.19 GB/token ≫ 50 MB L2). u_mac.valid_i stays 0 until fetch_done.</p>
+          </article>
+          <div class="gpu-rtl-measured" id="gpuRtlMeasured">
+            <p class="blk-k">real RTL, Verilator-measured &middot; <code>gpu_model/rtl/gpu_stream_core.sv</code></p>
+            <p class="gpu-rtl-line" id="gpuRtlLine" data-provenance="measured">&mdash;</p>
+          </div>
+          </div>
+        </section>
+        </div>
+          <section class="gpu-pane gpu-pane-rtl" aria-label="GPU RTL">
+          <p class="gpu-pane-k" id="gpuRtlPaneK">RTL · cycle model · u_hbm → u_mac</p>
+          <p class="gpu-stage-tag gpu-fit" data-fit="layer 28/28 · Q/K/V projection"><span id="gpuStageTag">&mdash;</span></p>
+          <div class="gpu-path" id="gpuPath" hidden aria-hidden="true">
+            <span data-gpu-hop="hbm">src · u_hbm · <span id="gpuPathBw">3.35 TB/s</span></span>
+            <span data-gpu-hop="l2">L2 miss</span>
+            <span data-gpu-hop="l1">SM RF / shared</span>
+            <span data-gpu-hop="dst" id="gpuPathDstHop">dst · u_mac</span>
+          </div>
+          <p class="gpu-path-why" id="gpuPathWhy" hidden></p>
+          <div class="gpu-ohp-rtl" id="gpuRtlStage">
+          <ul class="gpu-leg gpu-leg-rtl" id="gpuRtlLeg" aria-label="RTL legend">
+            <li data-leg="host"><i></i>host · IDs only</li>
+            <li data-leg="hbm"><i></i>u_hbm · fetch W</li>
+            <li data-leg="kv"><i></i>u_kv · K/V cache</li>
+            <li data-leg="l2"><i></i>L2 · not in this RTL</li>
+            <li data-leg="mac"><i></i>u_mac · after fetch_done</li>
+            <li data-leg="eng"><i></i>engines · later, on y</li>
+          </ul>
+          <div class="sch gpu-sch" id="gpuViz">
+            <div class="sch-row top">
+              <div class="blk io" data-gpu-blk="host">
+                <span class="blk-k">host I/O</span>
+                <strong>token[17:0]</strong>
+                <small>IDs only, as PCIe bits. Embedding turns an id into an HBM address of E[id]. Host never sends W.</small>
+              </div>
+              <div class="bus v" data-gpu-wire="cmd"><span>token IDs only</span></div>
+              <div class="blk ctl" data-gpu-blk="fsm">
+                <span class="blk-k">gpu_stream_core FSM</span>
+                <strong class="gpu-fit" data-fit="QKV_FETCH"><span id="gpuFsmName">IDLE</span></strong>
+                <small>measured one-shot: NORM · QKV_FETCH · QKV_MAC · KV · SOFTMAX</small>
+              </div>
+            </div>
+            <div class="bus h gpu-hbm-bus" data-gpu-wire="hbm" id="gpuBus">
+              <span class="gpu-bus-line">
+                <b id="gpuBusBw">3.35 TB/s</b>
+                <span id="gpuBusSpec">5 × 1024b HBM3 · 80 GB · 0.67 TB/s/stack · 5120-bit</span>
+              </span>
+              <span class="gpu-fit gpu-bus-cap" data-fit="fetch_busy · 311.9 MB / 311.9 MB"><span id="gpuBusCap">idle</span></span>
+              <div class="gpu-bus-pkt" id="gpuPkt" hidden>W</div>
+            </div>
+            <div class="sch-row mem">
+              <div class="blk rom" data-gpu-blk="hbm">
+                <span class="blk-k">u_hbm · gpu_hbm_bw_model.sv</span>
+                <strong class="gpu-fit" data-fit="8 HBM3e stacks [P] · 8.00 TB/s · one u_hbm port"><span id="gpuHbmCap">5 HBM3 stacks · 3.35 TB/s [P]</span></strong>
+                <small class="gpu-fit" data-fit="one port · stack_busy = {8{fetch_busy}}"><span id="gpuHbmWhy">one port · stack_busy = {N{fetch_busy}}</span></small>
+                <div class="mem-array gpu-hbm-stack" id="gpuHbmStack"></div>
+              </div>
+              <div class="bus v tall gpu-w-bus" data-gpu-wire="hbm">
+                <span id="gpuWBusLab">W</span>
+              </div>
+              <div class="blk sram" data-gpu-blk="l2" id="gpuL2Blk">
+                <span class="blk-k">L2 · 50 MB [P] · not in this RTL</span>
+                <strong class="gpu-fit" data-fit="idle · not in gpu_stream_core"><span id="gpuL2Name">miss for unique W</span></strong>
+                <small class="gpu-fit" data-fit="1.19 GB unique W ≫ 128 MB L2"><span id="gpuL2Cap">1.19 GB unique W ≫ 50 MB L2</span></small>
+              </div>
+              <div class="bus v tall" data-gpu-wire="l2"><span>miss</span></div>
+              <div class="blk sram" data-gpu-blk="l1" id="gpuXBadge">
+                <span class="blk-k">SM scratch · x, W, then y</span>
+                <strong class="gpu-fit wrap" data-fit="x ready · W 311.9 MB · y idle (MAC blocked)"><span id="gpuL1Name">x held · W arriving</span></strong>
+                <div class="gpu-ops">
+                  <span data-gpu-op="x" id="gpuOpX"><b>x</b><i class="gpu-fit" data-fit="← E[token]"><span id="gpuOpXLab">activation</span></i></span>
+                  <span data-gpu-op="w" id="gpuOpW"><b>W</b><i class="gpu-fit" data-fit="311.9 MB"><span id="gpuOpWLab">weight</span></i></span>
+                  <span data-gpu-op="y" id="gpuOpY"><b>y</b><i class="gpu-fit" data-fit="reducing"><span id="gpuOpYLab">result</span></i></span>
+                </div>
+                <small class="gpu-fit wrap" data-fit="Steps 2–4: RF → activation_i / weight_i → 16-lane MAC → y. No engine on this path."><span id="gpuXCap">Fetch lands W in RF. Next beat is issue to u_mac, not an engine.</span></small>
+              </div>
+            </div>
+            <ol class="gpu-gemm-pipe" id="gpuGemmPipe">
+              <li data-pipe="fetch"><b>1</b> fetch W → RF</li>
+              <li data-pipe="issue"><b>2</b> issue x, W</li>
+              <li data-pipe="mac"><b>3</b> 16 lanes × then Σ</li>
+              <li data-pipe="wb"><b>4</b> y → scratch</li>
+            </ol>
+            <p class="gpu-gemm-not">No engine between 1 and 3. u_rope / u_swiglu run later, on y, as their own decoder stages.</p>
+            <div class="gpu-mac-ports" id="gpuMacPorts" data-gpu-wire="issue">
+              <span class="gpu-port gpu-fit" data-gpu-port="act" data-fit="activation_i ← x"><span id="gpuPortAct">activation_i ← x</span></span>
+              <span class="gpu-port-op">×</span>
+              <span class="gpu-port gpu-fit" data-gpu-port="wgt" data-fit="weight_i ← u_kv"><span id="gpuPortWgt">weight_i ← W</span></span>
+              <span class="gpu-port-op">→</span>
+              <span class="gpu-port gpu-fit" data-gpu-port="acc" data-fit="acc += x·W"><span id="gpuPortAcc">acc[31:0]</span></span>
+            </div>
+            <div class="sch-row exec">
+              <div class="blk mac" data-gpu-blk="mac">
+                <span class="blk-k">u_mac · qwen_bf16_mac_array · LANES=16, all fire</span>
+                <strong id="gpuMacEq">y<sub>j</sub> = Σ<sub>k</sub> x<sub>k</sub> · W<sub>kj</sub></strong>
+                <small class="gpu-fit wrap" data-fit="16 lanes in lockstep · H100 148 SMs [P] are the package, not extra MAC cores"><span id="gpuSmCap">16 lanes in lockstep · not 16 of 132 SMs</span></small>
+                <small class="gpu-fit wrap" data-fit="valid_i · group 0000/0000: 155,582,464 MACs · 16-lane BF16×BF16 → FP32"><span id="gpuMac">valid_i only after fetch_done. Group walks k, every lane × each cycle.</span></small>
+                <div class="gpu-mac-lanes" id="gpuMacLanes"></div>
+                <p class="gpu-mac-reduce gpu-fit" data-fit="group 0000/0000 · all 16 lanes × this cycle · acc[31:0] += Σ xᵢWᵢ"><span id="gpuMacReduce">∑ 16 lanes → acc[31:0]</span></p>
+                <p class="gpu-pkg-k">H100 package [P] · not this MAC array</p>
+                <div class="gpu-pkg">
+                  <span class="gpu-fit" data-fit="148 SMs [P]"><span id="gpuPkgLab">132 SMs</span></span>
+                  <span class="gpu-pkg-bar"><i id="gpuPkgFill"></i></span>
+                  <span class="gpu-fit" data-fit="0.00% util @ batch 1"><span id="gpuPkgUtil">0.34% util @ batch 1</span></span>
+                </div>
+                <div class="gpu-sm-grid" id="gpuSmGrid"></div>
+              </div>
+              <div class="blk kv" data-gpu-blk="kv">
+                <span class="blk-k">u_kv · gpu_kv_cache.sv</span>
+                <strong>on-die K/V</strong>
+                <small class="gpu-fit wrap" data-fit="active: attention scores reads on-die K/V · zero HBM"><span id="gpuKvCap">Zero HBM. Attn scores / P×V read this, not u_hbm.</span></small>
+              </div>
+            </div>
+            <div class="bus h" data-gpu-wire="eng"><span>later decoder stages · on y in scratch · not between fetch and MAC</span></div>
+            <div class="sch-row eng">
+              <div class="blk eng" data-gpu-blk="rmsnorm"><span class="blk-k">u_norm</span><strong>RMSNorm</strong><small>qwen3_rmsnorm_engine</small></div>
+              <div class="blk eng" data-gpu-blk="softmax"><span class="blk-k">u_softmax</span><strong>softmax</strong><small>qwen3_softmax_engine</small></div>
+              <div class="blk eng" data-gpu-blk="rope"><span class="blk-k">u_rope</span><strong>RoPE</strong><small>rotate-half Q/K · cos/sin ROM</small></div>
+              <div class="blk eng" data-gpu-blk="swiglu"><span class="blk-k">u_swiglu</span><strong>SwiGLU</strong><small>SiLU(gate) ⊙ up</small></div>
+            </div>
+            <div class="blk logits" data-gpu-blk="logits">
+              <span class="blk-k">lm_head · same u_hbm then u_mac path, longest fetch</span>
+              <strong id="gpuLogitDetail">151,936 logits · y Eᵀ, then argmax in-flight</strong>
+              <small class="gpu-fit" data-fit="next token appears when lm_head fires"><span id="gpuArgmaxDetail">next token appears when this block fires</span></small>
+            </div>
+            <p class="sch-note" id="gpuNote" hidden>idle</p>
+          </div>
+          </div>
+          <div class="gpu-strip" id="gpuStrip" hidden></div>
+        </section>
+      </div>
+      <section class="gpu-stage-cost" aria-label="H100 stage cost per call">
+        <div class="gpu-stage-cost-head">
+          <p class="gpu-stage-cost-k">Cost per stage call · <span id="gpuStageCostMach">H100 · 3.35 TB/s</span></p>
+          <div class="gpu-stage-cost-kpis">
+            <article class="gpu-stage-kpi">
+              <p class="gpu-stage-kpi-k">tok/s · one user · batch 1</p>
+              <p class="gpu-stage-kpi-n" id="gpuStageTps" data-provenance="analytical_estimate">&mdash;</p>
+              <p class="gpu-stage-kpi-eq" id="gpuStageTpsEq">&mdash;</p>
+            </article>
+            <article class="gpu-stage-kpi">
+              <p class="gpu-stage-kpi-k">energy / token</p>
+              <p class="gpu-stage-kpi-n" id="gpuStageEnergy" data-provenance="analytical_estimate">&mdash;</p>
+              <p class="gpu-stage-kpi-eq" id="gpuStageEnergyEq">&mdash;</p>
+            </article>
+          </div>
+        </div>
+        <div class="gpu-stage-cost-body">
+          <table class="gpu-stage-tbl">
+            <thead>
+              <tr>
+                <th scope="col">Stage</th>
+                <th scope="col">W fetch</th>
+                <th scope="col">Cycles</th>
+              </tr>
+            </thead>
+            <tbody id="gpuStageCostRows">
+              <tr><td colspan="3" class="gpu-stage-cost-load">loading&hellip;</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+      <div class="gpu-zoom" id="gpuZoomPanel" hidden>
+        <p class="gpu-zoom-h">Inside one SM &mdash; <span id="gpuZoomStage">&mdash;</span></p>
+        <p class="gpu-zoom-sub">A real FIFO/occupancy simulation, wave by wave &mdash; not a single division. Tiles queue in arrival order and issue to a free warp slot the instant one exists.</p>
+        <div class="gpu-zoom-body">
+          <div class="gpu-zoom-col">
+            <p class="gpu-col-k">wave <span id="gpuWaveLabel">0 / 0</span> &middot; die-wide occupancy this wave</p>
+            <div class="gpu-occ-bar"><div class="gpu-occ-fill" id="gpuOccFill"></div></div>
+            <p class="gpu-cap" id="gpuOccCap" data-provenance="published">&mdash;</p>
+            <div class="gpu-wave-transport">
+              <button type="button" id="gpuWaveBack" class="ghost">&larr; wave</button>
+              <button type="button" id="gpuWaveFwd" class="ghost">wave &rarr;</button>
+            </div>
+          </div>
+          <div class="gpu-zoom-col">
+            <p class="gpu-col-k">one warp&rsquo;s tile op</p>
+            <p class="gpu-zoom-eq" id="gpuZoomEq">&mdash;</p>
+            <p class="gpu-cap" id="gpuZoomLatCap">&mdash;</p>
+          </div>
+        </div>
+        <p class="gpu-zoom-foot" id="gpuZoomFoot">&mdash;</p>
+      </div>
+      <details class="src-fold gpu-foot">
+        <summary>Why the MAC waits for its weights</summary>
+        <div class="gpu-eq">
+          <p class="gpu-eq-line">\( Q_j \;=\; \displaystyle\sum_{k=1}^{d} x_k \, W_{k,j} \qquad j = 1, \dots, d_{out} \)</p>
+          <p class="gpu-eq-cap">This is <code>y @ W_Q</code> &mdash; the same reduction as an <code>nn.Linear</code> forward pass. Before a lane can multiply, its \(W_{k,j}\) has to arrive. In this batch&nbsp;1 model, the weight matrices stream from HBM for each token. <strong>Keeping weights on the die removes that recurring transfer; compute and local-memory energy remain.</strong></p>
+        </div>
+      </details>
+      <details class="src-fold gpu-foot" id="hwCompareFold">
+        <summary>Same compute, different hardware · measured on this chip</summary>
+        <p class="muted small" id="hwCompareLead">One forward pass, eight hardware scenarios — the mask-ROM chip (unfused and fused 2D), GPU tile, TPU MXU, LPU, each also re-run paying HBM-class memory latency — all bit-exact against the Python oracle. Identical MACs; only the memory path differs.</p>
+        <div id="hwCompareBody" class="hw-compare-body"><p class="muted small">Loading…</p></div>
+      </details>
+      <details class="src-fold gpu-foot">
+        <summary>Source · H100 / B200 datasheet model</summary>
+        <p class="muted small">Numbers render from <code>evidence/exec_models.json &rarr; platforms.h100</code> (datasheet-provenance analytical model: BF16 dense 989 TFLOPS, HBM3e 3.35 TB/s, 700 W TDP). The same model prices B200 at 132 mJ/token over 8 TB/s &mdash; the streaming cost survives every GPU generation. The live bars are the 395-call stage walk of one token, the same table every later slide uses.</p>
+      </details>
+    </section>
+
+    <!-- ===================== SLIDE 3 · REPLICA ===================== -->
+    <section class="slide slide-replica" data-slide="2" data-slide-id="replica" hidden>
+      <h1 class="slide-h replica-title">We ran real forward passes on a bit-exact chip</h1>
+      <p class="replica-lead">Qwen3-0.6B, <strong>9.5 billion ROM transistors</strong>, Python and RTL match bit-exactly. <strong>1.19 mJ / token</strong> vs 197 mJ on H100. Floorplan is cell-area [E], not a GDS.</p>
+      <form id="verifyForm" class="replica-run">
+        <input id="verifyText" type="text" maxlength="4000"
+          placeholder="Type a statement…"
+          value="The capital of India is Delhi, and the capital of Japan is"
+          required autocomplete="off">
+        <button type="submit" id="verifyBtn" title="Python vs the chip on this sentence — all 28 layers, every checkpoint, all 151,936 logits">Compare full statement</button>
+        <span id="runBadge" class="badge">idle</span>
+        <span id="predSentence" class="pred-inline muted"></span>
+      </form>
+      <p id="formError" class="error" hidden></p>
+      <div class="proof-verdict">
+        <div class="pv-state">
+          <span class="pv-k">Python vs RTL</span>
+          <span id="compareBadge" class="badge">not compared</span>
+        </div>
+        <p id="compareDetail" class="pv-detail">Full-statement compare: after Python and the chip both finish this sentence, every checkpoint and all 151,936 logits must match bit-exactly.</p>
+        <ul class="pv-checks">
+          <li><b>28</b><span>decoder layers</span></li>
+          <li><b>every</b><span>checkpoint tensor</span></li>
+          <li><b>151,936</b><span>logits compared</span></li>
+          <li><b>0</b><span>tolerance &mdash; bit-exact</span></li>
+        </ul>
+        <pre id="mismatchBox" hidden></pre>
+      </div>
+      <div class="replica-split">
+        <section class="replica-col network-pane" aria-label="Network">
+          <p class="replica-k">Network</p>
+          <div id="compute" class="compute" hidden>
+            <p class="compute-k" id="computeName">computation</p>
+            <p class="compute-eq" id="computeEq">Click a node for the full tensor.</p>
+            <p class="compute-shape" id="computeShape"></p>
+            <div class="compute-ins" id="computeIns"></div>
+            <div class="compute-vals" id="computeVals"></div>
+          </div>
+          <div id="network" class="network"></div>
+        </section>
+        <section class="replica-col sch-wrap" aria-label="RTL">
+          <p class="replica-k replica-k-row">
+            <span id="chipViewLabel">RTL</span>
+            <span class="gpu-view-toggle">
+              <button type="button" class="ghost" id="chipViewRtl" aria-pressed="true">RTL · cycles</button>
+              <button type="button" class="ghost" id="chipViewPnr" aria-pressed="false">P&amp;R · floorplan</button>
+            </span>
+          </p>
+          <div class="asic-pnr" id="asicPnr" hidden>
+            <p class="gpu-pnr-prov">Verilator is cycle-true, not silicon. This is a <strong>cell-area floorplan [E]</strong> — ROM bits × 0.018 µm² N4, placed next to the 16-lane MAC. It is <em>not</em> OpenROAD. This repo has no synthesis/P&amp;R flow and no GDS.</p>
+            <div class="pnr-leg">
+              <span class="lg place">placed array / macro [E]</span>
+              <span class="lg std">MAC std-cell [E]</span>
+              <span class="lg route">intended routes · not signed off</span>
+            </div>
+            <div class="asic-pnr-die" aria-label="estimated die floorplan">
+              <div class="asic-pnr-rom">
+                <b>weight ROM</b>
+                <span>9.54B × 1-transistor</span>
+                <strong>171.7 mm²</strong>
+                <em>29% of 600 mm² reticle die</em>
+              </div>
+              <div class="asic-pnr-mac">
+                <b>MAC ×16</b>
+                <span>qwen_bf16_mac_array</span>
+              </div>
+              <div class="asic-pnr-sram">
+                <b>scratch SRAM</b>
+                <span>x · KV · workspace</span>
+              </div>
+              <div class="asic-pnr-io">
+                <b>host I/O</b>
+                <span>token[17:0] only</span>
+              </div>
+            </div>
+            <p class="gpu-pnr-scale">N4-class estimate · 0.018 µm²/bit [E] · no DRC, no clock tree, no routed GDS</p>
+          </div>
+          <div class="sch" id="chip">
+              <div class="sch-row top">
+                <div class="blk io" data-block="host">
+                  <span class="blk-k">host I/O</span>
+                  <strong>token[17:0]</strong>
+                  <small>pos[15:0]</small>
+                  <small id="hostDetail">cmd idle</small>
+                </div>
+                <div class="bus v" data-wire="host fsm"><span>cmd</span></div>
+                <div class="blk ctl" data-block="fsm">
+                  <span class="blk-k">controller FSM</span>
+                  <strong id="fsmName">IDLE</strong>
+                  <small>qwen_stage_e · 1 cluster, 28 layers muxed</small>
+                </div>
+              </div>
+              <div class="bus h" data-wire="rom sram mac fsm"><span>addr[63:0] · 256b words · ROM port 0 · SRAM port 0</span></div>
+              <div class="sch-row mem">
+                <div class="blk rom" data-block="rom" title="1.192 GB = 9.54 billion bits = 9.54 billion 1-transistor mask-ROM cells = 171.7 mm² at N4, 29% of a 600 mm² reticle die.">
+                  <span class="blk-k">weight ROM · u_rom · on this die</span>
+                  <strong>9.54B transistors · 171.7 mm²</strong>
+                  <ol class="rom-eq" id="romHint">
+                    <li><em>bytes</em> 1,192,099,840 B packed BF16</li>
+                    <li><em>× 8</em> = 9,536,798,720 bits</li>
+                    <li><em>× 1 transistor/bit</em> = 9.54 billion transistors</li>
+                    <li><em>× 0.018 µm²</em> N4 cell = 171.7 mm²</li>
+                    <li><em>÷ 600 mm²</em> reticle die = 0.29 die</li>
+                  </ol>
+                  <div class="rom-reticle" aria-hidden="true">
+                    <div class="rom-reticle-die">
+                      <div class="rom-reticle-fill" style="width:28.6%"></div>
+                    </div>
+                    <p><b>171.7 mm²</b> ROM array on a <b>600 mm²</b> reticle-limited die</p>
+                  </div>
+                  <div class="mem-array" id="romBanks"></div>
+                </div>
+                <div class="bus v tall" data-wire="rom mac"><span>W 256b</span></div>
+                <div class="blk sram">
+                  <span class="blk-k">scratch SRAM · u_sram</span>
+                  <strong>8 banks · 256b · R/W</strong>
+                  <div class="sram-tags">
+                    <span data-block="sram-hidden">hidden act</span>
+                    <span data-block="sram-kv">K/V cache</span>
+                    <span data-block="sram-ws">workspace</span>
+                  </div>
+                  <div class="mem-array" id="sramBanks"></div>
+                </div>
+              </div>
+              <div class="bus h" data-wire="mac rom sram"><span>act 16×BF16 · acc FP32 · 2-stage pipe</span></div>
+              <div class="blk mac" data-block="mac">
+                <span class="blk-k">MAC array · qwen_bf16_mac_array</span>
+                <strong>16 lanes · BF16 × BF16 → FP32 reduce</strong>
+                <div class="mac-grid" id="macLanes"></div>
+                <div class="mac-reduce">∑ tree → acc[31:0]</div>
+              </div>
+              <div class="bus h" data-wire="rmsnorm softmax rope swiglu"><span>NLIN req/rsp</span></div>
+              <div class="sch-row eng">
+                <div class="blk eng" data-block="rmsnorm"><span class="blk-k">engine</span><strong>RMSNorm</strong><small>u_norm</small></div>
+                <div class="blk eng" data-block="softmax"><span class="blk-k">engine</span><strong>softmax</strong><small>exp stays FP32</small></div>
+                <div class="blk eng" data-block="rope"><span class="blk-k">engine</span><strong>RoPE</strong><small>u_rope</small></div>
+                <div class="blk eng" data-block="swiglu"><span class="blk-k">engine</span><strong>SwiGLU</strong><small>u_swiglu</small></div>
+              </div>
+              <div class="blk logits" data-block="logits">
+                <span class="blk-k">lm_head stream</span>
+                <strong id="logitDetail">151936 logits · argmax on-chip</strong>
+                <small id="argmaxDetail">argmax —</small>
+              </div>
+              <div class="layers" id="layerStrip" role="list" aria-label="28 decoder layers time-multiplexed on this datapath"></div>
+              <div id="chipInspector" class="chip-inspector">
+                <div class="ci-head">
+                  <div>
+                    <p class="blk-k" id="chipInspectorTitle">block</p>
+                    <p class="ci-module" id="chipInspectorModule"></p>
+                  </div>
+                  <button type="button" class="ghost" id="chipInspectorClose">Close</button>
+                </div>
+                <p class="ci-detail" id="chipInspectorDetail"></p>
+                <p class="ci-now" id="chipInspectorNow"></p>
+                <div id="chipInspectorBody"></div>
+                <button type="button" class="ghost" id="chipInspectorTensor">Full tensor →</button>
+              </div>
+              <p class="sch-note" id="dieEq">idle</p>
+              <p class="sch-note dim" id="dieIo"></p>
+            </div>
+        </section>
+      </div>
+      <span id="tokenList" hidden></span>
+      <span id="outToken" hidden></span>
+      <p id="claimLine" hidden></p>
+      <p class="why-slow-k" id="runWhy" hidden></p>
+      <div id="runProgress" class="run-progress" hidden>
+        <div class="run-progress-meta">
+          <span id="runProgressLabel"></span>
+          <span id="runProgressElapsed"></span>
+        </div>
+        <div class="run-progress-track" role="progressbar" aria-label="forward progress">
+          <div class="run-progress-seg py" id="runProgressPy"></div>
+          <div class="run-progress-seg rtl" id="runProgressRtl"></div>
+        </div>
+      </div>
+      <details class="replica-more">
+        <summary>Playback, walk, and profile</summary>
+        <div id="walkStrip" class="walk-strip"></div>
+        <section class="metrics" id="metrics">
+          <div><span>cycle</span><strong id="mCycle">—</strong></div>
+          <div><span>stage</span><strong id="mStage">IDLE</strong></div>
+          <div><span>layer</span><strong id="mLayer">—</strong></div>
+          <div><span>token</span><strong id="mToken">—</strong></div>
+          <div><span>ROM reads</span><strong id="mRom">—</strong></div>
+          <div><span>SRAM R/W</span><strong id="mSram">—</strong></div>
+          <div><span>MACs</span><strong id="mMacs">—</strong></div>
+          <div><span>stalls</span><strong id="mStalls">—</strong></div>
+        </section>
+        <section class="transport panel">
+          <div class="transport-row">
+            <button type="button" id="playBtn" class="ghost">Pause</button>
+            <button type="button" id="stepBack" class="ghost">Prev</button>
+            <button type="button" id="stepFwd" class="ghost">Next</button>
+            <label class="scrub">
+              <span id="playLabel">event 0 / 0</span>
+              <input id="playSlider" type="range" min="0" max="0" value="0">
+            </label>
+          </div>
+          <p id="playEvent" class="muted small">Waiting for a forward timeline. Playback reads saved checkpoints — it does not re-run the compare.</p>
+        </section>
+        <section class="panel" id="profilePanel">
+          <div class="section-title">
+            <h2>Full-pass profile · what took the longest</h2>
+            <span class="sched-toggle">
+              <button type="button" class="ghost" id="sbFused" aria-pressed="true">fused · 57.0M cyc</button>
+              <button type="button" class="ghost" id="sbUnfused" aria-pressed="false">unfused · 295.4M cyc</button>
+            </span>
+            <span class="badge ok">measured · sums exactly</span>
+          </div>
+          <div id="profileHead" class="keyline profile-keyline"></div>
+          <div id="profileChart" class="stage-chart"></div>
+        </section>
+      </details>
+    </section>
+
+    <!-- ===================== SLIDE 4 · 2D MXU (same pass as slide 3) ===================== -->
+    <section class="slide slide-replica slide-2d" data-slide="3" data-slide-id="2d" hidden>
+      <h1 class="slide-h replica-title">Same pass, 2D. 40,000 tokens per second.</h1>
+      <p class="replica-lead">The lab die is 16 sequential MAC lanes. Production is a ROM-stationary array: \(x\) hops east, psums south, \(W\) never moves. Clock 4× and ~1,100× more MACs/cycle → <strong>~40,000 tok/s</strong> · still 1.19 mJ.</p>
+      <div class="replica-split">
+        <section class="replica-col" aria-label="1D versus 2D movement">
+          <p class="replica-k">How data moves</p>
+          <div class="move-card">
+            <p class="move-h">Lab die · 1D sequential</p>
+            <p class="move-p">Each beat: 16 products along the <em>reduction</em>. Then the next output column. \(W\) arrives on the bus every cycle.</p>
+            <div class="lane-1d" id="d2Lane1d"></div>
+            <p class="move-cap" id="d2LaneCap">16 MACs/cycle · one \(y[j]\) · 57.0M cyc @ 500 MHz · 8.8 tok/s</p>
+          </div>
+          <div class="move-card now">
+            <p class="move-h">Production · 2D systolic</p>
+            <p class="move-p">West edge broadcasts \(x\). Each PE already holds its \(W\) bitcell (1-transistor mask ROM). A diagonal of MACs fires; psums drain south. 8×8 is a tile of a ~110×110 production array.</p>
+            <div class="mxu-grid d2-mini" id="d2GridMini"></div>
+            <p class="move-cap" id="d2MiniCap">\(x\) east · psum south · \(W\) never on the fabric</p>
+          </div>
+          <div class="speed-card">
+            <p class="move-h">Why it is faster</p>
+            <ul>
+              <li><span>clock</span><strong>500 MHz → 2 GHz = 4×</strong></li>
+              <li><span>spatial</span><strong>16 → ~12k MACs/cycle ≈ 1,100×</strong></li>
+              <li><span>cycles</span><strong>57.0M → ~50k per token</strong></li>
+              <li><span>tok/s</span><strong>8.8 → ~40,000 · ~4,500× this replica</strong></li>
+              <li><span>vs H100</span><strong>14× more tok/s / user · still 166× less energy</strong></li>
+            </ul>
+            <p class="move-cap">28 layers are still time-muxed. 2D speeds the GEMM inside a layer, not layer-parallelism. Same burnt-in 1.192 GB ROM.</p>
+          </div>
+        </section>
+        <section class="replica-col sch-wrap" aria-label="2D RTL schematic">
+          <p class="replica-k">RTL · 2D</p>
+          <div class="sch" id="d2Chip">
+            <div class="sch-row top">
+              <div class="blk io" data-d2="host">
+                <span class="blk-k">host I/O</span>
+                <strong>token[17:0]</strong>
+                <small>pos[15:0]</small>
+                <small>cmd · token IDs only</small>
+              </div>
+              <div class="bus v" data-d2-wire="cmd"><span>cmd</span></div>
+              <div class="blk ctl" data-d2="fsm">
+                <span class="blk-k">controller FSM</span>
+                <strong id="d2Fsm">S_LOAD_ACT</strong>
+                <small>same qwen_stage_e · 28 layers muxed · tile_sel pages \(W\)</small>
+              </div>
+            </div>
+            <div class="bus h" data-d2-wire="fabric"><span>no 256b \(W\) bus · \(W\) is in the PE · west-edge \(x\) only</span></div>
+            <div class="sch-row mxu-mem">
+              <div class="blk sram" data-d2="sram">
+                <span class="blk-k">scratch SRAM · \(x\) and KV</span>
+                <strong>hold \(x\) · 1 load / GEMM</strong>
+                <small>west-edge broadcast · not a weight SRAM</small>
+                <div class="mem-array" id="d2Sram"></div>
+              </div>
+              <div class="bus v tall" data-d2-wire="x"><span>\(x\) east<br>BF16</span></div>
+              <div class="blk mac mxu" data-d2="mxu">
+                <span class="blk-k">ROM MXU · 8×8 tile shown</span>
+                <strong>PE = 1-transistor ROM \(W\) + BF16 MAC</strong>
+                <small>systolic: \(x\) east, psum south · ~110×110 class for 40k tok/s</small>
+                <div class="mxu-grid" id="d2Grid"></div>
+                <div class="mxu-tiles" id="d2Tiles"></div>
+                <div class="mac-reduce" id="d2Reduce">psum ↓ · pipe=2 · bf16_rne</div>
+              </div>
+            </div>
+            <div class="bus h" data-d2-wire="nlin"><span>NLIN still sequential engines · GEMM is the 2D part</span></div>
+            <div class="sch-row eng">
+              <div class="blk eng" data-d2="rmsnorm"><span class="blk-k">engine</span><strong>RMSNorm</strong></div>
+              <div class="blk eng" data-d2="softmax"><span class="blk-k">engine</span><strong>softmax</strong></div>
+              <div class="blk eng" data-d2="rope"><span class="blk-k">engine</span><strong>RoPE</strong></div>
+              <div class="blk eng" data-d2="swiglu"><span class="blk-k">engine</span><strong>SwiGLU</strong></div>
+            </div>
+            <div class="blk logits" data-d2="logits">
+              <span class="blk-k">lm_head stream</span>
+              <strong id="d2Logit">151936 logits · tiled on the MXU</strong>
+              <small>argmax in flight · same as slide 3</small>
+            </div>
+            <div class="layers" id="d2Layers" role="list" aria-label="28 decoder layers still time-multiplexed"></div>
+            <p class="sch-note" id="d2Note">idle</p>
+          </div>
+        </section>
+      </div>
+    </section>
+
+    <!-- ===================== SLIDE 5 · NETWORK ===================== -->
+    <section class="slide slide-eqs" data-slide="4" data-slide-id="eqs" hidden>
+      <div class="nn-graph-wrap">
+        <h1 class="slide-h nn-title">Weights never move.</h1>
+        <p class="nn-geom">GPUs pay ~5 pJ/bit to stream 1+ GB every token. We fabricate W in place. <strong>166× less energy</strong> at 0.6B; <strong>200–420×</strong> on large MoE, where only 15% of experts fire.</p>
+        <figure class="nn-where" id="nnWhere">
+          <div class="nn-eq">
+            <p class="nn-eq-k">This node</p>
+            <p class="nn-eq-big" data-nn-eq="gemm">\( Q = y W_Q \)</p>
+            <p class="nn-eq-big" data-nn-eq="norm" hidden>\( y = \operatorname{RMSNorm}(x) \)</p>
+            <p class="nn-eq-sub" data-nn-note="gemm">Q proj. \( y \) is this layer’s input RMSNorm — not the \( y \) at lm_head. GPU, TPU, LPU, CIM, PIM, and this ASIC all run this GEMM for one token.</p>
+            <p class="nn-eq-sub" data-nn-note="norm" hidden>input RMSNorm. It produces the \( y \) that Q proj multiplies. RMSNorm is not the HBM bill.</p>
+          </div>
+          <details class="nn-map-fold" id="nnMapFold">
+            <summary>Show the full layer graph &mdash; the same graph is live on <strong>We Built It</strong></summary>
+            <div class="nn-map network" id="nnMap"></div>
+          </details>
+        </figure>
+        <div class="nn-anim-bar">
+          <span class="nn-anim-k">Watch the wires</span>
+          <button type="button" class="ghost" id="nnSceneGemm" aria-pressed="true">Q proj · Q = y W_Q</button>
+          <button type="button" class="ghost" id="nnSceneNorm" aria-pressed="false">RMSNorm</button>
+          <button type="button" class="ghost" id="nnAnimPlay">Pause</button>
+          <button type="button" class="ghost" id="nnAnimStep">Step</button>
+          <span class="nn-anim-hint" id="nnAnimHint">GPU/TPU: W from HBM. PIM: W in DRAM banks. LPU: W in SRAM. CIM: W is the cell (ADC). ASIC fused: W is ROM.</span>
+        </div>
+        <p class="nn-row-k">Rivals &middot; batch-1 decode</p>
+        <p class="nn-xref">The six packages are compared physically on the <strong>Packages</strong> slide, and numerically in the table below &mdash; both read from the same figures as this chart.</p>
+
+
+        <div class="nn-compare">
+        <div class="nn-compare-l">
+        <p class="nn-row-k">This ASIC · 16-lane lab die</p>
+        <div class="nn-split nn-split-asic">
+          <article class="nn-pane unfused" data-mech="unfused" tabindex="0" role="button" aria-haspopup="dialog" aria-label="This chip unfused — open mechanism">
+            <header class="nn-pane-h">
+              <p class="nn-kind">ASIC · unfused</p>
+              <h2>This chip · unfused</h2>
+              <p class="nn-sub">Re-read \(x\) for every output</p>
+              <p class="nn-open">Click to enlarge</p>
+            </header>
+            <div class="nn-kpis" data-kpis="unfused">
+              <p class="nn-wlive">\(W\) in <strong>ROM</strong> · ~0.8 pJ/bit · re-read \(x\)</p>
+              <p class="nn-en"><span class="nn-en-k">energy / token</span> <span data-kpi="e">~6.2 mJ est · 5.2× more</span></p>
+              <p class="nn-tr"><span class="nn-en-k">die transistors</span> <span data-kpi="tr">~18B</span></p>
+              <p class="nn-tr-note" data-kpi="tr-note">9.5B ROM (1 transistor/bit) · 8B SRAM · same die as fused</p>
+              <p class="nn-lat" data-kpi="lat">591 ms · 1.7 tok/s</p>
+            </div>
+            <div class="nn-stage" data-side="unfused">
+              <p class="nn-now" data-now>idle</p>
+              <p class="nn-leds">
+                <span data-led="sram">sram_req</span>
+                <span data-led="rom">rom_req</span>
+                <span data-led="mac">mac_valid</span>
+                <span class="nn-acc-l">acc <span data-acc>0</span></span>
+              </p>
+              <div class="nn-schem"></div>
+              <p class="nn-tick"><span data-meta></span></p>
+            </div>
+            <p class="nn-mech-cap">Naive ASIC schedule: \(W\) is already ROM, but \(x\) is re-issued from SRAM for every \(j\). This is worse than the GPU on the inner loop.</p>
+            <details class="nn-more">
+              <summary>Measured cycles on this schedule</summary>
+              <ul class="nn-ops">
+              <li class="nn-op waste" data-stage="INPUT_NORM"><span class="nn-name">input RMSNorm</span><span class="nn-lab">\( y=\operatorname{RMSNorm}(x)\odot\gamma \)</span><span class="nn-bar"></span><span class="nn-counts"></span></li>
+              <li class="nn-op waste" data-stage="Q_PROJ"><span class="nn-name">Q</span><span class="nn-lab">\( Q=yW_Q \)</span><span class="nn-bar"></span><span class="nn-counts"></span></li>
+              <li class="nn-op waste" data-stage="K_PROJ"><span class="nn-name">K</span><span class="nn-lab">\( K=yW_K \)</span><span class="nn-bar"></span><span class="nn-counts"></span></li>
+              <li class="nn-op waste" data-stage="V_PROJ"><span class="nn-name">V</span><span class="nn-lab">\( V=yW_V \)</span><span class="nn-bar"></span><span class="nn-counts"></span></li>
+              <li class="nn-op waste" data-stage="O_PROJ"><span class="nn-name">O</span><span class="nn-lab">\( u=\operatorname{concat}(C)W_O \)</span><span class="nn-bar"></span><span class="nn-counts"></span></li>
+              <li class="nn-op waste" data-stage="POST_NORM"><span class="nn-name">post RMSNorm</span><span class="nn-lab">\( y=\operatorname{RMSNorm}(x)\odot\gamma \)</span><span class="nn-bar"></span><span class="nn-counts"></span></li>
+              <li class="nn-op waste" data-stage="GATE_PROJ"><span class="nn-name">gate</span><span class="nn-lab">\( g=yW_g \)</span><span class="nn-bar"></span><span class="nn-counts"></span></li>
+              <li class="nn-op waste" data-stage="UP_PROJ"><span class="nn-name">up</span><span class="nn-lab">\( v=yW_u \)</span><span class="nn-bar"></span><span class="nn-counts"></span></li>
+              <li class="nn-op waste" data-stage="DOWN_PROJ"><span class="nn-name">down</span><span class="nn-lab">\( z=hW_d \)</span><span class="nn-bar"></span><span class="nn-counts"></span></li>
+              <li class="nn-op waste" data-stage="FINAL_NORM"><span class="nn-name">final RMSNorm</span><span class="nn-lab">\( y=\operatorname{RMSNorm}(x)\odot\gamma \)</span><span class="nn-bar"></span><span class="nn-counts"></span></li>
+              <li class="nn-op waste" data-stage="LM_HEAD"><span class="nn-name">lm_head</span><span class="nn-lab">\( \ell=yE^{\top} \)</span><span class="nn-bar"></span><span class="nn-counts"></span></li>
+            </ul>
+            </details>
+            <p class="nn-note">16 lanes @ 500 MHz. Fusion is how the ASIC matches the GPU’s \(x\)-reuse; ROM is how it stops paying HBM for \(W\).</p>
+          </article>
+
+          <article class="nn-pane fused" data-mech="fused" tabindex="0" role="button" aria-haspopup="dialog" aria-label="This chip fused — open mechanism">
+            <header class="nn-pane-h">
+              <p class="nn-kind">ASIC · fused</p>
+              <h2>This chip · fused</h2>
+              <p class="nn-sub">Burn \(W\) in ROM. Hold \(x\).</p>
+              <p class="nn-open">Click to enlarge</p>
+            </header>
+            <div class="nn-kpis" data-kpis="fused">
+              <p class="nn-wlive">\(W\) in <strong>ROM</strong> · ~0.8 pJ/bit · hold \(x\)</p>
+              <p class="nn-en"><span class="nn-en-k">energy / token</span> <span data-kpi="e">1.19 mJ · least</span></p>
+              <p class="nn-tr"><span class="nn-en-k">die transistors</span> <span data-kpi="tr">~18B</span></p>
+              <p class="nn-tr-note" data-kpi="tr-note">9.5B ROM (1 transistor/bit) · 8B SRAM · fusion adds 0 transistors</p>
+              <p class="nn-lat" data-kpi="lat">114 ms · 8.8 tok/s</p>
+            </div>
+            <div class="nn-stage" data-side="fused">
+              <p class="nn-now" data-now>idle</p>
+              <p class="nn-leds">
+                <span data-led="sram">sram_req</span>
+                <span data-led="rom">rom_req</span>
+                <span data-led="mac">mac_valid</span>
+                <span class="nn-acc-l">acc <span data-acc>0</span></span>
+              </p>
+              <div class="nn-schem"></div>
+              <p class="nn-tick"><span data-meta></span></p>
+            </div>
+            <p class="nn-mech-cap">How the ASIC takes the HBM wire: \(W\) never leaves the die (ROM ~0.8 pJ/bit). <code>S_LOAD_ACT</code> then <code>S_RUN</code>. LPU does this in SRAM — we do it in ROM so 1T params can still shard.</p>
+            <details class="nn-more">
+              <summary>Measured cycles on this schedule</summary>
+              <ul class="nn-ops">
+              <li class="nn-op keep" data-stage="INPUT_NORM"><span class="nn-name">input RMSNorm</span><span class="nn-lab">\( y=\operatorname{RMSNorm}(x)\odot\gamma \)</span><span class="nn-bar"></span><span class="nn-counts"></span></li>
+              <li class="nn-op keep" data-stage="Q_PROJ"><span class="nn-name">Q</span><span class="nn-lab">\( Q=yW_Q \)</span><span class="nn-bar"></span><span class="nn-counts"></span></li>
+              <li class="nn-op keep" data-stage="K_PROJ"><span class="nn-name">K</span><span class="nn-lab">\( K=yW_K \)</span><span class="nn-bar"></span><span class="nn-counts"></span></li>
+              <li class="nn-op waste" data-stage="V_PROJ"><span class="nn-name">V · still unfused</span><span class="nn-lab">\( V=yW_V \)</span><span class="nn-bar"></span><span class="nn-counts"></span></li>
+              <li class="nn-op keep" data-stage="O_PROJ"><span class="nn-name">O</span><span class="nn-lab">\( u=\operatorname{concat}(C)W_O \)</span><span class="nn-bar"></span><span class="nn-counts"></span></li>
+              <li class="nn-op keep" data-stage="POST_NORM"><span class="nn-name">post RMSNorm</span><span class="nn-lab">\( y=\operatorname{RMSNorm}(x)\odot\gamma \)</span><span class="nn-bar"></span><span class="nn-counts"></span></li>
+              <li class="nn-op keep" data-stage="GATE_PROJ"><span class="nn-name">gate</span><span class="nn-lab">\( g=yW_g \)</span><span class="nn-bar"></span><span class="nn-counts"></span></li>
+              <li class="nn-op keep" data-stage="UP_PROJ"><span class="nn-name">up</span><span class="nn-lab">\( v=yW_u \)</span><span class="nn-bar"></span><span class="nn-counts"></span></li>
+              <li class="nn-op keep" data-stage="DOWN_PROJ"><span class="nn-name">down</span><span class="nn-lab">\( z=hW_d \)</span><span class="nn-bar"></span><span class="nn-counts"></span></li>
+              <li class="nn-op keep" data-stage="FINAL_NORM"><span class="nn-name">final RMSNorm</span><span class="nn-lab">\( y=\operatorname{RMSNorm}(x)\odot\gamma \)</span><span class="nn-bar"></span><span class="nn-counts"></span></li>
+              <li class="nn-op keep" data-stage="LM_HEAD"><span class="nn-name">lm_head</span><span class="nn-lab">\( \ell=yE^{\top} \)</span><span class="nn-bar"></span><span class="nn-counts"></span></li>
+            </ul>
+            </details>
+            <p class="nn-note">Bars share the unfused scale (lm_head 68M). Teal shrunk; orange \(V\) still unfused. Host still only sends token IDs.</p>
+          </article>
+        </div>
+        </div>
+        <div class="nn-compare-r">
+        <p class="nn-row-k">Same token · energy vs throughput</p>
+        <figure class="nn-chart" id="nnCharts">
+          <figcaption>Each machine is a point — not a path. Label is energy · tok/s · die transistors. Left is this 16-lane die; right is production. Down is cheaper, right is faster.</figcaption>
+          <div id="nnChartE"></div>
+          <details class="src-fold nn-why">
+            <summary>Why 1.19 mJ and 8.8 tok/s</summary>
+            <p><strong>Why 1.19 mJ.</strong> H100 pays ~5 pJ/bit to stream 1.19 GB of \(W\) from HBM every token (197 mJ). Fused burns \(W\) into ROM (~0.08 pJ/bit at N4) and holds \(x\), so that bill is gone. Unfused is the same die but re-reads \(x\) — still cheap, 5× more cycles. Fusion spends zero extra transistors.</p>
+            <p><strong>Why 8.8 tok/s.</strong> Fusion is 5.18× the unfused schedule on <em>this</em> 16-lane @ 500 MHz replica. It does not turn a lab die into an H100 (~2.8k tok/s) or an LPU (~2.5k). Transistors and energy are the fair compare on this slide; tok/s is the 2D MXU.</p>
+          </details>
+        </figure>
+        </div>
+        </div>
+
+        <p class="nn-kpi-note">Qwen3-0.6B, batch-1 decode. Energy bases in the table below.</p>
+        <details class="src-fold nn-more nn-kpi-store">
+          <summary>Numbers behind the plot</summary>
+          <table class="nn-kpi-table">
+            <thead>
+              <tr>
+                <th></th>
+                <th data-col="gpu" data-provenance="analytical">GPU</th>
+                <th data-col="tpu" data-provenance="analytical">TPU</th>
+                <th data-col="lpu" data-provenance="analytical">LPU</th>
+                <th data-col="cim" data-provenance="analytical">CIM</th>
+                <th data-col="pim" data-provenance="analytical">PIM</th>
+                <th data-col="unfused" data-provenance="measured">ASIC unfused</th>
+                <th data-col="fused" data-provenance="measured">ASIC fused</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th>What it is</th>
+                <td>NVIDIA H100 SXM</td>
+                <td>Google TPU v5e</td>
+                <td>Groq LPU</td>
+                <td>analog compute-in-ROM</td>
+                <td>HBM-PIM / DRAM-PIM</td>
+                <td>this RTL · naive schedule</td>
+                <td>this RTL · fused schedule</td>
+              </tr>
+              <tr>
+                <th>Datapath</th>
+                <td>Tensor Cores · MMA</td>
+                <td>128×128 MAC grid (systolic)</td>
+                <td>static EXU · no HBM</td>
+                <td>Kirchhoff current + ADC</td>
+                <td>bank ALU · GEMV</td>
+                <td>16-lane BF16 MAC</td>
+                <td>16-lane BF16 MAC</td>
+              </tr>
+              <tr>
+                <th>W lives</th>
+                <td>HBM off-chip</td>
+                <td>HBM off-chip</td>
+                <td>on-chip SRAM</td>
+                <td>cell conductance</td>
+                <td>DRAM banks</td>
+                <td>burnt-in ROM</td>
+                <td>burnt-in ROM</td>
+              </tr>
+              <tr>
+                <th>W access</th>
+                <td>~5 pJ/bit</td>
+                <td>~5 pJ/bit</td>
+                <td>~0.5 pJ/bit</td>
+                <td>ADC ~5 pJ/conv · 4 passes at BF16</td>
+                <td>~2 pJ/bit in-bank</td>
+                <td>~0.8 pJ/bit</td>
+                <td>~0.8 pJ/bit</td>
+              </tr>
+              <tr>
+                <th>Die transistors</th>
+                <td>80B · 814 mm²</td>
+                <td>~32B est · 300–350 mm²</td>
+                <td>26.8B · ~725 mm²</td>
+                <td>~26B 1-transistor cells · ADC extra</td>
+                <td>~20B logic + DRAM 1T1C</td>
+                <td>~18B · 9.5B ROM</td>
+                <td>~18B · same die</td>
+              </tr>
+              <tr>
+                <th>Energy / token</th>
+                <td data-kpi-cell="gpu-e">198 mJ</td>
+                <td data-kpi-cell="tpu-e">124 mJ</td>
+                <td data-kpi-cell="lpu-e">187 mJ</td>
+                <td data-kpi-cell="cim-e">0.36 mJ</td>
+                <td data-kpi-cell="pim-e">19.5 mJ</td>
+                <td data-kpi-cell="unfused-e">~30 mJ est</td>
+                <td class="win" data-kpi-cell="fused-e">1.19 mJ</td>
+              </tr>
+              <tr>
+                <th>Latency</th>
+                <td data-kpi-cell="gpu-lat">0.36 ms · ~2.8k tok/s</td>
+                <td data-kpi-cell="tpu-lat">0.75 ms · ~1.3k tok/s</td>
+                <td data-kpi-cell="lpu-lat">0.41 ms · ~2.5k tok/s</td>
+                <td data-kpi-cell="cim-lat">0.25 ms · ~4k tok/s</td>
+                <td data-kpi-cell="pim-lat">0.31 ms · ~3.2k tok/s</td>
+                <td data-kpi-cell="unfused-lat">591 ms · 1.7 tok/s</td>
+                <td data-kpi-cell="fused-lat">114 ms · 8.8 tok/s</td>
+              </tr>
+              <tr>
+                <th>1T params of weights</th>
+                <td>stream HBM</td>
+                <td>stream HBM</td>
+                <td class="lose">does not fit</td>
+                <td>shard analog arrays</td>
+                <td>more HBM-PIM stacks</td>
+                <td>shard ROM across dies</td>
+                <td>shard ROM across dies</td>
+              </tr>
+            </tbody>
+          </table>
+          <p class="nn-kpi-note">Fused 1.19 mJ = measured counters (57.0M cycles, 608.9M MACs, 38.1M ROM reads) at N4-class constants. GPU/TPU are datasheet TDP×0.6 estimates.</p>
+        </details>
+      </div>
+    </section>
+
+
+
+    <!-- ===================== SLIDE 6 · THE WORKLOAD (the model as data) ===================== -->
+    <section class="slide slide-workload" data-slide="5" data-slide-id="workload" hidden>
+      <div class="wl-wrap">
+        <div class="wl-head">
+          <h1 class="slide-h wl-title">One workload. Every machine.</h1>
+          <p class="wl-sub">596.8M MACs per token, all 28 layers (the measured RTL run executes 608.9M). Only where W lives changes the cost.</p>
+        </div>
+        <div class="wl-body">
+          <table class="wl-tbl" id="workloadTable">
+            <thead>
+              <tr>
+                <th>Stage</th>
+                <th>Calls</th>
+                <th>MACs / call</th>
+                <th>W bytes / call</th>
+                <th>Total MACs</th>
+              </tr>
+            </thead>
+            <tbody id="workloadRows">
+              <tr><td colspan="5" class="wl-loading">loading stage table&hellip;</td></tr>
+            </tbody>
+            <tfoot id="workloadFoot">
+              <tr class="wl-total">
+                <td>Total</td>
+                <td id="wlTotalCalls">&mdash;</td>
+                <td>&mdash;</td>
+                <td>&mdash;</td>
+                <td id="wlTotalMacs">&mdash;</td>
+              </tr>
+            </tfoot>
+          </table>
+          <aside class="wl-side">
+            <div class="wl-stat">
+              <p class="wl-stat-k">MACs / token</p>
+              <p class="wl-stat-n" id="wlStatMacs" data-provenance="measured">&mdash;</p>
+              <p class="wl-stat-note">measured on the RTL simulator (608,945,152)</p>
+            </div>
+            <div class="wl-stat">
+              <p class="wl-stat-k">W bytes / token</p>
+              <p class="wl-stat-n" id="wlStatWbytes" data-provenance="derived">&mdash;</p>
+              <p class="wl-stat-note">every HBM machine re-reads this every token</p>
+            </div>
+            <div class="wl-stat">
+              <p class="wl-stat-k">The contract</p>
+              <p class="wl-stat-note">Same table on every machine. Only the cost of doing it changes.</p>
+            </div>
+          </aside>
+        </div>
+        <details class="src-fold wl-foot">
+          <summary>Source</summary>
+          <p>Source: <code>evidence/exec_models.json &rarr; workload.stages_detail</code>, generated from <code>lab/compute_metrics.py::stage_table</code> on the pinned Qwen3-0.6B geometry (hidden 1024, 28 layers, 151,936 vocab). MAC total cross-checked against the bit-exact RTL run.</p>
+        </details>
+      </div>
+    </section>
+
+    <!-- ===================== SLIDE · THE PACKAGES (where W physically lives) ===================== -->
+    <section class="slide slide-packages" data-slide="6" data-slide-id="packages" hidden>
+      <div class="pk-wrap">
+        <div class="pk-head">
+          <h1 class="slide-h">Where do the weights live?</h1>
+          <p class="pk-sub">Eight packages, same workload, same camera, same scale. The only thing that changes is how far a weight travels before it can be multiplied &mdash; off the package, inside the memory stacks, or already on the die.</p>
+        </div>
+        <div class="hp-wall" id="hwWall"></div>
+        <p class="pk-foot">Illustrative physical layouts, not floorplans &mdash; drag any package to orbit it. Colour follows the deck: <span class="pk-lg pk-cost"></span> weight traffic, <span class="pk-lg pk-mem"></span> memory, <span class="pk-lg pk-ours"></span> on-die.</p>
+      </div>
+    </section>
+
+    <!-- ===================== SLIDE 7 · THE KPI TABLE (six machines, one workload) ===================== -->
+    <section class="slide slide-kpis" data-slide="7" data-slide-id="kpis" hidden>
+      <div class="kp-wrap">
+        <div class="kp-head">
+          <h1 class="slide-h kp-title">Seven machines, one honest table</h1>
+          <p class="kp-sub">The same workload on every row &mdash; <strong>596.8M MACs</strong> analytically; the measured mask-ROM run executes <strong>608.9M</strong> (2% more). The variable is <strong>where W lives</strong>.</p>
+        </div>
+        <table class="kp-tbl" id="kpiTable">
+          <thead>
+            <tr>
+              <th>Machine</th>
+              <th>Where W lives</th>
+              <th>Energy / token</th>
+              <th>Weight walk</th>
+              <th>Peak used<br><span class="kp-th-sub">of datasheet ceiling</span></th>
+              <th>tok/s</th>
+              <th>vs this chip<br><span class="kp-th-sub">weight walk</span></th>
+              <th>Ground truth</th>
+            </tr>
+          </thead>
+          <tbody id="kpiRows">
+            <tr><td colspan="8" class="kp-loading">loading platform simulations&hellip;</td></tr>
+          </tbody>
+        </table>
+        <details class="deck-fold kp-note-fold">
+          <summary>How to read this table &middot; provenance, tech node, and what &ldquo;weight walk&rdquo; means</summary>
+          <p class="kp-energy-note" id="kpiEnergyNote"></p>
+        </details>
+        <div class="mp-wrap" id="machPlayer" hidden>
+          <div class="mp-head">
+            <p class="mp-k">Same compute &middot; different memory path &mdash; every schedule below runs this chip's 16-lane MAC array on measured RTL commit logs</p>
+            <div class="mp-tabs" id="machTabs" role="tablist" aria-label="Machine schedule"></div>
+          </div>
+          <p class="mp-story" id="machStory" data-provenance="measured">&mdash;</p>
+          <p class="mp-watch" id="machWatch" data-provenance="measured">&mdash;</p>
+          <div class="mp-stage">
+            <div class="mp-sch" aria-label="machine schematic">
+              <div class="mp-blk mp-host"><b>host</b><small>token IDs</small></div>
+              <div class="mp-wire" id="machWire"><i id="machPkt"></i><span id="machWireLab">ROM port</span></div>
+              <div class="mp-blk mp-mem" id="machMem"><b id="machMemName">ROM</b><small id="machMemCap">on-die</small></div>
+              <div class="mp-blk mp-mac" id="machMacBlk"><b>16-lane MAC array</b><small id="machMacCap">idle</small></div>
+            </div>
+            <div class="mp-meter">
+              <p class="mp-meter-k">where the energy goes &middot; measured counters &times; 28&nbsp;nm-class constants <span class="kp-tag kp-measured" data-provenance="measured">measured</span></p>
+              <div class="mp-lane"><span>memory movement</span><div class="mp-bar"><i id="machMemBar"></i></div><b id="machMemVal">&mdash;</b></div>
+              <div class="mp-lane"><span>compute (MAC)</span><div class="mp-bar"><i id="machMacBar"></i></div><b id="machMacVal">&mdash;</b></div>
+              <p class="mp-share" id="machShare">&mdash;</p>
+              <p class="mp-readout" id="machReadout">&mdash;</p>
+            </div>
+          </div>
+          <div class="mp-transport">
+            <button type="button" class="ghost" id="machPlayBtn">Play</button>
+            <label class="scrub"><span id="machCycLab">cycle 0 / 0</span><input id="machScrub" type="range" min="0" max="0" value="0" aria-label="trace cycle"></label>
+            <p class="mp-cap" id="machCap">&mdash;</p>
+          </div>
+        </div>
+        <details class="src-fold kp-foot">
+          <summary>How each row is grounded</summary>
+          <p><span class="kp-tag kp-measured">measured</span> = bit-exact RTL simulator counters priced at cited node constants. <span class="kp-tag kp-sim">simulated</span> = per-stage execution model over the identical workload. <span class="kp-tag kp-cited">cited</span> = published datasheet envelope. No number on this slide is hand-typed.</p>
+          <p class="kp-src">Source: <code>evidence/exec_models.json &rarr; platforms</code> &middot; energy constants: Horowitz ISSCC 2014 scaled per node &middot; CIM: ISAAC ISCA 2016 ADC model &middot; PIM: Samsung HBM-PIM ISSCC 2021 envelope.</p>
+        </details>
+      </div>
+    </section>
+        <!-- ===================== SLIDE 8 · HOW IT SCALES (array + precision + multi-die) ===================== -->
+    <section class="slide slide-scaling" data-slide="8" data-slide-id="scaling" hidden>
+      <div class="sc-wrap">
+        <div class="sc-head">
+          <h1 class="slide-h">Three ways to scale. The work never changes.</h1>
+          <p class="sc-sub">The MAC count per token is fixed. A bigger array buys speed, fewer bits buy silicon, more dies buy capacity &mdash; and energy per token stays flat down every axis.</p>
+        </div>
+        <div class="tabset">
+        <div class="sc-tabs" role="tablist" aria-label="scaling axis">
+          <button type="button" role="tab" class="sc-tab" data-sc-tab="array" aria-selected="true">Array size</button>
+          <button type="button" role="tab" class="sc-tab" data-sc-tab="precision" aria-selected="false">Precision</button>
+          <button type="button" role="tab" class="sc-tab" data-sc-tab="multidie" aria-selected="false">Multi-die</button>
+        </div>
+
+        <div class="sc-panel" data-sc-panel="array" role="tabpanel">
+          <p class="sc-claim">Bigger array: <strong>faster, not hungrier</strong>. Throughput scales with the MAC grid; energy per token does not move.</p>
+<div class="as-wrap">
+        <div class="as-body">
+          <div class="as-controls">
+            <label class="as-slider-label">Array size</label>
+            <input type="range" id="arraySlider" class="as-slider" min="0" max="4" value="0" step="1"/>
+            <div class="as-ticks" id="arrayTicks"></div>
+          </div>
+          <div class="as-panels">
+            <div class="as-panel">
+              <p class="as-panel-k">Lab die &middot; 500 MHz &middot; 28 nm</p>
+              <table class="as-tbl"><tbody id="arrayLabRows"></tbody></table>
+            </div>
+            <div class="as-panel">
+              <p class="as-panel-k">Production &middot; 2 GHz &middot; 4 nm class</p>
+              <table class="as-tbl"><tbody id="arrayProdRows"></tbody></table>
+            </div>
+          </div>
+          <div class="as-callout">
+            <p><strong>The invariant:</strong> MACs per token are identical at every array size — <span id="asMacs" data-provenance="measured">&mdash;</span>. A bigger array only finishes sooner.</p>
+          </div>
+          <details class="src-fold">
+            <summary>Source</summary>
+            <p class="as-src">Source: <code>evidence/array_scaling.json</code> &middot; 16&times;1 anchor is the measured RTL result &middot; energy constants: Horowitz ISSCC 2014.</p>
+          </details>
+        </div>
+      </div>
+        </div>
+
+        <div class="sc-panel" data-sc-panel="precision" role="tabpanel" hidden>
+          <p class="sc-claim">Fewer bits, <strong>less silicon</strong>. Halve the bits, halve the ROM &mdash; energy follows. Accuracy is quoted from published results; we did not re-run evals.</p>
+<div class="pr-wrap">
+        <table class="pr-tbl" id="precisionTable">
+          <thead>
+            <tr>
+              <th>Precision</th>
+              <th>Bits / weight</th>
+              <th>ROM transistors</th>
+              <th>Total transistors</th>
+              <th>Energy / token</th>
+              <th>Accuracy (published)</th>
+            </tr>
+          </thead>
+          <tbody id="precisionRows">
+            <tr><td colspan="6" class="pr-loading">loading precision model&hellip;</td></tr>
+          </tbody>
+        </table>
+        <details class="src-fold pr-foot">
+          <summary>Exact identities vs published accuracy</summary>
+          <p><strong>Exact:</strong> transistor and energy columns are identities over the pinned parameter count. <strong>Published:</strong> the accuracy column cites measured results from the cited papers &mdash; Meta Llama-3.1-70B INT8 (&lt;0.5%), Kimi K2-Thinking INT4 QAT (matches BF16), DeepSeek-V3 FP8 training. We ran no accuracy experiment; we quote theirs.</p>
+          <p class="pr-src">Source: <code>evidence/precision_scaling.json</code> &middot; energy constants: Horowitz ISSCC 2014, scaled to the 4 nm class.</p>
+        </details>
+      </div>
+        </div>
+
+        <div class="sc-panel" data-sc-panel="multidie" role="tabpanel" hidden>
+          <p class="sc-claim">To <strong>a trillion parameters</strong>. Shard ROM across dies; weights never cross a die boundary &mdash; only activations do.</p>
+<div class="md-wrap">
+        <table class="md-tbl" id="multiDieTable">
+          <thead>
+            <tr>
+              <th>Model</th>
+              <th>Params</th>
+              <th>Experts fired / token</th>
+              <th>Dies at 16-bit weights</th>
+              <th>Dies at 8-bit</th>
+              <th>Dies at 4-bit</th>
+              <th>W bytes crossing dies</th>
+            </tr>
+          </thead>
+          <tbody id="multiDieRows">
+            <tr><td colspan="7" class="md-loading">loading multi-die model&hellip;</td></tr>
+          </tbody>
+        </table>
+        <details class="src-fold md-foot">
+          <summary>Why MoE helps, and the invariant</summary>
+          <p><strong>Why MoE helps:</strong> only the fired experts are powered, so the energy bill scales with active parameters, not stored ones. <strong>The invariant:</strong> each die holds its slice of W permanently; die-to-die links carry only activations (UCIe 2.0 class, cited). The zero in the last column is asserted by the simulation, not promised.</p>
+          <p class="md-src">Source: <code>evidence/multi_die_scaling.json</code> &middot; die capacity: 600 mm&sup2; reticle at 4 nm class &middot; D2D: UCIe 2.0, Intel BoW (2023&ndash;2024).</p>
+        </details>
+      </div>
+        </div>
+        </div>
+      </div>
+    </section>
+    
+
+    <!-- ===================== SLIDE · WHAT IT COSTS (today + the roadmap) ===================== -->
+    <section class="slide slide-spec slide-cost" data-slide="9" data-slide-id="cost" hidden>
+      <div class="spec-clean">
+        <div class="spec-head">
+          <h1 class="slide-h spec-title">What a token costs</h1>
+          <p class="spec-subtitle"><strong>Cost per token = transistors &times; energy.</strong> We spend silicon so we stop spending joules. Today that is <strong>21&times; lower $/token</strong>; the levers that take it further are named, published techniques &mdash; not new physics.</p>
+        </div>
+        <div class="tabset">
+          <div class="sc-tabs" role="tablist" aria-label="cost view">
+            <button type="button" role="tab" class="sc-tab" data-sc-tab="today" aria-selected="true">Today &middot; 21&times;</button>
+            <button type="button" role="tab" class="sc-tab" data-sc-tab="roadmap" aria-selected="false">The roadmap &middot; toward ~2,000&times;</button>
+          </div>
+          <div class="sc-panel" data-sc-panel="today" role="tabpanel">
+            <p class="sc-claim">Where we are now: <strong>10&times; more transistors, 21&times; lower $/token</strong>, and the advantage grows with model size because MoE fires only a slice of the weights.</p>
+<div class="spec-main">
+          <!-- Left: Interactive chart -->
+          <div class="spec-chart-area">
+            <div class="spec-chart-container">
+              <!-- Rendered entirely from SPEC_MODELS by renderSpecChart() so a
+                   point's label can never disagree with where it is drawn.
+                   Do not hand-place points or labels here. -->
+              <svg id="specChart" class="spec-chart-svg" viewBox="0 0 520 300" preserveAspectRatio="xMidYMid meet">
+                <g id="specGrid"></g>
+                <g id="specSeries"></g>
+                <text x="18" y="150" text-anchor="middle" transform="rotate(-90 18 150)" class="spec-axis-title">Energy advantage vs H100</text>
+                <text x="270" y="296" text-anchor="middle" class="spec-axis-title">Model size</text>
+                <g id="specMarker"></g>
+              </svg>
+            </div>
+
+            <!-- Slider -->
+            <div class="spec-slider-wrap">
+              <label class="spec-slider-label">Model size</label>
+              <input type="range" id="specSlider" class="spec-slider" min="0" max="4" value="3" step="1"/>
+              <div class="spec-slider-ticks">
+                <span>0.6B</span>
+                <span>8B</span>
+                <span>70B</span>
+                <span>500B</span>
+                <span>1T params</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: Dynamic stats -->
+          <div class="spec-stats">
+            <div class="spec-stat-card highlight" id="specStatModel">
+              <span class="spec-stat-label">Model</span>
+              <span class="spec-stat-val">500B MoE</span>
+            </div>
+            <div class="spec-stat-card" id="specStatDies">
+              <span class="spec-stat-label">Dies required</span>
+              <span class="spec-stat-val">258</span>
+            </div>
+            <div class="spec-stat-card" id="specStatTx">
+              <span class="spec-stat-label">Transistors</span>
+              <span class="spec-stat-val">10.3T</span>
+              <span class="spec-stat-note bad">10× more than H100 (1 transistor/bit ROM)</span>
+            </div>
+            <div class="spec-stat-card highlight" id="specStatEnergy">
+              <span class="spec-stat-label">Energy/token</span>
+              <span class="spec-stat-val">124 mJ</span>
+              <span class="spec-stat-note good">211× less than H100</span>
+            </div>
+            <div class="spec-stat-card highlight" id="specStatCost">
+              <span class="spec-stat-label">$/token vs H100</span>
+              <span class="spec-stat-val">21× lower</span>
+              <span class="spec-stat-note">10 × (1/211) = 0.047</span>
+            </div>
+            <div class="spec-stat-card" id="specStatTok">
+              <span class="spec-stat-label">tok/s target</span>
+              <span class="spec-stat-val">40,000</span>
+              <span class="spec-stat-note good">14× faster than H100</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bottom insight -->
+        <div class="spec-bottom-insight">
+          <strong>Why does the advantage grow?</strong> Larger models use Mixture-of-Experts (MoE) — only ~15% of the weights are active per token.
+          <span class="spec-insight-highlight">GPUs still stream all the weights. We only power the experts that fire. Bigger model = bigger savings.</span>
+        </div>
+      
+          </div>
+          <div class="sc-panel" data-sc-panel="roadmap" role="tabpanel" hidden>
+            <p class="sc-claim">Where it goes: each lever below is already shipping somewhere. They compound because <strong>the mask is the trained checkpoint</strong> &mdash; there is no post-hoc quantisation step to argue about.</p>
+<!-- Roadmap table -->
+        <div class="spec-table-section">
+          <table class="spec-clean-table roadmap-tbl">
+            <thead>
+              <tr>
+                <th>Step</th>
+                <th>Lever</th>
+                <th>Energy / token</th>
+                <th>Transistors</th>
+                <th>Tx × energy vs H100</th>
+                <th>Precedent</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th>Today</th>
+                <td>BF16 W · fp16 KV · batch 1</td>
+                <td>124 mJ</td>
+                <td>10.3T</td>
+                <td class="result good"><strong>21×</strong></td>
+                <td>this deck</td>
+              </tr>
+              <tr>
+                <th>+ Cells</th>
+                <td>1-transistor/bit mask ROM (was 6T)</td>
+                <td>124 mJ</td>
+                <td>10.3T</td>
+                <td class="result good"><strong>21×</strong></td>
+                <td>every mask ROM ever built</td>
+              </tr>
+              <tr>
+                <th>+ W precision</th>
+                <td>FP8/INT8-aware training</td>
+                <td>75 mJ</td>
+                <td>5.3T</td>
+                <td class="result good"><strong>67×</strong></td>
+                <td>DeepSeek-V3 native FP8 (&lt;0.25% rel. error)</td>
+              </tr>
+              <tr>
+                <th>+ W precision</th>
+                <td>INT4 QAT weights</td>
+                <td>51 mJ</td>
+                <td>2.8T</td>
+                <td class="result good"><strong>188×</strong></td>
+                <td>Kimi K2 / LMSYS INT4 QAT (matches BF16)</td>
+              </tr>
+              <tr>
+                <th>+ KV precision</th>
+                <td>int8 KV cache</td>
+                <td>38 mJ</td>
+                <td>2.7T</td>
+                <td class="result good"><strong>270×</strong></td>
+                <td>int8 KV in every serving stack</td>
+              </tr>
+              <tr>
+                <th>+ Serving</th>
+                <td>batch 16 (weights amortize)</td>
+                <td>15 mJ</td>
+                <td>2.7T</td>
+                <td class="result good"><strong>667×</strong></td>
+                <td>continuous batching (Orca class)</td>
+              </tr>
+              <tr class="highlight">
+                <th>+ KV structure</th>
+                <td>MLA latent KV (576-dim)</td>
+                <td><strong>5.4 mJ</strong></td>
+                <td>2.6T</td>
+                <td class="result good"><strong>~1,970×</strong></td>
+                <td>shipping in DeepSeek-V3</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Live lever strip: click to apply each lever, endpoint updates -->
+        <div class="roadmap-live">
+          <p class="util-k">Try the levers · endpoint recomputes</p>
+          <div class="roadmap-levers">
+            <button type="button" id="rmKvInt8" aria-pressed="false">int8 KV</button>
+            <button type="button" id="rmMla" aria-pressed="false">MLA latent KV</button>
+            <button type="button" id="rmBatch" aria-pressed="false">batch 1</button>
+            <span class="roadmap-endpoint" id="rmEndpoint">124 mJ · 10.3T Tx · 21× vs H100</span>
+          </div>
+          <div id="rmWalk"></div>
+        </div>
+
+
+        <!-- Mechanism: where the energy goes, and which lever removes it -->
+        <details class="rm-mech-fold">
+          <summary>Why each lever lands &middot; energy / token = weight walk + KV read</summary>
+          <div class="roadmap-mech">
+          <div class="roadmap-mech-head">
+            <p class="util-k">Why each lever lands · energy / token = weight walk + KV read</p>
+            <p class="roadmap-mech-legend"><span class="lg lg-w"></span> weight walk (ROM, amortized by batch) <span class="lg lg-k"></span> KV read (SRAM, per token)</p>
+          </div>
+          <div class="roadmap-bars" id="roadmapBars"></div>
+        </div>
+        </details>
+
+        <details class="src-fold spec-insight">
+          <summary>Why these levers compound on mask-ROM</summary>
+          <div class="spec-insight-box">
+            <h4>Why fixed-weight ROM compounds these wins</h4>
+            <p>Precision-aware training shapes the weights for the mask from step one: fake-quantization in the training loop, so the final checkpoint <em>is</em> INT4 — and the mask is that checkpoint, burnt in at fabrication. Nothing is quantized after the fact, because there is nothing to quantize: the weights are read-only silicon. The trained model and the shipped model are bit-identical. KV int8 and MLA shrink the SRAM walk on the attention die; batch amortizes the weight walk across users while KV — the GPU's growing cost — stays local.</p>
+          </div>
+          <div class="spec-insight-box">
+            <h4>What is honest about this table</h4>
+            <p>BF16 rows are the lab path: measured cycles, analytical energy. The low-bit rows are <strong>precision-aware training</strong> — the same accuracy as BF16 by published results (Kimi K2-Thinking INT4 QAT matches BF16 on eval; DeepSeek-V3 FP8 training holds &lt;0.25% relative error), not post-hoc approximation. There is no PTQ step to argue about: the mask is the checkpoint. MLA changes the model architecture (it is how DeepSeek-V3 ships). The ~2,000× endpoint assumes the same 40k tok/s/user and the D2D sharding from the multi-die slide. Ratios use the H100 at the same context: 26 J/token, 1.04T die transistors (HBM stacks not counted on their side).</p>
+          </div>
+        </details>
+      
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+
+    <!-- ===================== SLIDE 13 · MECHANISMS ===================== -->
+    <section class="slide slide-mechanisms" data-slide="10" data-slide-id="mechanisms" hidden>
+      <div class="kp-wrap">
+        <div class="kp-head">
+          <h1 class="slide-h kp-title">Five ways to hold a weight, one RTL fact each</h1>
+          <p class="kp-sub">Every panel below shares the same ROM cell, the same BF16 MAC array, and the same bit-exact <code>qwen-ref-v2</code> contract — <strong>the only variable is when and how often the weight crosses from storage into the multiplier.</strong> The fifth panel has no storage step at all.</p>
+        </div>
+
+        <div class="mech-grid">
+          <div class="mech-panel">
+            <p class="mech-h">1 · Mask-ROM, unfused</p>
+            <div class="mech-sch">
+              <div class="blk rom mech-blk"><span class="blk-k">ROM</span><small>2-cyc read</small></div>
+              <div class="bus h mech-bus"><span>1 word, blocking</span></div>
+              <div class="blk mac mech-blk"><span class="blk-k">MAC lane</span><small>1 product</small></div>
+            </div>
+            <p class="mech-rtl">One ROM request per MAC step; the lane sits idle across the full read latency before the next request fires — <code>qwen3_forward_controller.sv</code>, unfused schedule.</p>
+            <p class="mech-num">886.2M cyc/3-tok · 6.73 mJ</p>
+          </div>
+
+          <div class="mech-panel">
+            <p class="mech-h">2 · Mask-ROM, fused/streaming</p>
+            <div class="mech-sch">
+              <div class="blk rom mech-blk"><span class="blk-k">ROM</span><small>streaming</small></div>
+              <div class="bus h mech-bus live"><span>request every cycle</span></div>
+              <div class="blk mac mech-blk"><span class="blk-k">FIFO → MAC</span><small>overlapped</small></div>
+            </div>
+            <p class="mech-rtl">Request counter decouples from the response counter, so the next word is requested before this one's response even lands — same controller, fused schedule. The 2-cycle latency is hidden, not removed.</p>
+            <p class="mech-num">171.2M cyc/3-tok · 3.41 mJ</p>
+          </div>
+
+          <div class="mech-panel">
+            <p class="mech-h">3 · TPU-style, weight-stationary</p>
+            <div class="mech-sch">
+              <div class="blk rom mech-blk"><span class="blk-k">ROM</span><small>one tile</small></div>
+              <div class="bus h mech-bus"><span>tile load, once</span></div>
+              <div class="blk mac mech-blk"><span class="blk-k">w_tile reg</span><small>reused rows</small></div>
+            </div>
+            <p class="mech-rtl">A resident <code>w_tile</code> register holds one weight row across many activation steps instead of one word per step — <code>qwen3_tpu_engine.sv</code>. Reuse only pays off once batch &gt; 1; at batch=1 it's a schedule change, not a traffic cut.</p>
+            <p class="mech-num">280.3M cyc/3-tok · 3.41 mJ</p>
+          </div>
+
+          <div class="mech-panel">
+            <p class="mech-h">4 · LPU-style, resident-SRAM</p>
+            <div class="mech-sch">
+              <div class="blk rom mech-blk"><span class="blk-k">ROM</span><small>stage once</small></div>
+              <div class="bus h mech-bus"><span>whole matrix, upfront</span></div>
+              <div class="blk sram mech-blk"><span class="blk-k">w_sram</span><small>zero traffic after</small></div>
+            </div>
+            <p class="mech-rtl">The entire matrix is staged into on-die SRAM before compute starts (<code>qwen3_lpu_engine.sv</code>, <code>S_STAGE</code>); once <code>resident_q</code> latches, ROM traffic drops to zero for the rest of the token. Staging bulk-loads are now pipelined (request/response counters decoupled, this session's fix) — still costs more upfront than streaming amortizes at batch=1.</p>
+            <p class="mech-num">402.5M cyc/3-tok · 3.41 mJ</p>
+          </div>
+
+          <div class="mech-panel mech-fused">
+            <p class="mech-h">5 · Fully-fused, compute-in-memory</p>
+            <div class="mech-sch">
+              <div class="blk mech-blk mech-none"><span class="blk-k">no ROM</span><small>no port, no bus</small></div>
+              <div class="bus h mech-bus"><span>weight is a parameter</span></div>
+              <div class="blk mac mech-blk"><span class="blk-k">shift-add net</span><small>per weight</small></div>
+            </div>
+            <p class="mech-rtl">The weight is a compile-time <code>parameter</code>, never a port — there is no <code>rom_req_valid_o</code> signal to fire at all. The multiply collapses to a shift-add network sized by that weight's own signed-digit count (<code>qwen_maskmac_mxfp{4,8}_lane.sv</code>, <code>pw_bf16_core.sv</code>): mean 0.27 adders/weight at MXFP4, 1.15 at MXFP8 — against a full multiplier for every other panel here.</p>
+            <p class="mech-num">~97× transistors/weight vs a 1-transistor ROM bit · zero weight traffic, ever</p>
+          </div>
+        </div>
+
+        <details class="deck-fold">
+          <summary>Per-mechanism cycle and energy table</summary>
+          <table class="kp-tbl mech-tbl">
+          <thead>
+            <tr>
+              <th>Mechanism</th>
+              <th>Where W lives</th>
+              <th>Cycles / 3-tok</th>
+              <th>Weight energy</th>
+              <th>Total energy</th>
+              <th>RTL</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr data-provenance="measured"><td>Unfused</td><td>ROM, read per step</td><td>886,246,880</td><td>2.57 mJ</td><td>6.73 mJ</td><td><code>qwen3_forward_controller.sv</code></td></tr>
+            <tr data-provenance="measured"><td>Fused/streaming</td><td>ROM, pipelined</td><td>171,215,693</td><td>2.34 mJ</td><td>3.41 mJ</td><td><code>qwen3_forward_controller.sv</code></td></tr>
+            <tr data-provenance="measured"><td>TPU-style</td><td>ROM → resident tile</td><td>280,260,188</td><td>2.34 mJ</td><td>3.41 mJ</td><td><code>qwen3_tpu_engine.sv</code></td></tr>
+            <tr data-provenance="measured"><td>LPU-style</td><td>ROM → resident SRAM</td><td>402,490,085</td><td>2.34 mJ</td><td>3.41 mJ</td><td><code>qwen3_lpu_engine.sv</code></td></tr>
+            <tr data-provenance="measured"><td>Fused/streaming, HBM-class</td><td>off-die HBM, pipelined</td><td>718,154,657</td><td>102.38 mJ</td><td>103.45 mJ</td><td><code>qwen_mmap_rom.sv</code> +<code>EXT_MEM_LAT</code></td></tr>
+            <tr data-provenance="measured"><td>TPU-style, HBM-class</td><td>off-die HBM → resident tile</td><td>657,002,588</td><td>102.38 mJ</td><td>103.45 mJ</td><td><code>qwen3_tpu_engine.sv</code> +<code>EXT_MEM_LAT</code></td></tr>
+            <tr data-provenance="measured"><td>LPU-style, HBM-class<sup>&dagger;</sup></td><td>off-die HBM → resident SRAM</td><td>3,868,021,649</td><td>102.38 mJ</td><td>103.45 mJ</td><td><code>qwen3_lpu_engine.sv</code> +<code>EXT_MEM_LAT</code></td></tr>
+            <tr data-provenance="measured"><td>Fully-fused · BF16</td><td>the logic itself</td><td colspan="2">2.45 adders/weight</td><td>1,556 Tr/weight (~97× ROM)</td><td><code>pw_bf16_core.sv</code></td></tr>
+            <tr data-provenance="measured"><td>Fully-fused · MXFP8</td><td>the logic itself</td><td colspan="2">1.15 adders/weight</td><td>964 Tr/weight (~117× MXFP8 ROM)</td><td><code>qwen_maskmac_mxfp8_lane.sv</code></td></tr>
+            <tr data-provenance="measured"><td>Fully-fused · MXFP4</td><td>the logic itself</td><td colspan="2">0.27 adders/weight</td><td>628 Tr/weight (~148× MXFP4 ROM)</td><td><code>qwen_maskmac_mxfp4_lane.sv</code></td></tr>
+          </tbody>
+        </table>
+        <details class="src-fold kp-foot">
+          <summary>How each row is grounded</summary>
+          <p><span class="kp-tag kp-measured">measured</span> = bit-exact RTL simulator counters (cycles, MACs, ROM reads) priced at this repo's cited N4 constants. Rows 1&ndash;4 are the identical 16-lane MAC array and ROM cell, on-die, under four request schedules &mdash; only the schedule changes. Rows 5&ndash;7 re-run those same three streaming/tile/resident schedules with a simulated off-die HBM-class round-trip latency (<code>+EXT_MEM_LAT</code>) instead of the 2-cycle on-die path &mdash; same RTL, same energy constants, only the memory latency changes; note that these three carry the same 102.38&ndash;103.45&nbsp;mJ energy because none of them amortize the weight fetch below batch=1. Rows 8&ndash;10 are a separate, standalone RTL spike (not wired into the main forward pass): a full-model scan over all 595,984,384 real Qwen3-0.6B weights gives the adders/weight figures per precision, and each ROM-ratio compares a 1-transistor ROM bit at that <em>same</em> precision (16 bits/weight BF16, ~8.25 MXFP8, ~4.25 MXFP4 including the OCP MX block scale) against that precision's measured fully-fused lane &mdash; a same-precision, apples-to-apples comparison, not all three against one BF16 baseline.</p>
+          <p class="kp-src">Source: <code>evidence/hw_comparison.json</code> (rows 1&ndash;7) &middot; <code>evidence/maskmac_full_model_report.json</code>, <code>evidence/fused_logic_scaling_report.json</code> (rows 8&ndash;10).</p>
+          <p><sup>&dagger;</sup> LPU-style HBM-class carries a much larger on/off-die ratio (9.6&times;) than the streaming or tile-stationary schedules (4.2&times;, 2.4&times;) &mdash; consistent with staging the whole matrix upfront rather than streaming it, but this row has not been independently re-run against a fresh <code>verify-gate</code> since this session's LPU bulk-stage pipelining fix landed; treat it as last-measured; not re-confirmed post-fix.</p>
+        </details>
+      </div>
+    </section>
+
+    <!-- ===================== SLIDE 14 · MOE ===================== -->
+    <section class="slide slide-moe" data-slide="11" data-slide-id="moe" hidden>
+      <div class="kp-wrap">
+        <div class="kp-head">
+          <h1 class="slide-h kp-title">Same MoE layer, weights move or they don't</h1>
+          <p class="kp-sub">Illustrative, not RTL-measured &mdash; Qwen3-0.6B has no experts to route. This is the Phase-3 target: <strong>Qwen3-30B-A3B class, 128 experts, top-8 routed per token</strong> (30.5B total / ~3.3B active). Routing changes <em>every token</em> &mdash; watch what has to happen again each time it does. Slowed to ~800&nbsp;ms/token on purpose so the routing is visible.</p>
+        </div>
+        </details>
+
+        <details class="deck-fold">
+          <summary>Anatomy of one MoE layer &mdash; gating, 128 experts, top-8 routing</summary>
+          <div class="moe-arch-wrap">
+          <svg viewBox="0 0 1100 400" class="moe-arch-svg" role="img" aria-label="Qwen3-30B-A3B-class MoE layer: a dense stack alternates attention and MoE FFN sublayers; each MoE FFN routes through a gating network to 8 of 128 experts, whose weighted outputs are summed.">
+            <defs>
+              <marker id="moeArrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+                <path d="M0,0 L6,3 L0,6 Z" fill="#334155"/>
+              </marker>
+            </defs>
+
+            <!-- LEFT: dense/MoE FFN layer stack -->
+            <g class="moe-arch-stack">
+              <rect x="50" y="330" width="90" height="28" rx="4" class="moe-arch-blk moe-arch-attn"/>
+              <text x="95" y="348" text-anchor="middle" class="moe-arch-lbl">Attention</text>
+              <line x1="95" y1="330" x2="95" y2="312" class="moe-arch-arrow" marker-end="url(#moeArrow)"/>
+
+              <rect x="50" y="282" width="90" height="28" rx="4" class="moe-arch-blk moe-arch-moe"/>
+              <text x="95" y="300" text-anchor="middle" class="moe-arch-lbl">MoE FFN</text>
+              <line x1="95" y1="282" x2="95" y2="234" class="moe-arch-arrow" marker-end="url(#moeArrow)"/>
+
+              <rect x="50" y="204" width="90" height="28" rx="4" class="moe-arch-blk moe-arch-attn"/>
+              <text x="95" y="222" text-anchor="middle" class="moe-arch-lbl">Attention</text>
+              <line x1="95" y1="204" x2="95" y2="186" class="moe-arch-arrow" marker-end="url(#moeArrow)"/>
+
+              <rect x="50" y="156" width="90" height="28" rx="4" class="moe-arch-blk moe-arch-moe"/>
+              <text x="95" y="174" text-anchor="middle" class="moe-arch-lbl">MoE FFN</text>
+              <line x1="95" y1="156" x2="95" y2="122" class="moe-arch-arrow" marker-end="url(#moeArrow)"/>
+              <text x="95" y="108" text-anchor="middle" class="moe-arch-cap">&times;48 layers</text>
+              <text x="95" y="384" text-anchor="middle" class="moe-arch-cap">128 experts &middot; top-8/token</text>
+
+              <line x1="140" y1="156" x2="230" y2="40" class="moe-arch-zoomline"/>
+              <line x1="140" y1="184" x2="230" y2="360" class="moe-arch-zoomline"/>
+            </g>
+
+            <!-- RIGHT: one MoE FFN layer, zoomed -->
+            <g class="moe-arch-zoom">
+              <rect x="230" y="20" width="850" height="360" rx="16" class="moe-arch-panel"/>
+              <text x="252" y="44" class="moe-arch-panel-title">MoE FFN layer, zoomed</text>
+
+              <rect x="545" y="38" width="70" height="28" rx="4" class="moe-arch-blk moe-arch-io"/>
+              <text x="580" y="57" text-anchor="middle" class="moe-arch-lbl">out</text>
+              <line x1="580" y1="95" x2="580" y2="68" class="moe-arch-arrow" marker-end="url(#moeArrow)"/>
+
+              <circle cx="580" cy="110" r="15" class="moe-arch-node"/>
+              <text x="580" y="115" text-anchor="middle" class="moe-arch-node-lbl">+</text>
+
+              <circle cx="425" cy="163" r="13" class="moe-arch-node"/>
+              <text x="425" y="168" text-anchor="middle" class="moe-arch-node-lbl">&times;</text>
+              <circle cx="735" cy="163" r="13" class="moe-arch-node"/>
+              <text x="735" y="168" text-anchor="middle" class="moe-arch-node-lbl">&times;</text>
+              <line x1="431" y1="153" x2="568" y2="119" class="moe-arch-arrow" marker-end="url(#moeArrow)"/>
+              <line x1="729" y1="153" x2="592" y2="119" class="moe-arch-arrow" marker-end="url(#moeArrow)"/>
+
+              <!-- expert row -->
+              <rect x="270" y="230" width="90" height="34" rx="4" class="moe-arch-blk moe-arch-expert"/>
+              <text x="315" y="251" text-anchor="middle" class="moe-arch-lbl">Expert 1</text>
+
+              <rect x="380" y="230" width="90" height="34" rx="4" class="moe-arch-blk moe-arch-expert moe-arch-selected"/>
+              <text x="425" y="251" text-anchor="middle" class="moe-arch-lbl">Expert 2</text>
+
+              <rect x="490" y="230" width="90" height="34" rx="4" class="moe-arch-blk moe-arch-expert"/>
+              <text x="535" y="251" text-anchor="middle" class="moe-arch-lbl">Expert 3</text>
+
+              <text x="645" y="251" text-anchor="middle" class="moe-arch-lbl moe-arch-ellipsis">&middot;&middot;&middot;</text>
+
+              <rect x="690" y="230" width="90" height="34" rx="4" class="moe-arch-blk moe-arch-expert moe-arch-selected"/>
+              <text x="735" y="251" text-anchor="middle" class="moe-arch-lbl">Expert 127</text>
+
+              <rect x="800" y="230" width="90" height="34" rx="4" class="moe-arch-blk moe-arch-expert"/>
+              <text x="845" y="251" text-anchor="middle" class="moe-arch-lbl">Expert 128</text>
+
+              <line x1="425" y1="230" x2="425" y2="176" class="moe-arch-arrow moe-arch-live" marker-end="url(#moeArrow)"/>
+              <line x1="735" y1="230" x2="735" y2="176" class="moe-arch-arrow moe-arch-live" marker-end="url(#moeArrow)"/>
+
+              <!-- input distribution bus: every expert sees the same input -->
+              <line x1="315" y1="270" x2="845" y2="270" class="moe-arch-bus"/>
+              <line x1="315" y1="270" x2="315" y2="230" class="moe-arch-arrow"/>
+              <line x1="535" y1="270" x2="535" y2="230" class="moe-arch-arrow"/>
+              <line x1="845" y1="270" x2="845" y2="230" class="moe-arch-arrow"/>
+
+              <rect x="530" y="284" width="100" height="36" rx="6" class="moe-arch-blk moe-arch-gate"/>
+              <text x="580" y="299" text-anchor="middle" class="moe-arch-lbl">Gating</text>
+              <text x="580" y="312" text-anchor="middle" class="moe-arch-lbl">network</text>
+              <line x1="545" y1="284" x2="429" y2="172" class="moe-arch-arrow moe-arch-gateline" marker-end="url(#moeArrow)"/>
+              <line x1="615" y1="284" x2="731" y2="172" class="moe-arch-arrow moe-arch-gateline" marker-end="url(#moeArrow)"/>
+              <text x="470" y="230" text-anchor="middle" class="moe-arch-cap moe-arch-gatecap">g&#8322;</text>
+              <text x="695" y="230" text-anchor="middle" class="moe-arch-cap moe-arch-gatecap">g&#8321;&#8322;&#8329;</text>
+
+              <line x1="580" y1="270" x2="580" y2="320" class="moe-arch-arrow"/>
+              <rect x="545" y="345" width="70" height="28" rx="4" class="moe-arch-blk moe-arch-io"/>
+              <text x="580" y="364" text-anchor="middle" class="moe-arch-lbl">in</text>
+              <line x1="580" y1="345" x2="580" y2="271" class="moe-arch-arrow" marker-end="url(#moeArrow)"/>
+            </g>
+          </svg>
+          <p class="moe-arch-cite">Architecture reference: Shazeer et al., "Outrageously Large Neural Networks: The Sparsely-Gated Mixture-of-Experts Layer" (2017) &mdash; the standard MoE-layer diagram, redrawn with this session's real routing parameters (Qwen3-30B-A3B: 128 experts, top-8, 30.5B/~3.3B total/active).</p>
+        </div>
+        </details>
+
+        <div class="moe-controls">
+          <button type="button" class="ghost" id="moeToggle">Pause</button>
+          <span class="moe-token">token <strong id="moeTokenN">0</strong></span>
+        </div>
+
+        <div class="moe-split">
+          <section class="moe-panel">
+            <p class="moe-h">GPU/TPU/LPU-style &middot; weights in HBM</p>
+            <div class="moe-router">router &middot; top-8 of 128</div>
+            <div class="moe-grid" id="moeGridHbm" aria-label="128 experts, HBM-fetched"></div>
+            <p class="moe-cap">The active 8 change every token, so each one's weights are fetched from HBM fresh &mdash; there's nothing to cache across a routing decision that just changed.</p>
+            <p class="moe-num" id="moeHbmNum">8/128 experts active &middot; fetched again this token</p>
+          </section>
+          <section class="moe-panel moe-fused">
+            <p class="moe-h">Fused &middot; compute-in-memory</p>
+            <div class="moe-router">router &middot; top-8 of 128</div>
+            <div class="moe-grid" id="moeGridFused" aria-label="128 experts, resident logic"></div>
+            <p class="moe-cap">All 128 experts already exist as silicon. Routing only decides which 8 regions get <strong>powered</strong> this token &mdash; nothing is fetched, nothing moves.</p>
+            <p class="moe-num" id="moeFusedNum">8/128 experts active &middot; 0 bytes moved, ever</p>
+          </section>
+        </div>
+
+        <details class="src-fold kp-foot">
+          <summary>What this diagram is and isn't</summary>
+          <p>Expert count and routing (128 experts, top-8, 30.5B total / ~3.3B active) are Qwen3-30B-A3B's real published architecture &mdash; the same anchor cited in <code>docs/pure_weights_plan_05092026_0054.md</code> and <code>lab/multi_die.py</code>'s <code>MOE_CONFIGS["moe_128x"]</code>. The grid animation is a schematic illustration of the mechanism, not a measurement &mdash; no MoE RTL has been built or verified in this repo yet. The underlying mechanism (weight movement vs. power-gating) is the same one measured for the dense 0.6B model on the previous slide.</p>
+        </details>
+      </div>
+    </section>
+
+    <!-- ===================== SLIDE 15 · THANK YOU ===================== -->
+    <section class="slide slide-thanks" data-slide="12" data-slide-id="thanks" hidden>
+      <h1 class="slide-h thanks-title">Thank you</h1>
+      <div class="thanks-grid">
+        <article>
+          <p class="thanks-k">The idea</p>
+          <p>Burn LLM weights into silicon as read-only memory.</p>
+        </article>
+        <article>
+          <p class="thanks-k">What we proved</p>
+          <p>Bit-exact RTL: <strong>166&times;</strong> less energy than an H100 at 0.6B; <strong>200&ndash;420&times;</strong> projected on large MoE.</p>
+        </article>
+        <article>
+          <p class="thanks-k">The tradeoff</p>
+          <p>10× more transistors, 211× less energy = <strong>21× lower $/token</strong>.</p>
+        </article>
+        <article>
+          <p class="thanks-k">The speed</p>
+          <p>2D array: <strong>40,000 tok/s</strong> — 14× an H100.</p>
+        </article>
+      </div>
+      <p class="thanks-team">Team NeoChip</p>
+    </section>
+
+  </main>
+  <footer>Weights burned into mask-ROM · Host sends only token IDs · Bit-exact RTL simulation</footer>
+  <div id="nnMechModal" class="modal nn-mech-modal" hidden>
+    <div class="modal-card nn-mech-card" role="dialog" aria-modal="true" aria-labelledby="nnMechTitle">
+      <div class="modal-head">
+        <div>
+          <p class="nn-kind" id="nnMechKind">GPU</p>
+          <h2 id="nnMechTitle">NVIDIA H100 SXM</h2>
+          <p class="nn-sub" id="nnMechSub"></p>
+        </div>
+        <button type="button" class="ghost" id="nnMechClose">Close</button>
+      </div>
+      <div class="nn-mech-kpis" id="nnMechKpis"></div>
+      <article class="nn-pane gpu" id="nnMechPane">
+        <div class="nn-stage nn-mech-stage" data-side="gpu" id="nnMechStage">
+          <p class="nn-now" data-now>idle</p>
+          <p class="nn-leds">
+            <span data-led="sram">sram</span>
+            <span data-led="rom">rom</span>
+            <span data-led="mac">mac</span>
+            <span class="nn-acc-l">acc <span data-acc>0</span></span>
+          </p>
+          <div class="nn-schem"></div>
+          <p class="nn-tick"><span data-meta></span></p>
+        </div>
+      </article>
+      <p class="nn-mech-cap" id="nnMechCap"></p>
+      <p class="nn-mech-body" id="nnMechMore"></p>
+      <div class="nn-mech-ctrls">
+        <button type="button" class="ghost" id="nnMechGemm" aria-pressed="true">Q proj · Q = y W_Q</button>
+        <button type="button" class="ghost" id="nnMechNorm" aria-pressed="false">RMSNorm</button>
+        <button type="button" class="ghost" id="nnMechPlay">Pause</button>
+        <button type="button" class="ghost" id="nnMechStep">Step</button>
+      </div>
+    </div>
+  </div>
+  <div id="tensorModal" class="modal" hidden>
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <div class="modal-head">
+        <div>
+          <p class="compute-k" id="modalTitle">tensor</p>
+          <p class="compute-eq" id="modalEq"></p>
+          <p class="muted small" id="modalMeta"></p>
+        </div>
+        <button type="button" class="ghost" id="modalClose">Close</button>
+      </div>
+      <div class="modal-tabs">
+        <button type="button" class="ghost" id="modalPy" data-src="python">Python</button>
+        <button type="button" class="ghost" id="modalRtl" data-src="rtl">RTL</button>
+      </div>
+      <div class="modal-pager">
+        <button type="button" class="ghost" id="modalPrev">Prev</button>
+        <span id="modalPage" class="muted small"></span>
+        <button type="button" class="ghost" id="modalNext">Next</button>
+      </div>
+      <div id="modalGrid" class="modal-grid"></div>
+    </div>
+  </div>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/contrib/auto-render.min.js"></script>
+  <script defer src="gpu-experience.js?v=20260907-3d"></script>
+  <script defer src="hw-packages.js?v=20260907-pkg"></script>
+  <script defer src="app.js?v=20260907-3d"></script>
+</body>
+</html>

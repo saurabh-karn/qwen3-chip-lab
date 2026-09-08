@@ -1,0 +1,64 @@
+{
+  "method": "Structural estimate: capacity_per_die = usable_transistors / transistors_per_weight; transistors_per_weight = (weight_multiply_adders + 1_accumulate_adder) * 16-bit width * 28 T/adder-bit + 12 T misc. No synthesis/P&R flow exists in this repo -- this is not a measured area.",
+  "die_area_mm2": 600,
+  "usable_fraction": 0.7,
+  "mtr_per_mm2": 240000000.0,
+  "transistors_per_adder_bit": 28,
+  "adder_width_bits": 16,
+  "formats": {
+    "bf16": {
+      "weight_multiply_adders_mean": 2.4453125,
+      "accumulate_adders_flat": 1.0,
+      "total_adders_per_weight": 3.4453125,
+      "transistors_per_weight": 1555.5,
+      "die_capacity_billion_params": 0.0648023143683703,
+      "accumulate_share_of_area": 0.29024943310657597
+    },
+    "mxfp8": {
+      "weight_multiply_adders_mean": 1.125,
+      "accumulate_adders_flat": 1.0,
+      "total_adders_per_weight": 2.125,
+      "transistors_per_weight": 964.0,
+      "die_capacity_billion_params": 0.10456431535269708,
+      "accumulate_share_of_area": 0.47058823529411764
+    },
+    "mxfp4": {
+      "weight_multiply_adders_mean": 0.375,
+      "accumulate_adders_flat": 1.0,
+      "total_adders_per_weight": 1.375,
+      "transistors_per_weight": 628.0,
+      "die_capacity_billion_params": 0.16050955414012738,
+      "accumulate_share_of_area": 0.7272727272727273
+    }
+  },
+  "scenarios": {
+    "30B_params": {
+      "bf16": {
+        "dies_needed": 463,
+        "die_capacity_billion_params": 0.0648023143683703
+      },
+      "mxfp8": {
+        "dies_needed": 287,
+        "die_capacity_billion_params": 0.10456431535269708
+      },
+      "mxfp4": {
+        "dies_needed": 187,
+        "die_capacity_billion_params": 0.16050955414012738
+      }
+    },
+    "1T_params": {
+      "bf16": {
+        "dies_needed": 15432,
+        "die_capacity_billion_params": 0.0648023143683703
+      },
+      "mxfp8": {
+        "dies_needed": 9564,
+        "die_capacity_billion_params": 0.10456431535269708
+      },
+      "mxfp4": {
+        "dies_needed": 6231,
+        "die_capacity_billion_params": 0.16050955414012738
+      }
+    }
+  }
+}

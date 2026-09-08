@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "verified_at_utc": "2026-08-27T19:50:00Z",
+  "tool": "Yosys 0.33",
+  "command": "make synth",
+  "top": "qwen3_platform_top",
+  "status": "passed",
+  "technology": "generic RTLIL",
+  "measured_physical_area": false,
+  "design": {
+    "wire_bits": 165570,
+    "memories": 3,
+    "memory_bits": 96,
+    "cells": 9467,
+    "multipliers": 17,
+    "adders": 542,
+    "muxes": 5999
+  },
+  "scope": "Controller and default 16-lane BF16/FP32-like compute fabric; ROM/SRAM and transcendental accelerators remain selectable external macros.",
+  "warning": "Generic RTLIL cell counts are not a foundry area, timing, or power result."
+}

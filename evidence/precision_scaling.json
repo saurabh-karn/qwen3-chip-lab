@@ -1,0 +1,147 @@
+{
+  "schema_version": 1,
+  "model_id": "Qwen/Qwen3-0.6B",
+  "sequence_length": 1,
+  "tech_node": "N4",
+  "description": "Precision scaling: BF16 \u2192 INT8 \u2192 INT4 transistors and energy",
+  "methodology": {
+    "transistors": "ROM bits \u00d7 6 (6T cell) + SRAM (fixed) + compute (gates \u00d7 2)",
+    "energy": "MACs \u00d7 mac_pj + ROM bits \u00d7 rom_pj + act bits \u00d7 sram_pj",
+    "accuracy": "Published results only (citations required, not simulated)"
+  },
+  "energy_references": {
+    "baseline": "Horowitz, 'Computing's energy problem', ISSCC 2014",
+    "tech_node_ref": "Scaled from 28nm; TSMC N4 \u2248 N5 enhanced"
+  },
+  "accuracy_references": [
+    "Meta Llama-3.1-70B INT8 quantization (2024): <0.5% degradation",
+    "Kimi K2-Thinking INT4 QAT (Moonshot AI, 2025): matches BF16",
+    "DeepSeek-V3 FP8 training + INT4 inference (DeepSeek, 2024)"
+  ],
+  "precisions": {
+    "bf16": {
+      "precision": "BF16 (native)",
+      "bits_per_weight": 16,
+      "effective_bits_per_weight": 16.0,
+      "model_id": "Qwen/Qwen3-0.6B",
+      "tech_node": "N4",
+      "storage": {
+        "weight_params": 596129792,
+        "weight_bits_total": 9538076672,
+        "weight_bytes_stored": 1192259584,
+        "compression_ratio_vs_bf16": 1.0
+      },
+      "transistors": {
+        "rom": 57228460032,
+        "sram": 1006632960,
+        "compute": 158400,
+        "total": 58235251392,
+        "total_billions": 58.235251392
+      },
+      "energy_per_token": {
+        "compute_j": 0.00026856866880000003,
+        "weight_j": 0.00033383268352000004,
+        "act_j": 1.042944e-06,
+        "total_j": 0.00060344429632,
+        "total_mj": 0.60344429632
+      },
+      "accuracy": {
+        "degradation": "0% (reference)",
+        "reference": "Native training precision",
+        "note": "Accuracy numbers are from published papers, not simulated"
+      },
+      "provenance": {
+        "kind": "calculated",
+        "transistor_formula": "ROM bits \u00d7 6 (6T cell) + SRAM bits \u00d7 6 + compute gates \u00d7 2",
+        "energy_formula": "MACs \u00d7 mac_pj \u00d7 (gates/4200) + ROM bits \u00d7 rom_pj + act bits \u00d7 sram_pj",
+        "accuracy_source": "published_only",
+        "tech_node": "N4",
+        "tech_node_ref": "Scaled from 28nm; TSMC N4 \u2248 N5 enhanced"
+      }
+    },
+    "int8": {
+      "precision": "INT8 (per-channel)",
+      "bits_per_weight": 8,
+      "effective_bits_per_weight": 8.5,
+      "model_id": "Qwen/Qwen3-0.6B",
+      "tech_node": "N4",
+      "storage": {
+        "weight_params": 596129792,
+        "weight_bits_total": 5067103232,
+        "weight_bytes_stored": 633387904,
+        "compression_ratio_vs_bf16": 1.8823529411764706
+      },
+      "transistors": {
+        "rom": 30402619392,
+        "sram": 1006632960,
+        "compute": 81600,
+        "total": 31409333952,
+        "total_billions": 31.409333952
+      },
+      "energy_per_token": {
+        "compute_j": 0.00011510085805714285,
+        "weight_j": 0.00017734861312,
+        "act_j": 1.042944e-06,
+        "total_j": 0.00029349241517714284,
+        "total_mj": 0.29349241517714286
+      },
+      "accuracy": {
+        "degradation": "<0.5%",
+        "reference": "Meta Llama-3.1-70B INT8 quantization (2024)",
+        "note": "Accuracy numbers are from published papers, not simulated"
+      },
+      "provenance": {
+        "kind": "calculated",
+        "transistor_formula": "ROM bits \u00d7 6 (6T cell) + SRAM bits \u00d7 6 + compute gates \u00d7 2",
+        "energy_formula": "MACs \u00d7 mac_pj \u00d7 (gates/4200) + ROM bits \u00d7 rom_pj + act bits \u00d7 sram_pj",
+        "accuracy_source": "published_only",
+        "tech_node": "N4",
+        "tech_node_ref": "Scaled from 28nm; TSMC N4 \u2248 N5 enhanced"
+      }
+    },
+    "int4": {
+      "precision": "INT4 (grouped)",
+      "bits_per_weight": 4,
+      "effective_bits_per_weight": 5.0,
+      "model_id": "Qwen/Qwen3-0.6B",
+      "tech_node": "N4",
+      "storage": {
+        "weight_params": 596129792,
+        "weight_bits_total": 2980648960,
+        "weight_bytes_stored": 372581120,
+        "compression_ratio_vs_bf16": 3.2
+      },
+      "transistors": {
+        "rom": 17883893760,
+        "sram": 1006632960,
+        "compute": 52800,
+        "total": 18890579520,
+        "total_billions": 18.89057952
+      },
+      "energy_per_token": {
+        "compute_j": 5.755042902857143e-05,
+        "weight_j": 0.00010432271360000001,
+        "act_j": 1.042944e-06,
+        "total_j": 0.00016291608662857143,
+        "total_mj": 0.16291608662857143
+      },
+      "accuracy": {
+        "degradation": "<1% with QAT",
+        "reference": "Kimi K2-Thinking INT4 QAT (Moonshot AI, 2025); DeepSeek-V3 FP8 (2024)",
+        "note": "Accuracy numbers are from published papers, not simulated"
+      },
+      "provenance": {
+        "kind": "calculated",
+        "transistor_formula": "ROM bits \u00d7 6 (6T cell) + SRAM bits \u00d7 6 + compute gates \u00d7 2",
+        "energy_formula": "MACs \u00d7 mac_pj \u00d7 (gates/4200) + ROM bits \u00d7 rom_pj + act bits \u00d7 sram_pj",
+        "accuracy_source": "published_only",
+        "tech_node": "N4",
+        "tech_node_ref": "Scaled from 28nm; TSMC N4 \u2248 N5 enhanced"
+      }
+    }
+  },
+  "invariants_verified": {
+    "transistors_scale_with_precision": true,
+    "energy_scales_with_precision": true
+  }
+}

@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="data:,">
+  <title>Chip lab · PIN</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="gate-page">
+  <form id="gateForm" class="gate-card" autocomplete="off">
+    <p class="eyebrow">qwen3_chip_top · private lab</p>
+    <h1>Enter PIN</h1>
+    <p class="lede">Eight digits. This is the live chip lab, not the public replay.</p>
+    <p class="gate-label" id="pinLabel">PIN</p>
+    <div class="pin-boxes" role="group" aria-labelledby="pinLabel">
+      <input class="pin-digit" type="text" inputmode="numeric" maxlength="1" autocomplete="one-time-code" aria-label="Digit 1" autofocus>
+      <input class="pin-digit" type="text" inputmode="numeric" maxlength="1" autocomplete="off" aria-label="Digit 2">
+      <input class="pin-digit" type="text" inputmode="numeric" maxlength="1" autocomplete="off" aria-label="Digit 3">
+      <input class="pin-digit" type="text" inputmode="numeric" maxlength="1" autocomplete="off" aria-label="Digit 4">
+      <input class="pin-digit" type="text" inputmode="numeric" maxlength="1" autocomplete="off" aria-label="Digit 5">
+      <input class="pin-digit" type="text" inputmode="numeric" maxlength="1" autocomplete="off" aria-label="Digit 6">
+      <input class="pin-digit" type="text" inputmode="numeric" maxlength="1" autocomplete="off" aria-label="Digit 7">
+      <input class="pin-digit" type="text" inputmode="numeric" maxlength="1" autocomplete="off" aria-label="Digit 8">
+    </div>
+    <button type="submit" id="gateBtn">Enter</button>
+    <p id="gateError" class="error" hidden></p>
+  </form>
+  <script>
+    (() => {
+      const form = document.getElementById("gateForm");
+      const boxes = [...document.querySelectorAll(".pin-digit")];
+      const btn = document.getElementById("gateBtn");
+      const err = document.getElementById("gateError");
+
+      const pinValue = () => boxes.map((box) => box.value).join("");
+
+      const fill = (digits, start = 0) => {
+        const clean = String(digits).replace(/\D/g, "").slice(0, 8 - start);
+        clean.split("").forEach((digit, i) => { boxes[start + i].value = digit; });
+        const next = Math.min(start + clean.length, 7);
+        boxes[next].focus();
+        boxes[next].select();
+      };
+
+      boxes.forEach((box, i) => {
+        box.addEventListener("input", () => {
+          const extra = box.value.replace(/\D/g, "");
+          box.value = extra.slice(0, 1);
+          if (extra.length > 1) fill(extra.slice(1), i + 1);
+          else if (box.value && i < 7) boxes[i + 1].focus();
+        });
+        box.addEventListener("keydown", (event) => {
+          if (event.key === "Backspace" && !box.value && i > 0) {
+            event.preventDefault();
+            boxes[i - 1].value = "";
+            boxes[i - 1].focus();
+          } else if (event.key === "ArrowLeft" && i > 0) {
+            event.preventDefault();
+            boxes[i - 1].focus();
+          } else if (event.key === "ArrowRight" && i < 7) {
+            event.preventDefault();
+            boxes[i + 1].focus();
+          }
+        });
+        box.addEventListener("paste", (event) => {
+          event.preventDefault();
+          fill((event.clipboardData || window.clipboardData).getData("text"), 0);
+        });
+        box.addEventListener("focus", () => box.select());
+      });
+
+      form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        err.hidden = true;
+        const value = pinValue();
+        if (!/^\d{8}$/.test(value)) {
+          err.hidden = false;
+          err.textContent = "Enter eight digits.";
+          boxes[value.length] ? boxes[value.length].focus() : boxes[7].focus();
+          return;
+        }
+        btn.disabled = true;
+        try {
+          const res = await fetch("/api/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ pin: value })
+          });
+          const body = await res.json().catch(() => ({}));
+          if (!res.ok) {
+            throw new Error(typeof body.detail === "string" ? body.detail : "Wrong PIN.");
+          }
+          location.replace("/");
+        } catch (exc) {
+          err.hidden = false;
+          err.textContent = exc.message || "Wrong PIN.";
+          btn.disabled = false;
+          boxes.forEach((box) => { box.value = ""; });
+          boxes[0].focus();
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,126 @@
+{
+  "schema": "qwen-ref-operator-vectors-v2",
+  "arithmetic_profile": "qwen-ref-v2",
+  "table_manifest": "tables-manifest.json",
+  "encoding": {
+    "BF16": "0x followed by 4 hexadecimal digits",
+    "binary32": "0x followed by 8 hexadecimal digits",
+    "array_order": "row-major"
+  },
+  "default_expected_format": "binary32",
+  "bf16_conversion": [
+    ["0x3f808000", "0x3f80"],
+    ["0x3f818000", "0x3f82"],
+    ["0x00000001", "0x0000"],
+    ["0x00010000", "0x0001"],
+    ["0x7f800000", "0x7f80"],
+    ["0xff800000", "0xff80"],
+    ["0x7f800001", "0x7fc0"]
+  ],
+  "binary32_division": [
+    ["0x3f800000", "0x40400000", "0x3eaaaaab"],
+    ["0x00800000", "0x40000000", "0x00400000"],
+    ["0x00000001", "0x40000000", "0x00000000"],
+    ["0x00000003", "0x40000000", "0x00000002"],
+    ["0xbf800000", "0x00000000", "0xff800000"]
+  ],
+  "dot": {
+    "operand_format": "BF16",
+    "left": ["0x3f80", "0xc020", "0x447a", "0x3eaa"],
+    "right": ["0x4040", "0xc080", "0x3a83", "0xc0c0"],
+    "output": "0x41401dc0"
+  },
+  "reciprocal_sqrt": [
+    ["0x00000001", "0x64b504f3"],
+    ["0x007fffff", "0x5f000001"],
+    ["0x00800000", "0x5f000000"],
+    ["0x3f800000", "0x3f800000"],
+    ["0x3fc00000", "0x3f5105ec"],
+    ["0x40000000", "0x3f3504f3"],
+    ["0x40400000", "0x3f13cd3a"],
+    ["0x7f7fffff", "0x1f800000"]
+  ],
+  "exp_negative": [
+    ["0xc1a00000", "0x00000000"],
+    ["0xc1800000", "0x33f1aade"],
+    ["0xc0500000", "0x3d1ed1b4"],
+    ["0xbf800000", "0x3ebc5ab2"],
+    ["0xbdcccccd", "0x3f67a389"],
+    ["0x80000000", "0x3f800000"]
+  ],
+  "rms_norm": {
+    "operand_format": "BF16",
+    "input": ["0x4040", "0xc080", "0x3f00", "0xbe80"],
+    "weight": ["0x3f80", "0x3f00", "0xbf80", "0x4000"],
+    "output": ["0x3f98a61e", "0xbf4b8828", "0xbe4b8828", "0xbe4b8828"]
+  },
+  "residual": {
+    "input_format": "binary32 pre-commit; each operand commits to BF16 before add",
+    "left_precommit_f32": ["0x3f807fff", "0xbf807fff"],
+    "right_precommit_f32": ["0x3f807fff", "0x3f807fff"],
+    "output_precommit_f32": ["0x40000000", "0x00000000"]
+  },
+  "silu": {
+    "operand_format": "BF16",
+    "input": [
+      "0xc1a0", "0xc040", "0xbf80", "0x8000",
+      "0x0000", "0x3f80", "0x4040", "0x41a0"
+    ],
+    "output": [
+      "0x80000000", "0xbe11b13a", "0xbe89b2b1", "0x80000000",
+      "0x00000000", "0x3f3b26a8", "0x4036e4ec", "0x41a00000"
+    ]
+  },
+  "swiglu": {
+    "operand_format": "BF16",
+    "gate": [
+      "0xc1a0", "0xc040", "0xbf80", "0x8000",
+      "0x0000", "0x3f80", "0x4040", "0x41a0"
+    ],
+    "up": [
+      "0x3f00", "0xbf80", "0x4000", "0x4040",
+      "0xc040", "0x4000", "0xbf80", "0x3f00"
+    ],
+    "output": [
+      "0x80000000", "0x3e120000", "0xbf0a0000", "0x80000000",
+      "0x80000000", "0x3fbb0000", "0xc0370000", "0x41200000"
+    ]
+  },
+  "rope": {
+    "position": 37,
+    "input_rule": "((index % 17) - 8) / 8 for index 0..127",
+    "output_sha256": "2b4ef145fda2f8ec25557c52d02dd6ce41470d2e9917f8dd68185e32c687d1b4",
+    "selected_output": {
+      "0": "0xbeb9f5b6",
+      "1": "0x3f46685c",
+      "7": "0x3f221e38",
+      "31": "0x3f3cdc32",
+      "63": "0x3f000000",
+      "64": "0x3f8f9b23",
+      "65": "0x3f5a583e",
+      "71": "0x3d93e3bd",
+      "95": "0x3e917d7b",
+      "127": "0x37c09488"
+    }
+  },
+  "attention": {
+    "operand_format": "BF16",
+    "queries": [[["0x3f80", "0x3f00"]], [["0xbf00", "0x3f80"]], [["0x4000", "0xbf80"]]],
+    "keys": [[["0x3e80", "0x3f80"]], [["0x3f80", "0xbe80"]], [["0xbf00", "0x4000"]]],
+    "values": [[["0x4000", "0xbf80"]], [["0x4080", "0x4040"]], [["0xc000", "0x40a0"]]],
+    "score_bits_by_token": [
+      ["0x3f07c3b6"],
+      ["0x3f1e6455", "0xbf07c3b6"],
+      ["0xbeb504f3", "0x3fcba591", "0xc007c3b6"]
+    ],
+    "probability_bits_by_token": [
+      ["0x3f800000"],
+      ["0x3f425c99", "0x3e768d9e"],
+      ["0x3dfa6150", "0x3f5b611f", "0x3caa56b1"]
+    ],
+    "output": [
+      "0x40000000", "0xbf800000", "0x401ec000",
+      "0xbd0c0000", "0x4067f800", "0x40231400"
+    ]
+  }
+}

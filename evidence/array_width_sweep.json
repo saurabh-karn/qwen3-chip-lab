@@ -1,0 +1,84 @@
+{
+  "schema_version": 1,
+  "description": "Measured MAC-array width sweep on the fused mask-ROM schedule. Cycles, MAC and memory counters come from real Verilator runs of qwen_chip (FUSED=1) at MAC_LANES=16/32/64/128, one token, context length 1. Every width is verified bit-exact against the 16-lane reference: all commits and all 151,936 logits identical.",
+  "model_id": "Qwen/Qwen3-0.6B",
+  "token_ids": [
+    9707
+  ],
+  "sequence_length": 1,
+  "schedule": "fused",
+  "clock_hz": 500000000.0,
+  "reference_lanes": 16,
+  "provenance": {
+    "kind": "measured",
+    "measured": true,
+    "sources": "qwen_chip/sim Verilator, make LANES=<n> FUSED=1",
+    "bit_exact_check": "commits + logits + argmax vs MAC_LANES=16"
+  },
+  "points": [
+    {
+      "mac_lanes": 16,
+      "rom_data_w": 256,
+      "sram_data_w": 256,
+      "cycles": 57024559,
+      "macs": 608945152,
+      "rom_reads": 38086208,
+      "sram_reads": 3269312,
+      "sram_writes": 481408,
+      "argmax": 21806,
+      "bit_exact_vs_16_lane": true,
+      "macs_per_cycle": 10.678647282480519,
+      "utilization": 0.6674154551550324,
+      "speedup_vs_16_lane": 1.0,
+      "throughput_toks_at_500mhz": 8.768151981675123
+    },
+    {
+      "mac_lanes": 32,
+      "rom_data_w": 512,
+      "sram_data_w": 512,
+      "cycles": 30433423,
+      "macs": 610780160,
+      "rom_reads": 19115808,
+      "sram_reads": 1994240,
+      "sram_writes": 471552,
+      "argmax": 21806,
+      "bit_exact_vs_16_lane": true,
+      "macs_per_cycle": 20.069387528310568,
+      "utilization": 0.6271683602597052,
+      "speedup_vs_16_lane": 1.8737477870957862,
+      "throughput_toks_at_500mhz": 16.429305372583293
+    },
+    {
+      "mac_lanes": 64,
+      "rom_data_w": 1024,
+      "sram_data_w": 1024,
+      "cycles": 17137855,
+      "macs": 614450176,
+      "rom_reads": 9630608,
+      "sram_reads": 1356704,
+      "sram_writes": 466624,
+      "argmax": 21806,
+      "bit_exact_vs_16_lane": true,
+      "macs_per_cycle": 35.85338865336415,
+      "utilization": 0.5602091977088148,
+      "speedup_vs_16_lane": 3.3274035169512173,
+      "throughput_toks_at_500mhz": 29.17517974098859
+    },
+    {
+      "mac_lanes": 128,
+      "rom_data_w": 2048,
+      "sram_data_w": 2048,
+      "cycles": 10490071,
+      "macs": 621790208,
+      "rom_reads": 4888008,
+      "sram_reads": 1037936,
+      "sram_writes": 464160,
+      "argmax": 21806,
+      "bit_exact_vs_16_lane": true,
+      "macs_per_cycle": 59.2741658278576,
+      "utilization": 0.4630794205301375,
+      "speedup_vs_16_lane": 5.436050814146062,
+      "throughput_toks_at_500mhz": 47.664119718541464
+    }
+  ]
+}

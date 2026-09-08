@@ -1,0 +1,619 @@
+{
+  "schema_version": 1,
+  "model_id": "Qwen/Qwen3-0.6B",
+  "sequence_length": 1,
+  "description": "Array scaling: 16\u00d71 \u2192 128\u00d7128, showing throughput scales with PEs while energy stays constant",
+  "energy_references": {
+    "baseline": "Horowitz, 'Computing's energy problem', ISSCC 2014",
+    "measured_anchor": "16\u00d71 @ 500 MHz from evidence/runs/ (8.8 tok/s)"
+  },
+  "lab_series": {
+    "clock_hz": 500000000.0,
+    "tech_node": "28nm",
+    "arrays": [
+      {
+        "config": {
+          "name": "16\u00d71 @ 500 MHz",
+          "rows": 16,
+          "cols": 1,
+          "pes": 16,
+          "clock_hz": 500000000.0,
+          "tech_node": "28nm"
+        },
+        "model_id": "Qwen/Qwen3-0.6B",
+        "sequence_length": 1,
+        "workload": {
+          "total_macs": 596819264,
+          "total_flops": 1193638528,
+          "weight_bytes": 1192259584,
+          "act_bytes": 2607360
+        },
+        "metrics": {
+          "total_cycles": 57025007,
+          "latency_s": 0.114050014,
+          "throughput_toks": 8.768083097297998,
+          "compute_energy_j": 0.0007307341824,
+          "weight_energy_j": 0.0009750069248000001,
+          "act_energy_j": 3.128832e-06,
+          "total_energy_j": 0.0017088699392,
+          "energy_mj": 1.7088699392,
+          "utilization": 0.6541201126025289,
+          "transistors": 58235251392
+        },
+        "provenance": {
+          "kind": "measured",
+          "measured": true,
+          "source": "/Users/saurabhkarn/trocr-asic/evidence/runs/e29e6a07b9568e16/verify.json",
+          "tech_node": "28nm",
+          "tech_node_ref": "Horowitz ISSCC 2014, scaled from 45nm"
+        }
+      },
+      {
+        "config": {
+          "name": "32\u00d71 @ 500 MHz",
+          "rows": 32,
+          "cols": 1,
+          "pes": 32,
+          "clock_hz": 500000000.0,
+          "tech_node": "28nm"
+        },
+        "model_id": "Qwen/Qwen3-0.6B",
+        "sequence_length": 1,
+        "workload": {
+          "total_macs": 596819264,
+          "total_flops": 1193638528,
+          "weight_bytes": 1192259584,
+          "act_bytes": 2607360
+        },
+        "metrics": {
+          "total_cycles": 30433423,
+          "latency_s": 0.060866846,
+          "throughput_toks": 16.429305372583293,
+          "compute_energy_j": 0.000732936192,
+          "weight_energy_j": 0.0009787293696,
+          "act_energy_j": 3.128832e-06,
+          "total_energy_j": 0.0017147943935999998,
+          "energy_mj": 1.7147943935999999,
+          "utilization": 0.6128328712810255,
+          "transistors": 58235385792
+        },
+        "provenance": {
+          "kind": "measured",
+          "measured": true,
+          "source": "evidence/array_width_sweep.json MAC_LANES=32 (Verilator, bit-exact vs 16-lane)",
+          "tech_node": "28nm",
+          "tech_node_ref": "Horowitz ISSCC 2014, scaled from 45nm"
+        }
+      },
+      {
+        "config": {
+          "name": "64\u00d71 @ 500 MHz",
+          "rows": 64,
+          "cols": 1,
+          "pes": 64,
+          "clock_hz": 500000000.0,
+          "tech_node": "28nm"
+        },
+        "model_id": "Qwen/Qwen3-0.6B",
+        "sequence_length": 1,
+        "workload": {
+          "total_macs": 596819264,
+          "total_flops": 1193638528,
+          "weight_bytes": 1192259584,
+          "act_bytes": 2607360
+        },
+        "metrics": {
+          "total_cycles": 17137855,
+          "latency_s": 0.03427571,
+          "throughput_toks": 29.17517974098859,
+          "compute_energy_j": 0.0007373402111999999,
+          "weight_energy_j": 0.0009861742592,
+          "act_energy_j": 3.128832e-06,
+          "total_energy_j": 0.0017266433024,
+          "energy_mj": 1.7266433023999999,
+          "utilization": 0.5441346656276412,
+          "transistors": 58235654592
+        },
+        "provenance": {
+          "kind": "measured",
+          "measured": true,
+          "source": "evidence/array_width_sweep.json MAC_LANES=64 (Verilator, bit-exact vs 16-lane)",
+          "tech_node": "28nm",
+          "tech_node_ref": "Horowitz ISSCC 2014, scaled from 45nm"
+        }
+      },
+      {
+        "config": {
+          "name": "128\u00d71 @ 500 MHz",
+          "rows": 128,
+          "cols": 1,
+          "pes": 128,
+          "clock_hz": 500000000.0,
+          "tech_node": "28nm"
+        },
+        "model_id": "Qwen/Qwen3-0.6B",
+        "sequence_length": 1,
+        "workload": {
+          "total_macs": 596819264,
+          "total_flops": 1193638528,
+          "weight_bytes": 1192259584,
+          "act_bytes": 2607360
+        },
+        "metrics": {
+          "total_cycles": 10490071,
+          "latency_s": 0.020980142,
+          "throughput_toks": 47.664119718541464,
+          "compute_energy_j": 0.0007461482496,
+          "weight_energy_j": 0.0010010640384,
+          "act_energy_j": 3.128832e-06,
+          "total_energy_j": 0.00175034112,
+          "energy_mj": 1.75034112,
+          "utilization": 0.44448226327543444,
+          "transistors": 58236192192
+        },
+        "provenance": {
+          "kind": "measured",
+          "measured": true,
+          "source": "evidence/array_width_sweep.json MAC_LANES=128 (Verilator, bit-exact vs 16-lane)",
+          "tech_node": "28nm",
+          "tech_node_ref": "Horowitz ISSCC 2014, scaled from 45nm"
+        }
+      },
+      {
+        "config": {
+          "name": "16\u00d716 @ 500 MHz",
+          "rows": 16,
+          "cols": 16,
+          "pes": 256,
+          "clock_hz": 500000000.0,
+          "tech_node": "28nm"
+        },
+        "model_id": "Qwen/Qwen3-0.6B",
+        "sequence_length": 1,
+        "workload": {
+          "total_macs": 596819264,
+          "total_flops": 1193638528,
+          "weight_bytes": 1192259584,
+          "act_bytes": 2607360
+        },
+        "metrics": {
+          "total_cycles": 3108434,
+          "latency_s": 0.006216868,
+          "throughput_toks": 160.8526994621729,
+          "compute_energy_j": 0.0007161831167999999,
+          "weight_energy_j": 0.0009538076672000001,
+          "act_energy_j": 3.128832e-06,
+          "total_energy_j": 0.001673119616,
+          "energy_mj": 1.673119616,
+          "utilization": 0.7499999195736503,
+          "transistors": 58237267392
+        },
+        "provenance": {
+          "kind": "analytical_estimate",
+          "measured": false,
+          "source": "array_scaling model; utilization 0.75 assumed (only the 16x1 point is measured, at 0.67)",
+          "tech_node": "28nm",
+          "tech_node_ref": "Horowitz ISSCC 2014, scaled from 45nm"
+        }
+      },
+      {
+        "config": {
+          "name": "32\u00d732 @ 500 MHz",
+          "rows": 32,
+          "cols": 32,
+          "pes": 1024,
+          "clock_hz": 500000000.0,
+          "tech_node": "28nm"
+        },
+        "model_id": "Qwen/Qwen3-0.6B",
+        "sequence_length": 1,
+        "workload": {
+          "total_macs": 596819264,
+          "total_flops": 1193638528,
+          "weight_bytes": 1192259584,
+          "act_bytes": 2607360
+        },
+        "metrics": {
+          "total_cycles": 710770,
+          "latency_s": 0.00142154,
+          "throughput_toks": 703.4624421402141,
+          "compute_energy_j": 0.0007161831167999999,
+          "weight_energy_j": 0.0009538076672000001,
+          "act_energy_j": 3.128832e-06,
+          "total_energy_j": 0.001673119616,
+          "energy_mj": 1.673119616,
+          "utilization": 0.8199998768940726,
+          "transistors": 58243718592
+        },
+        "provenance": {
+          "kind": "analytical_estimate",
+          "measured": false,
+          "source": "array_scaling model; utilization 0.82 assumed (only the 16x1 point is measured, at 0.67)",
+          "tech_node": "28nm",
+          "tech_node_ref": "Horowitz ISSCC 2014, scaled from 45nm"
+        }
+      },
+      {
+        "config": {
+          "name": "64\u00d764 @ 500 MHz",
+          "rows": 64,
+          "cols": 64,
+          "pes": 4096,
+          "clock_hz": 500000000.0,
+          "tech_node": "28nm"
+        },
+        "model_id": "Qwen/Qwen3-0.6B",
+        "sequence_length": 1,
+        "workload": {
+          "total_macs": 596819264,
+          "total_flops": 1193638528,
+          "weight_bytes": 1192259584,
+          "act_bytes": 2607360
+        },
+        "metrics": {
+          "total_cycles": 167480,
+          "latency_s": 0.00033496,
+          "throughput_toks": 2985.4310962502987,
+          "compute_energy_j": 0.0007161831167999999,
+          "weight_energy_j": 0.0009538076672000001,
+          "act_energy_j": 3.128832e-06,
+          "total_energy_j": 0.001673119616,
+          "energy_mj": 1.673119616,
+          "utilization": 0.8700013621029377,
+          "transistors": 58269523392
+        },
+        "provenance": {
+          "kind": "analytical_estimate",
+          "measured": false,
+          "source": "array_scaling model; utilization 0.87 assumed (only the 16x1 point is measured, at 0.67)",
+          "tech_node": "28nm",
+          "tech_node_ref": "Horowitz ISSCC 2014, scaled from 45nm"
+        }
+      },
+      {
+        "config": {
+          "name": "128\u00d7128 @ 500 MHz",
+          "rows": 128,
+          "cols": 128,
+          "pes": 16384,
+          "clock_hz": 500000000.0,
+          "tech_node": "28nm"
+        },
+        "model_id": "Qwen/Qwen3-0.6B",
+        "sequence_length": 1,
+        "workload": {
+          "total_macs": 596819264,
+          "total_flops": 1193638528,
+          "weight_bytes": 1192259584,
+          "act_bytes": 2607360
+        },
+        "metrics": {
+          "total_cycles": 40474,
+          "latency_s": 8.0948e-05,
+          "throughput_toks": 12353.609724761576,
+          "compute_energy_j": 0.0007161831167999999,
+          "weight_energy_j": 0.0009538076672000001,
+          "act_energy_j": 3.128832e-06,
+          "total_energy_j": 0.001673119616,
+          "energy_mj": 1.673119616,
+          "utilization": 0.900008821249444,
+          "transistors": 58372742592
+        },
+        "provenance": {
+          "kind": "analytical_estimate",
+          "measured": false,
+          "source": "array_scaling model; utilization 0.90 assumed (only the 16x1 point is measured, at 0.67)",
+          "tech_node": "28nm",
+          "tech_node_ref": "Horowitz ISSCC 2014, scaled from 45nm"
+        }
+      }
+    ]
+  },
+  "production_series": {
+    "clock_hz": 2000000000.0,
+    "tech_node": "N4",
+    "arrays": [
+      {
+        "config": {
+          "name": "16\u00d71 @ 2000 MHz",
+          "rows": 16,
+          "cols": 1,
+          "pes": 16,
+          "clock_hz": 2000000000.0,
+          "tech_node": "N4"
+        },
+        "model_id": "Qwen/Qwen3-0.6B",
+        "sequence_length": 1,
+        "workload": {
+          "total_macs": 596819264,
+          "total_flops": 1193638528,
+          "weight_bytes": 1192259584,
+          "act_bytes": 2607360
+        },
+        "metrics": {
+          "total_cycles": 55673438,
+          "latency_s": 0.027836719,
+          "throughput_toks": 35.923773918901865,
+          "compute_energy_j": 0.00026856866880000003,
+          "weight_energy_j": 0.00033383268352000004,
+          "act_energy_j": 1.042944e-06,
+          "total_energy_j": 0.00060344429632,
+          "energy_mj": 0.60344429632,
+          "utilization": 0.670000009699419,
+          "transistors": 58235251392
+        },
+        "provenance": {
+          "kind": "analytical_estimate",
+          "measured": false,
+          "source": "array_scaling model; utilization 0.67 assumed (only the 16x1 point is measured, at 0.67)",
+          "tech_node": "N4",
+          "tech_node_ref": "Scaled from 28nm; TSMC N4 \u2248 N5 enhanced"
+        }
+      },
+      {
+        "config": {
+          "name": "32\u00d71 @ 2000 MHz",
+          "rows": 32,
+          "cols": 1,
+          "pes": 32,
+          "clock_hz": 2000000000.0,
+          "tech_node": "N4"
+        },
+        "model_id": "Qwen/Qwen3-0.6B",
+        "sequence_length": 1,
+        "workload": {
+          "total_macs": 596819264,
+          "total_flops": 1193638528,
+          "weight_bytes": 1192259584,
+          "act_bytes": 2607360
+        },
+        "metrics": {
+          "total_cycles": 24867469,
+          "latency_s": 0.0124337345,
+          "throughput_toks": 80.42635943368423,
+          "compute_energy_j": 0.00026856866880000003,
+          "weight_energy_j": 0.00033383268352000004,
+          "act_energy_j": 1.042944e-06,
+          "total_energy_j": 0.00060344429632,
+          "energy_mj": 0.60344429632,
+          "utilization": 0.750000010053295,
+          "transistors": 58235385792
+        },
+        "provenance": {
+          "kind": "analytical_estimate",
+          "measured": false,
+          "source": "array_scaling model; utilization 0.75 assumed (only the 16x1 point is measured, at 0.67)",
+          "tech_node": "N4",
+          "tech_node_ref": "Scaled from 28nm; TSMC N4 \u2248 N5 enhanced"
+        }
+      },
+      {
+        "config": {
+          "name": "64\u00d71 @ 2000 MHz",
+          "rows": 64,
+          "cols": 1,
+          "pes": 64,
+          "clock_hz": 2000000000.0,
+          "tech_node": "N4"
+        },
+        "model_id": "Qwen/Qwen3-0.6B",
+        "sequence_length": 1,
+        "workload": {
+          "total_macs": 596819264,
+          "total_flops": 1193638528,
+          "weight_bytes": 1192259584,
+          "act_bytes": 2607360
+        },
+        "metrics": {
+          "total_cycles": 12433734,
+          "latency_s": 0.006216867,
+          "throughput_toks": 160.85272533576799,
+          "compute_energy_j": 0.00026856866880000003,
+          "weight_energy_j": 0.00033383268352000004,
+          "act_energy_j": 1.042944e-06,
+          "total_energy_j": 0.00060344429632,
+          "energy_mj": 0.60344429632,
+          "utilization": 0.7500000402131813,
+          "transistors": 58235654592
+        },
+        "provenance": {
+          "kind": "analytical_estimate",
+          "measured": false,
+          "source": "array_scaling model; utilization 0.75 assumed (only the 16x1 point is measured, at 0.67)",
+          "tech_node": "N4",
+          "tech_node_ref": "Scaled from 28nm; TSMC N4 \u2248 N5 enhanced"
+        }
+      },
+      {
+        "config": {
+          "name": "128\u00d71 @ 2000 MHz",
+          "rows": 128,
+          "cols": 1,
+          "pes": 128,
+          "clock_hz": 2000000000.0,
+          "tech_node": "N4"
+        },
+        "model_id": "Qwen/Qwen3-0.6B",
+        "sequence_length": 1,
+        "workload": {
+          "total_macs": 596819264,
+          "total_flops": 1193638528,
+          "weight_bytes": 1192259584,
+          "act_bytes": 2607360
+        },
+        "metrics": {
+          "total_cycles": 6216868,
+          "latency_s": 0.003108434,
+          "throughput_toks": 321.7053989243458,
+          "compute_energy_j": 0.00026856866880000003,
+          "weight_energy_j": 0.00033383268352000004,
+          "act_energy_j": 1.042944e-06,
+          "total_energy_j": 0.00060344429632,
+          "energy_mj": 0.60344429632,
+          "utilization": 0.7499999195736503,
+          "transistors": 58236192192
+        },
+        "provenance": {
+          "kind": "analytical_estimate",
+          "measured": false,
+          "source": "array_scaling model; utilization 0.75 assumed (only the 16x1 point is measured, at 0.67)",
+          "tech_node": "N4",
+          "tech_node_ref": "Scaled from 28nm; TSMC N4 \u2248 N5 enhanced"
+        }
+      },
+      {
+        "config": {
+          "name": "16\u00d716 @ 2000 MHz",
+          "rows": 16,
+          "cols": 16,
+          "pes": 256,
+          "clock_hz": 2000000000.0,
+          "tech_node": "N4"
+        },
+        "model_id": "Qwen/Qwen3-0.6B",
+        "sequence_length": 1,
+        "workload": {
+          "total_macs": 596819264,
+          "total_flops": 1193638528,
+          "weight_bytes": 1192259584,
+          "act_bytes": 2607360
+        },
+        "metrics": {
+          "total_cycles": 3108434,
+          "latency_s": 0.001554217,
+          "throughput_toks": 643.4107978486916,
+          "compute_energy_j": 0.00026856866880000003,
+          "weight_energy_j": 0.00033383268352000004,
+          "act_energy_j": 1.042944e-06,
+          "total_energy_j": 0.00060344429632,
+          "energy_mj": 0.60344429632,
+          "utilization": 0.7499999195736503,
+          "transistors": 58237267392
+        },
+        "provenance": {
+          "kind": "analytical_estimate",
+          "measured": false,
+          "source": "array_scaling model; utilization 0.75 assumed (only the 16x1 point is measured, at 0.67)",
+          "tech_node": "N4",
+          "tech_node_ref": "Scaled from 28nm; TSMC N4 \u2248 N5 enhanced"
+        }
+      },
+      {
+        "config": {
+          "name": "32\u00d732 @ 2000 MHz",
+          "rows": 32,
+          "cols": 32,
+          "pes": 1024,
+          "clock_hz": 2000000000.0,
+          "tech_node": "N4"
+        },
+        "model_id": "Qwen/Qwen3-0.6B",
+        "sequence_length": 1,
+        "workload": {
+          "total_macs": 596819264,
+          "total_flops": 1193638528,
+          "weight_bytes": 1192259584,
+          "act_bytes": 2607360
+        },
+        "metrics": {
+          "total_cycles": 710770,
+          "latency_s": 0.000355385,
+          "throughput_toks": 2813.8497685608563,
+          "compute_energy_j": 0.00026856866880000003,
+          "weight_energy_j": 0.00033383268352000004,
+          "act_energy_j": 1.042944e-06,
+          "total_energy_j": 0.00060344429632,
+          "energy_mj": 0.60344429632,
+          "utilization": 0.8199998768940726,
+          "transistors": 58243718592
+        },
+        "provenance": {
+          "kind": "analytical_estimate",
+          "measured": false,
+          "source": "array_scaling model; utilization 0.82 assumed (only the 16x1 point is measured, at 0.67)",
+          "tech_node": "N4",
+          "tech_node_ref": "Scaled from 28nm; TSMC N4 \u2248 N5 enhanced"
+        }
+      },
+      {
+        "config": {
+          "name": "64\u00d764 @ 2000 MHz",
+          "rows": 64,
+          "cols": 64,
+          "pes": 4096,
+          "clock_hz": 2000000000.0,
+          "tech_node": "N4"
+        },
+        "model_id": "Qwen/Qwen3-0.6B",
+        "sequence_length": 1,
+        "workload": {
+          "total_macs": 596819264,
+          "total_flops": 1193638528,
+          "weight_bytes": 1192259584,
+          "act_bytes": 2607360
+        },
+        "metrics": {
+          "total_cycles": 167480,
+          "latency_s": 8.374e-05,
+          "throughput_toks": 11941.724385001195,
+          "compute_energy_j": 0.00026856866880000003,
+          "weight_energy_j": 0.00033383268352000004,
+          "act_energy_j": 1.042944e-06,
+          "total_energy_j": 0.00060344429632,
+          "energy_mj": 0.60344429632,
+          "utilization": 0.8700013621029377,
+          "transistors": 58269523392
+        },
+        "provenance": {
+          "kind": "analytical_estimate",
+          "measured": false,
+          "source": "array_scaling model; utilization 0.87 assumed (only the 16x1 point is measured, at 0.67)",
+          "tech_node": "N4",
+          "tech_node_ref": "Scaled from 28nm; TSMC N4 \u2248 N5 enhanced"
+        }
+      },
+      {
+        "config": {
+          "name": "128\u00d7128 @ 2000 MHz",
+          "rows": 128,
+          "cols": 128,
+          "pes": 16384,
+          "clock_hz": 2000000000.0,
+          "tech_node": "N4"
+        },
+        "model_id": "Qwen/Qwen3-0.6B",
+        "sequence_length": 1,
+        "workload": {
+          "total_macs": 596819264,
+          "total_flops": 1193638528,
+          "weight_bytes": 1192259584,
+          "act_bytes": 2607360
+        },
+        "metrics": {
+          "total_cycles": 40474,
+          "latency_s": 2.0237e-05,
+          "throughput_toks": 49414.438899046305,
+          "compute_energy_j": 0.00026856866880000003,
+          "weight_energy_j": 0.00033383268352000004,
+          "act_energy_j": 1.042944e-06,
+          "total_energy_j": 0.00060344429632,
+          "energy_mj": 0.60344429632,
+          "utilization": 0.900008821249444,
+          "transistors": 58372742592
+        },
+        "provenance": {
+          "kind": "analytical_estimate",
+          "measured": false,
+          "source": "array_scaling model; utilization 0.90 assumed (only the 16x1 point is measured, at 0.67)",
+          "tech_node": "N4",
+          "tech_node_ref": "Scaled from 28nm; TSMC N4 \u2248 N5 enhanced"
+        }
+      }
+    ]
+  },
+  "invariants_verified": {
+    "mac_count_constant": true,
+    "throughput_monotone": true,
+    "anchor_matched": true
+  }
+}

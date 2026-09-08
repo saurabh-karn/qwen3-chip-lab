@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "verified_at_utc": "2026-08-27T19:24:00Z",
+  "model_id": "Qwen/Qwen3-0.6B",
+  "upstream_revision": "c1899de289a04d12100db370d81485cdf75e47ca",
+  "checkpoint": {
+    "file": "model.safetensors",
+    "sha256": "f47f71177f32bcd101b7573ec9171e6a57f4f4d31148d38e382306f42996874b",
+    "strict_tensor_geometry_validation": "passed",
+    "strict_bf16_validation": "passed",
+    "tied_lm_head_bit_identity": "passed"
+  },
+  "rom": {
+    "format": "qwen_ref.flat-bf16-rom.v1",
+    "arithmetic_profile": "qwen-ref-v1",
+    "bytes": 1192099840,
+    "sha256": "18602c6adf0658763eae602b44a6436a6b25ffdabddec508fa66633624e90979",
+    "layout_sha256": "90862bab24f0ff234a57c3d069de4279b2b7603342d391781e17ebf906a44e45",
+    "runtime_mutable": false
+  },
+  "tokenizer": {
+    "implementation": "python_standard_library",
+    "input": "Hello",
+    "token_ids": [9707],
+    "status": "passed"
+  },
+  "full_python_forward": {
+    "input_ids": [9707],
+    "layers_completed": 28,
+    "logits_shape": [1, 151936],
+    "argmax_token_id": 21806,
+    "argmax_text": " Answer",
+    "trace_events": 563,
+    "binary_checkpoints": 563,
+    "elapsed_seconds": 1244.486,
+    "logits_json_sha256": "67882ed06e74560863b44ebbcc8457e66808e0eada4c538f78b76a03b1901280",
+    "trace_sha256": "1adadd92bbb228a21d8b39e090b3e862bacf1fd8e0f4fd6d1d1272c203999dfa"
+  },
+  "hugging_face_scoreboard": {
+    "dtype": "bfloat16",
+    "attention": "eager",
+    "argmax_token_id": 21806,
+    "argmax_match": true,
+    "max_abs_logit_difference": 0.3442554473876953,
+    "mean_abs_logit_difference": 0.05220011994242668,
+    "exact_logits": false,
+    "note": "The standard-library arithmetic profile rounds at explicitly different points from the framework kernel; greedy output matches but framework logits are not the RTL equality oracle."
+  },
+  "note": "Large checkpoint and ROM payloads are ignored; this retained evidence binds results to their hashes."
+}

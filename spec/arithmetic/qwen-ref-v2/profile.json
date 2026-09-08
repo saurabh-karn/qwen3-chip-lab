@@ -1,0 +1,85 @@
+{
+  "schema": "qwen-ref-arithmetic-profile-v1",
+  "id": "qwen-ref-v2",
+  "byte_order": "little",
+  "rounding": "roundTiesToEven",
+  "weight_format": "BF16",
+  "scratch_activation_storage_format": "BF16",
+  "checkpoint_format": "binary32-pre-commit",
+  "accumulator_format": "binary32",
+  "reduction_order": "serial-increasing-index",
+  "fused_multiply_add": false,
+  "flush_subnormals": false,
+  "canonical_binary32_nan": "0x7fc00000",
+  "canonical_bf16_nan": "0x7fc0",
+  "maximum_tokens": 128,
+  "position_domain": "integer 0..127; no wrap, clamp, or extrapolation",
+  "fault_policy": {
+    "python": "raise ValueError before destination commit",
+    "rtl": "signal command fault and suppress destination commit",
+    "softmax": "nonempty finite committed BF16 scores and positive finite denominator",
+    "silu": "finite committed BF16 input",
+    "swiglu": "finite committed BF16 SiLU/up inputs and finite binary32 output",
+    "exp_negative": "finite binary32 x<=0; x<-16 clips to positive zero without fault"
+  },
+  "scratch_boundaries": {
+    "general": "every stage output consumed later commits to BF16 after its binary32 checkpoint",
+    "embedding_checkpoint": "post-commit BF16 widened exactly to binary32",
+    "logits": "streamed binary32; not committed to activation scratch",
+    "residual_operands": "committed BF16",
+    "attention_score_checkpoint": "scaled binary32 pre-commit",
+    "softmax_input": "committed BF16 scores",
+    "softmax_checkpoint": "binary32 probabilities pre-commit",
+    "attention_probability_operand": "committed BF16",
+    "swiglu_operands": "committed BF16 SiLU and up values"
+  },
+  "rtl_implementation_status": {
+    "qwen_bf16_mac_array": "not-v2-compliant: flushes subnormals and differs on NaN/infinity"
+  },
+  "rms_norm_epsilon_binary32": "0x358637bd",
+  "rope": {
+    "positions": 128,
+    "head_dimension": 128,
+    "theta": 1000000,
+    "layout": "position,pair,cos_then_sin"
+  },
+  "exp": {
+    "domain": "finite binary32 x <= 0",
+    "step_log2": -8,
+    "minimum": -16,
+    "below_minimum": "positive-zero",
+    "interpolation": "linear-binary32-rne"
+  },
+  "reciprocal_sqrt": {
+    "domain": "positive finite binary32",
+    "normalized_domain": "[1,4)",
+    "step_log2": -8,
+    "interpolation": "linear-binary32-rne"
+  },
+  "table_manifest": "tables-manifest.json",
+  "mandatory_events": [
+    "embedding",
+    "layer.{layer}.input_norm",
+    "layer.{layer}.q_proj",
+    "layer.{layer}.k_proj",
+    "layer.{layer}.v_proj",
+    "layer.{layer}.q_norm",
+    "layer.{layer}.k_norm",
+    "layer.{layer}.q_rope",
+    "layer.{layer}.k_rope",
+    "layer.{layer}.token.{token}.attention_scores",
+    "layer.{layer}.token.{token}.attention_softmax",
+    "layer.{layer}.causal_gqa",
+    "layer.{layer}.o_proj",
+    "layer.{layer}.attention_residual",
+    "layer.{layer}.post_norm",
+    "layer.{layer}.gate_proj",
+    "layer.{layer}.up_proj",
+    "layer.{layer}.silu",
+    "layer.{layer}.swiglu",
+    "layer.{layer}.down_proj",
+    "layer.{layer}.output",
+    "final_norm",
+    "logits"
+  ]
+}

@@ -1,0 +1,1567 @@
+{
+  "schema_version": 1,
+  "model_id": "Qwen/Qwen3-0.6B",
+  "sequence_length": 1,
+  "description": "H100 tensor-core tile/occupancy model: same tile geometry as lab/exec_models.py's roofline model, costed as real mma.sync.aligned.m16n8k16 issues bounded by the published warp-occupancy cap (docs/references.md Sec.10).",
+  "constants": {
+    "sm_count": 132,
+    "tensor_cores_per_sm": 4,
+    "warp_size": 32,
+    "max_warps_per_sm": 64,
+    "mma_latency_cycles": 24.7,
+    "concurrent_tiles_across_die": 8448
+  },
+  "provenance": {
+    "sm_count": "[P] NVIDIA H100 Tensor Core GPU Architecture Whitepaper v1.02",
+    "tensor_cores_per_sm": "[P] NVIDIA H100 Tensor Core GPU Architecture Whitepaper v1.02",
+    "warp_size": "[P] CUDA C++ Programming Guide / PTX ISA",
+    "max_warps_per_sm": "[P] NVIDIA Hopper Tuning Guide, cc 9.0 occupancy table",
+    "mma_latency_cycles": "[S] arXiv:2206.02874 'Dissecting Tensor Cores via Microbenchmarks', measured on Ampere A100 -- no Hopper-specific figure is published; applied here as the closest published analog",
+    "occupancy_bound": "[E] warp-count ceiling only, not a tighter register/shared-memory-derived bound -- no footprint is published for this uncompiled kernel"
+  },
+  "stages": [
+    {
+      "stage": "embedding",
+      "geometry": {
+        "tiles_m": 1,
+        "tiles_n": 1,
+        "tiles_k": 64,
+        "total_tiles": 64
+      },
+      "concurrent_tiles": 8448,
+      "waves": 1,
+      "total_mma_cycles": 24.7,
+      "wave_trace": [
+        {
+          "wave": 0,
+          "tiles_issued": 64,
+          "occupancy_frac": 0.007575757575757576,
+          "tiles_remaining_after": 0,
+          "cycle_start": 0.0,
+          "cycle_end": 24.7
+        }
+      ]
+    },
+    {
+      "stage": "input_rmsnorm",
+      "geometry": {
+        "tiles_m": 1,
+        "tiles_n": 1,
+        "tiles_k": 64,
+        "total_tiles": 64
+      },
+      "concurrent_tiles": 8448,
+      "waves": 1,
+      "total_mma_cycles": 24.7,
+      "wave_trace": [
+        {
+          "wave": 0,
+          "tiles_issued": 64,
+          "occupancy_frac": 0.007575757575757576,
+          "tiles_remaining_after": 0,
+          "cycle_start": 0.0,
+          "cycle_end": 24.7
+        }
+      ]
+    },
+    {
+      "stage": "qkv_proj",
+      "geometry": {
+        "tiles_m": 1,
+        "tiles_n": 512,
+        "tiles_k": 64,
+        "total_tiles": 32768
+      },
+      "concurrent_tiles": 8448,
+      "waves": 4,
+      "total_mma_cycles": 98.8,
+      "wave_trace": [
+        {
+          "wave": 0,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 24320,
+          "cycle_start": 0.0,
+          "cycle_end": 24.7
+        },
+        {
+          "wave": 1,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 15872,
+          "cycle_start": 24.7,
+          "cycle_end": 49.4
+        },
+        {
+          "wave": 2,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 7424,
+          "cycle_start": 49.4,
+          "cycle_end": 74.1
+        },
+        {
+          "wave": 3,
+          "tiles_issued": 7424,
+          "occupancy_frac": 0.8787878787878788,
+          "tiles_remaining_after": 0,
+          "cycle_start": 74.1,
+          "cycle_end": 98.8
+        }
+      ]
+    },
+    {
+      "stage": "qk_norm",
+      "geometry": {
+        "tiles_m": 1,
+        "tiles_n": 1,
+        "tiles_k": 64,
+        "total_tiles": 64
+      },
+      "concurrent_tiles": 8448,
+      "waves": 1,
+      "total_mma_cycles": 24.7,
+      "wave_trace": [
+        {
+          "wave": 0,
+          "tiles_issued": 64,
+          "occupancy_frac": 0.007575757575757576,
+          "tiles_remaining_after": 0,
+          "cycle_start": 0.0,
+          "cycle_end": 24.7
+        }
+      ]
+    },
+    {
+      "stage": "rope",
+      "geometry": {
+        "tiles_m": 0,
+        "tiles_n": 0,
+        "tiles_k": 0,
+        "total_tiles": 0
+      },
+      "concurrent_tiles": 8448,
+      "waves": 0,
+      "total_mma_cycles": 0.0,
+      "wave_trace": []
+    },
+    {
+      "stage": "attn_scores",
+      "geometry": {
+        "tiles_m": 0,
+        "tiles_n": 0,
+        "tiles_k": 0,
+        "total_tiles": 0
+      },
+      "concurrent_tiles": 8448,
+      "waves": 0,
+      "total_mma_cycles": 0.0,
+      "wave_trace": []
+    },
+    {
+      "stage": "softmax",
+      "geometry": {
+        "tiles_m": 0,
+        "tiles_n": 0,
+        "tiles_k": 0,
+        "total_tiles": 0
+      },
+      "concurrent_tiles": 8448,
+      "waves": 0,
+      "total_mma_cycles": 0.0,
+      "wave_trace": []
+    },
+    {
+      "stage": "attn_value",
+      "geometry": {
+        "tiles_m": 0,
+        "tiles_n": 0,
+        "tiles_k": 0,
+        "total_tiles": 0
+      },
+      "concurrent_tiles": 8448,
+      "waves": 0,
+      "total_mma_cycles": 0.0,
+      "wave_trace": []
+    },
+    {
+      "stage": "o_proj",
+      "geometry": {
+        "tiles_m": 1,
+        "tiles_n": 256,
+        "tiles_k": 64,
+        "total_tiles": 16384
+      },
+      "concurrent_tiles": 8448,
+      "waves": 2,
+      "total_mma_cycles": 49.4,
+      "wave_trace": [
+        {
+          "wave": 0,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 7936,
+          "cycle_start": 0.0,
+          "cycle_end": 24.7
+        },
+        {
+          "wave": 1,
+          "tiles_issued": 7936,
+          "occupancy_frac": 0.9393939393939394,
+          "tiles_remaining_after": 0,
+          "cycle_start": 24.7,
+          "cycle_end": 49.4
+        }
+      ]
+    },
+    {
+      "stage": "attn_residual",
+      "geometry": {
+        "tiles_m": 0,
+        "tiles_n": 0,
+        "tiles_k": 0,
+        "total_tiles": 0
+      },
+      "concurrent_tiles": 8448,
+      "waves": 0,
+      "total_mma_cycles": 0.0,
+      "wave_trace": []
+    },
+    {
+      "stage": "post_rmsnorm",
+      "geometry": {
+        "tiles_m": 1,
+        "tiles_n": 1,
+        "tiles_k": 64,
+        "total_tiles": 64
+      },
+      "concurrent_tiles": 8448,
+      "waves": 1,
+      "total_mma_cycles": 24.7,
+      "wave_trace": [
+        {
+          "wave": 0,
+          "tiles_issued": 64,
+          "occupancy_frac": 0.007575757575757576,
+          "tiles_remaining_after": 0,
+          "cycle_start": 0.0,
+          "cycle_end": 24.7
+        }
+      ]
+    },
+    {
+      "stage": "gate_up_proj",
+      "geometry": {
+        "tiles_m": 1,
+        "tiles_n": 768,
+        "tiles_k": 64,
+        "total_tiles": 49152
+      },
+      "concurrent_tiles": 8448,
+      "waves": 6,
+      "total_mma_cycles": 148.2,
+      "wave_trace": [
+        {
+          "wave": 0,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 40704,
+          "cycle_start": 0.0,
+          "cycle_end": 24.7
+        },
+        {
+          "wave": 1,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 32256,
+          "cycle_start": 24.7,
+          "cycle_end": 49.4
+        },
+        {
+          "wave": 2,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 23808,
+          "cycle_start": 49.4,
+          "cycle_end": 74.1
+        },
+        {
+          "wave": 3,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 15360,
+          "cycle_start": 74.1,
+          "cycle_end": 98.8
+        },
+        {
+          "wave": 4,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 6912,
+          "cycle_start": 98.8,
+          "cycle_end": 123.5
+        },
+        {
+          "wave": 5,
+          "tiles_issued": 6912,
+          "occupancy_frac": 0.8181818181818182,
+          "tiles_remaining_after": 0,
+          "cycle_start": 123.5,
+          "cycle_end": 148.2
+        }
+      ]
+    },
+    {
+      "stage": "silu_swiglu",
+      "geometry": {
+        "tiles_m": 0,
+        "tiles_n": 0,
+        "tiles_k": 0,
+        "total_tiles": 0
+      },
+      "concurrent_tiles": 8448,
+      "waves": 0,
+      "total_mma_cycles": 0.0,
+      "wave_trace": []
+    },
+    {
+      "stage": "down_proj",
+      "geometry": {
+        "tiles_m": 1,
+        "tiles_n": 384,
+        "tiles_k": 64,
+        "total_tiles": 24576
+      },
+      "concurrent_tiles": 8448,
+      "waves": 3,
+      "total_mma_cycles": 74.1,
+      "wave_trace": [
+        {
+          "wave": 0,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 16128,
+          "cycle_start": 0.0,
+          "cycle_end": 24.7
+        },
+        {
+          "wave": 1,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 7680,
+          "cycle_start": 24.7,
+          "cycle_end": 49.4
+        },
+        {
+          "wave": 2,
+          "tiles_issued": 7680,
+          "occupancy_frac": 0.9090909090909091,
+          "tiles_remaining_after": 0,
+          "cycle_start": 49.4,
+          "cycle_end": 74.1
+        }
+      ]
+    },
+    {
+      "stage": "mlp_residual",
+      "geometry": {
+        "tiles_m": 0,
+        "tiles_n": 0,
+        "tiles_k": 0,
+        "total_tiles": 0
+      },
+      "concurrent_tiles": 8448,
+      "waves": 0,
+      "total_mma_cycles": 0.0,
+      "wave_trace": []
+    },
+    {
+      "stage": "final_rmsnorm",
+      "geometry": {
+        "tiles_m": 1,
+        "tiles_n": 1,
+        "tiles_k": 64,
+        "total_tiles": 64
+      },
+      "concurrent_tiles": 8448,
+      "waves": 1,
+      "total_mma_cycles": 24.7,
+      "wave_trace": [
+        {
+          "wave": 0,
+          "tiles_issued": 64,
+          "occupancy_frac": 0.007575757575757576,
+          "tiles_remaining_after": 0,
+          "cycle_start": 0.0,
+          "cycle_end": 24.7
+        }
+      ]
+    },
+    {
+      "stage": "lm_head",
+      "geometry": {
+        "tiles_m": 1,
+        "tiles_n": 18992,
+        "tiles_k": 64,
+        "total_tiles": 1215488
+      },
+      "concurrent_tiles": 8448,
+      "waves": 144,
+      "total_mma_cycles": 3556.7999999999915,
+      "wave_trace": [
+        {
+          "wave": 0,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 1207040,
+          "cycle_start": 0.0,
+          "cycle_end": 24.7
+        },
+        {
+          "wave": 1,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 1198592,
+          "cycle_start": 24.7,
+          "cycle_end": 49.4
+        },
+        {
+          "wave": 2,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 1190144,
+          "cycle_start": 49.4,
+          "cycle_end": 74.1
+        },
+        {
+          "wave": 3,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 1181696,
+          "cycle_start": 74.1,
+          "cycle_end": 98.8
+        },
+        {
+          "wave": 4,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 1173248,
+          "cycle_start": 98.8,
+          "cycle_end": 123.5
+        },
+        {
+          "wave": 5,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 1164800,
+          "cycle_start": 123.5,
+          "cycle_end": 148.2
+        },
+        {
+          "wave": 6,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 1156352,
+          "cycle_start": 148.2,
+          "cycle_end": 172.89999999999998
+        },
+        {
+          "wave": 7,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 1147904,
+          "cycle_start": 172.89999999999998,
+          "cycle_end": 197.59999999999997
+        },
+        {
+          "wave": 8,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 1139456,
+          "cycle_start": 197.59999999999997,
+          "cycle_end": 222.29999999999995
+        },
+        {
+          "wave": 9,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 1131008,
+          "cycle_start": 222.29999999999995,
+          "cycle_end": 246.99999999999994
+        },
+        {
+          "wave": 10,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 1122560,
+          "cycle_start": 246.99999999999994,
+          "cycle_end": 271.69999999999993
+        },
+        {
+          "wave": 11,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 1114112,
+          "cycle_start": 271.69999999999993,
+          "cycle_end": 296.3999999999999
+        },
+        {
+          "wave": 12,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 1105664,
+          "cycle_start": 296.3999999999999,
+          "cycle_end": 321.0999999999999
+        },
+        {
+          "wave": 13,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 1097216,
+          "cycle_start": 321.0999999999999,
+          "cycle_end": 345.7999999999999
+        },
+        {
+          "wave": 14,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 1088768,
+          "cycle_start": 345.7999999999999,
+          "cycle_end": 370.4999999999999
+        },
+        {
+          "wave": 15,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 1080320,
+          "cycle_start": 370.4999999999999,
+          "cycle_end": 395.1999999999999
+        },
+        {
+          "wave": 16,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 1071872,
+          "cycle_start": 395.1999999999999,
+          "cycle_end": 419.89999999999986
+        },
+        {
+          "wave": 17,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 1063424,
+          "cycle_start": 419.89999999999986,
+          "cycle_end": 444.59999999999985
+        },
+        {
+          "wave": 18,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 1054976,
+          "cycle_start": 444.59999999999985,
+          "cycle_end": 469.29999999999984
+        },
+        {
+          "wave": 19,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 1046528,
+          "cycle_start": 469.29999999999984,
+          "cycle_end": 493.99999999999983
+        },
+        {
+          "wave": 20,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 1038080,
+          "cycle_start": 493.99999999999983,
+          "cycle_end": 518.6999999999998
+        },
+        {
+          "wave": 21,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 1029632,
+          "cycle_start": 518.6999999999998,
+          "cycle_end": 543.3999999999999
+        },
+        {
+          "wave": 22,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 1021184,
+          "cycle_start": 543.3999999999999,
+          "cycle_end": 568.0999999999999
+        },
+        {
+          "wave": 23,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 1012736,
+          "cycle_start": 568.0999999999999,
+          "cycle_end": 592.8
+        },
+        {
+          "wave": 24,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 1004288,
+          "cycle_start": 592.8,
+          "cycle_end": 617.5
+        },
+        {
+          "wave": 25,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 995840,
+          "cycle_start": 617.5,
+          "cycle_end": 642.2
+        },
+        {
+          "wave": 26,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 987392,
+          "cycle_start": 642.2,
+          "cycle_end": 666.9000000000001
+        },
+        {
+          "wave": 27,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 978944,
+          "cycle_start": 666.9000000000001,
+          "cycle_end": 691.6000000000001
+        },
+        {
+          "wave": 28,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 970496,
+          "cycle_start": 691.6000000000001,
+          "cycle_end": 716.3000000000002
+        },
+        {
+          "wave": 29,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 962048,
+          "cycle_start": 716.3000000000002,
+          "cycle_end": 741.0000000000002
+        },
+        {
+          "wave": 30,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 953600,
+          "cycle_start": 741.0000000000002,
+          "cycle_end": 765.7000000000003
+        },
+        {
+          "wave": 31,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 945152,
+          "cycle_start": 765.7000000000003,
+          "cycle_end": 790.4000000000003
+        },
+        {
+          "wave": 32,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 936704,
+          "cycle_start": 790.4000000000003,
+          "cycle_end": 815.1000000000004
+        },
+        {
+          "wave": 33,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 928256,
+          "cycle_start": 815.1000000000004,
+          "cycle_end": 839.8000000000004
+        },
+        {
+          "wave": 34,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 919808,
+          "cycle_start": 839.8000000000004,
+          "cycle_end": 864.5000000000005
+        },
+        {
+          "wave": 35,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 911360,
+          "cycle_start": 864.5000000000005,
+          "cycle_end": 889.2000000000005
+        },
+        {
+          "wave": 36,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 902912,
+          "cycle_start": 889.2000000000005,
+          "cycle_end": 913.9000000000005
+        },
+        {
+          "wave": 37,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 894464,
+          "cycle_start": 913.9000000000005,
+          "cycle_end": 938.6000000000006
+        },
+        {
+          "wave": 38,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 886016,
+          "cycle_start": 938.6000000000006,
+          "cycle_end": 963.3000000000006
+        },
+        {
+          "wave": 39,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 877568,
+          "cycle_start": 963.3000000000006,
+          "cycle_end": 988.0000000000007
+        },
+        {
+          "wave": 40,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 869120,
+          "cycle_start": 988.0000000000007,
+          "cycle_end": 1012.7000000000007
+        },
+        {
+          "wave": 41,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 860672,
+          "cycle_start": 1012.7000000000007,
+          "cycle_end": 1037.4000000000008
+        },
+        {
+          "wave": 42,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 852224,
+          "cycle_start": 1037.4000000000008,
+          "cycle_end": 1062.1000000000008
+        },
+        {
+          "wave": 43,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 843776,
+          "cycle_start": 1062.1000000000008,
+          "cycle_end": 1086.8000000000009
+        },
+        {
+          "wave": 44,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 835328,
+          "cycle_start": 1086.8000000000009,
+          "cycle_end": 1111.500000000001
+        },
+        {
+          "wave": 45,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 826880,
+          "cycle_start": 1111.500000000001,
+          "cycle_end": 1136.200000000001
+        },
+        {
+          "wave": 46,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 818432,
+          "cycle_start": 1136.200000000001,
+          "cycle_end": 1160.900000000001
+        },
+        {
+          "wave": 47,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 809984,
+          "cycle_start": 1160.900000000001,
+          "cycle_end": 1185.600000000001
+        },
+        {
+          "wave": 48,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 801536,
+          "cycle_start": 1185.600000000001,
+          "cycle_end": 1210.300000000001
+        },
+        {
+          "wave": 49,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 793088,
+          "cycle_start": 1210.300000000001,
+          "cycle_end": 1235.0000000000011
+        },
+        {
+          "wave": 50,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 784640,
+          "cycle_start": 1235.0000000000011,
+          "cycle_end": 1259.7000000000012
+        },
+        {
+          "wave": 51,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 776192,
+          "cycle_start": 1259.7000000000012,
+          "cycle_end": 1284.4000000000012
+        },
+        {
+          "wave": 52,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 767744,
+          "cycle_start": 1284.4000000000012,
+          "cycle_end": 1309.1000000000013
+        },
+        {
+          "wave": 53,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 759296,
+          "cycle_start": 1309.1000000000013,
+          "cycle_end": 1333.8000000000013
+        },
+        {
+          "wave": 54,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 750848,
+          "cycle_start": 1333.8000000000013,
+          "cycle_end": 1358.5000000000014
+        },
+        {
+          "wave": 55,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 742400,
+          "cycle_start": 1358.5000000000014,
+          "cycle_end": 1383.2000000000014
+        },
+        {
+          "wave": 56,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 733952,
+          "cycle_start": 1383.2000000000014,
+          "cycle_end": 1407.9000000000015
+        },
+        {
+          "wave": 57,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 725504,
+          "cycle_start": 1407.9000000000015,
+          "cycle_end": 1432.6000000000015
+        },
+        {
+          "wave": 58,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 717056,
+          "cycle_start": 1432.6000000000015,
+          "cycle_end": 1457.3000000000015
+        },
+        {
+          "wave": 59,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 708608,
+          "cycle_start": 1457.3000000000015,
+          "cycle_end": 1482.0000000000016
+        },
+        {
+          "wave": 60,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 700160,
+          "cycle_start": 1482.0000000000016,
+          "cycle_end": 1506.7000000000016
+        },
+        {
+          "wave": 61,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 691712,
+          "cycle_start": 1506.7000000000016,
+          "cycle_end": 1531.4000000000017
+        },
+        {
+          "wave": 62,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 683264,
+          "cycle_start": 1531.4000000000017,
+          "cycle_end": 1556.1000000000017
+        },
+        {
+          "wave": 63,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 674816,
+          "cycle_start": 1556.1000000000017,
+          "cycle_end": 1580.8000000000018
+        },
+        {
+          "wave": 64,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 666368,
+          "cycle_start": 1580.8000000000018,
+          "cycle_end": 1605.5000000000018
+        },
+        {
+          "wave": 65,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 657920,
+          "cycle_start": 1605.5000000000018,
+          "cycle_end": 1630.2000000000019
+        },
+        {
+          "wave": 66,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 649472,
+          "cycle_start": 1630.2000000000019,
+          "cycle_end": 1654.900000000002
+        },
+        {
+          "wave": 67,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 641024,
+          "cycle_start": 1654.900000000002,
+          "cycle_end": 1679.600000000002
+        },
+        {
+          "wave": 68,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 632576,
+          "cycle_start": 1679.600000000002,
+          "cycle_end": 1704.300000000002
+        },
+        {
+          "wave": 69,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 624128,
+          "cycle_start": 1704.300000000002,
+          "cycle_end": 1729.000000000002
+        },
+        {
+          "wave": 70,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 615680,
+          "cycle_start": 1729.000000000002,
+          "cycle_end": 1753.700000000002
+        },
+        {
+          "wave": 71,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 607232,
+          "cycle_start": 1753.700000000002,
+          "cycle_end": 1778.4000000000021
+        },
+        {
+          "wave": 72,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 598784,
+          "cycle_start": 1778.4000000000021,
+          "cycle_end": 1803.1000000000022
+        },
+        {
+          "wave": 73,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 590336,
+          "cycle_start": 1803.1000000000022,
+          "cycle_end": 1827.8000000000022
+        },
+        {
+          "wave": 74,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 581888,
+          "cycle_start": 1827.8000000000022,
+          "cycle_end": 1852.5000000000023
+        },
+        {
+          "wave": 75,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 573440,
+          "cycle_start": 1852.5000000000023,
+          "cycle_end": 1877.2000000000023
+        },
+        {
+          "wave": 76,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 564992,
+          "cycle_start": 1877.2000000000023,
+          "cycle_end": 1901.9000000000024
+        },
+        {
+          "wave": 77,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 556544,
+          "cycle_start": 1901.9000000000024,
+          "cycle_end": 1926.6000000000024
+        },
+        {
+          "wave": 78,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 548096,
+          "cycle_start": 1926.6000000000024,
+          "cycle_end": 1951.3000000000025
+        },
+        {
+          "wave": 79,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 539648,
+          "cycle_start": 1951.3000000000025,
+          "cycle_end": 1976.0000000000025
+        },
+        {
+          "wave": 80,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 531200,
+          "cycle_start": 1976.0000000000025,
+          "cycle_end": 2000.7000000000025
+        },
+        {
+          "wave": 81,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 522752,
+          "cycle_start": 2000.7000000000025,
+          "cycle_end": 2025.4000000000026
+        },
+        {
+          "wave": 82,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 514304,
+          "cycle_start": 2025.4000000000026,
+          "cycle_end": 2050.1000000000026
+        },
+        {
+          "wave": 83,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 505856,
+          "cycle_start": 2050.1000000000026,
+          "cycle_end": 2074.8000000000025
+        },
+        {
+          "wave": 84,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 497408,
+          "cycle_start": 2074.8000000000025,
+          "cycle_end": 2099.5000000000023
+        },
+        {
+          "wave": 85,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 488960,
+          "cycle_start": 2099.5000000000023,
+          "cycle_end": 2124.200000000002
+        },
+        {
+          "wave": 86,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 480512,
+          "cycle_start": 2124.200000000002,
+          "cycle_end": 2148.900000000002
+        },
+        {
+          "wave": 87,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 472064,
+          "cycle_start": 2148.900000000002,
+          "cycle_end": 2173.6000000000017
+        },
+        {
+          "wave": 88,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 463616,
+          "cycle_start": 2173.6000000000017,
+          "cycle_end": 2198.3000000000015
+        },
+        {
+          "wave": 89,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 455168,
+          "cycle_start": 2198.3000000000015,
+          "cycle_end": 2223.0000000000014
+        },
+        {
+          "wave": 90,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 446720,
+          "cycle_start": 2223.0000000000014,
+          "cycle_end": 2247.700000000001
+        },
+        {
+          "wave": 91,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 438272,
+          "cycle_start": 2247.700000000001,
+          "cycle_end": 2272.400000000001
+        },
+        {
+          "wave": 92,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 429824,
+          "cycle_start": 2272.400000000001,
+          "cycle_end": 2297.100000000001
+        },
+        {
+          "wave": 93,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 421376,
+          "cycle_start": 2297.100000000001,
+          "cycle_end": 2321.8000000000006
+        },
+        {
+          "wave": 94,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 412928,
+          "cycle_start": 2321.8000000000006,
+          "cycle_end": 2346.5000000000005
+        },
+        {
+          "wave": 95,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 404480,
+          "cycle_start": 2346.5000000000005,
+          "cycle_end": 2371.2000000000003
+        },
+        {
+          "wave": 96,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 396032,
+          "cycle_start": 2371.2000000000003,
+          "cycle_end": 2395.9
+        },
+        {
+          "wave": 97,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 387584,
+          "cycle_start": 2395.9,
+          "cycle_end": 2420.6
+        },
+        {
+          "wave": 98,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 379136,
+          "cycle_start": 2420.6,
+          "cycle_end": 2445.2999999999997
+        },
+        {
+          "wave": 99,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 370688,
+          "cycle_start": 2445.2999999999997,
+          "cycle_end": 2469.9999999999995
+        },
+        {
+          "wave": 100,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 362240,
+          "cycle_start": 2469.9999999999995,
+          "cycle_end": 2494.6999999999994
+        },
+        {
+          "wave": 101,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 353792,
+          "cycle_start": 2494.6999999999994,
+          "cycle_end": 2519.399999999999
+        },
+        {
+          "wave": 102,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 345344,
+          "cycle_start": 2519.399999999999,
+          "cycle_end": 2544.099999999999
+        },
+        {
+          "wave": 103,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 336896,
+          "cycle_start": 2544.099999999999,
+          "cycle_end": 2568.799999999999
+        },
+        {
+          "wave": 104,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 328448,
+          "cycle_start": 2568.799999999999,
+          "cycle_end": 2593.4999999999986
+        },
+        {
+          "wave": 105,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 320000,
+          "cycle_start": 2593.4999999999986,
+          "cycle_end": 2618.1999999999985
+        },
+        {
+          "wave": 106,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 311552,
+          "cycle_start": 2618.1999999999985,
+          "cycle_end": 2642.8999999999983
+        },
+        {
+          "wave": 107,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 303104,
+          "cycle_start": 2642.8999999999983,
+          "cycle_end": 2667.599999999998
+        },
+        {
+          "wave": 108,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 294656,
+          "cycle_start": 2667.599999999998,
+          "cycle_end": 2692.299999999998
+        },
+        {
+          "wave": 109,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 286208,
+          "cycle_start": 2692.299999999998,
+          "cycle_end": 2716.9999999999977
+        },
+        {
+          "wave": 110,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 277760,
+          "cycle_start": 2716.9999999999977,
+          "cycle_end": 2741.6999999999975
+        },
+        {
+          "wave": 111,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 269312,
+          "cycle_start": 2741.6999999999975,
+          "cycle_end": 2766.3999999999974
+        },
+        {
+          "wave": 112,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 260864,
+          "cycle_start": 2766.3999999999974,
+          "cycle_end": 2791.099999999997
+        },
+        {
+          "wave": 113,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 252416,
+          "cycle_start": 2791.099999999997,
+          "cycle_end": 2815.799999999997
+        },
+        {
+          "wave": 114,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 243968,
+          "cycle_start": 2815.799999999997,
+          "cycle_end": 2840.499999999997
+        },
+        {
+          "wave": 115,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 235520,
+          "cycle_start": 2840.499999999997,
+          "cycle_end": 2865.1999999999966
+        },
+        {
+          "wave": 116,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 227072,
+          "cycle_start": 2865.1999999999966,
+          "cycle_end": 2889.8999999999965
+        },
+        {
+          "wave": 117,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 218624,
+          "cycle_start": 2889.8999999999965,
+          "cycle_end": 2914.5999999999963
+        },
+        {
+          "wave": 118,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 210176,
+          "cycle_start": 2914.5999999999963,
+          "cycle_end": 2939.299999999996
+        },
+        {
+          "wave": 119,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 201728,
+          "cycle_start": 2939.299999999996,
+          "cycle_end": 2963.999999999996
+        },
+        {
+          "wave": 120,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 193280,
+          "cycle_start": 2963.999999999996,
+          "cycle_end": 2988.6999999999957
+        },
+        {
+          "wave": 121,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 184832,
+          "cycle_start": 2988.6999999999957,
+          "cycle_end": 3013.3999999999955
+        },
+        {
+          "wave": 122,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 176384,
+          "cycle_start": 3013.3999999999955,
+          "cycle_end": 3038.0999999999954
+        },
+        {
+          "wave": 123,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 167936,
+          "cycle_start": 3038.0999999999954,
+          "cycle_end": 3062.799999999995
+        },
+        {
+          "wave": 124,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 159488,
+          "cycle_start": 3062.799999999995,
+          "cycle_end": 3087.499999999995
+        },
+        {
+          "wave": 125,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 151040,
+          "cycle_start": 3087.499999999995,
+          "cycle_end": 3112.199999999995
+        },
+        {
+          "wave": 126,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 142592,
+          "cycle_start": 3112.199999999995,
+          "cycle_end": 3136.8999999999946
+        },
+        {
+          "wave": 127,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 134144,
+          "cycle_start": 3136.8999999999946,
+          "cycle_end": 3161.5999999999945
+        },
+        {
+          "wave": 128,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 125696,
+          "cycle_start": 3161.5999999999945,
+          "cycle_end": 3186.2999999999943
+        },
+        {
+          "wave": 129,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 117248,
+          "cycle_start": 3186.2999999999943,
+          "cycle_end": 3210.999999999994
+        },
+        {
+          "wave": 130,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 108800,
+          "cycle_start": 3210.999999999994,
+          "cycle_end": 3235.699999999994
+        },
+        {
+          "wave": 131,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 100352,
+          "cycle_start": 3235.699999999994,
+          "cycle_end": 3260.3999999999937
+        },
+        {
+          "wave": 132,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 91904,
+          "cycle_start": 3260.3999999999937,
+          "cycle_end": 3285.0999999999935
+        },
+        {
+          "wave": 133,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 83456,
+          "cycle_start": 3285.0999999999935,
+          "cycle_end": 3309.7999999999934
+        },
+        {
+          "wave": 134,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 75008,
+          "cycle_start": 3309.7999999999934,
+          "cycle_end": 3334.499999999993
+        },
+        {
+          "wave": 135,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 66560,
+          "cycle_start": 3334.499999999993,
+          "cycle_end": 3359.199999999993
+        },
+        {
+          "wave": 136,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 58112,
+          "cycle_start": 3359.199999999993,
+          "cycle_end": 3383.899999999993
+        },
+        {
+          "wave": 137,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 49664,
+          "cycle_start": 3383.899999999993,
+          "cycle_end": 3408.5999999999926
+        },
+        {
+          "wave": 138,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 41216,
+          "cycle_start": 3408.5999999999926,
+          "cycle_end": 3433.2999999999925
+        },
+        {
+          "wave": 139,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 32768,
+          "cycle_start": 3433.2999999999925,
+          "cycle_end": 3457.9999999999923
+        },
+        {
+          "wave": 140,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 24320,
+          "cycle_start": 3457.9999999999923,
+          "cycle_end": 3482.699999999992
+        },
+        {
+          "wave": 141,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 15872,
+          "cycle_start": 3482.699999999992,
+          "cycle_end": 3507.399999999992
+        },
+        {
+          "wave": 142,
+          "tiles_issued": 8448,
+          "occupancy_frac": 1.0,
+          "tiles_remaining_after": 7424,
+          "cycle_start": 3507.399999999992,
+          "cycle_end": 3532.0999999999917
+        },
+        {
+          "wave": 143,
+          "tiles_issued": 7424,
+          "occupancy_frac": 0.8787878787878788,
+          "tiles_remaining_after": 0,
+          "cycle_start": 3532.0999999999917,
+          "cycle_end": 3556.7999999999915
+        }
+      ]
+    }
+  ]
+}

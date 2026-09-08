@@ -1,0 +1,31 @@
+{
+  "arithmetic_profile": "qwen-ref-v2",
+  "combined_order": [
+    "exp_negative",
+    "reciprocal_sqrt",
+    "rope_cos_sin"
+  ],
+  "combined_sha256": "cfefa345f74f045aef0fa94723260770f3a1fdde5bfaa61e4dc266bbd86f1d20",
+  "schema": "qwen-ref-table-manifest-v1",
+  "tables": {
+    "exp_negative": {
+      "address": "i=-256*x, i=0..4096",
+      "python_symbol": "EXP_NEG_F32_BITS",
+      "sha256": "805b38599ddccddbff56ee8bcfe220756d9a8978aa36df9ebe9d30f06ad9ce67",
+      "words": 4097
+    },
+    "reciprocal_sqrt": {
+      "address": "i=256*(normalized_x-1), i=0..768",
+      "python_symbol": "RSQRT_F32_BITS",
+      "sha256": "fa0c5b5049c4a66406f7594e55a4acf129db42503dc9000c949ddb2beef067cd",
+      "words": 769
+    },
+    "rope_cos_sin": {
+      "address": "((position*64+pair)*2)+component; cos=0,sin=1",
+      "python_symbol": "ROPE_COS_SIN_F32_BITS",
+      "sha256": "f4f531c59d6e777a714f1a5c6e7d7bb3fe99d11586601503c880b7dacec3e308",
+      "words": 16384
+    }
+  },
+  "word_encoding": "little-endian-ieee754-binary32"
+}

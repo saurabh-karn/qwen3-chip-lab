@@ -1,0 +1,12 @@
+{
+  "clock_mhz": 500,
+  "rom_banks": 8,
+  "rom_width_bits": 128,
+  "rom_latency": 2,
+  "sram_banks": 8,
+  "sram_ports": 2,
+  "sram_latency": 1,
+  "mac_lanes": 256,
+  "accumulator_bits": 32,
+  "pipeline_depth": 6
+}

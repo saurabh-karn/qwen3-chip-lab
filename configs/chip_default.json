@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "name": "balanced_256lane",
+  "model_manifest": "configs/qwen3_0_6b.json",
+  "arithmetic_profile": "bf16_mul_fp32_acc_v1",
+  "clock_hz": 500000000,
+  "compute": {
+    "mac_lanes": 256,
+    "accumulator": "fp32",
+    "pipeline_depth": 4,
+    "shared_rmsnorm": true,
+    "shared_rope": true,
+    "shared_softmax": true
+  },
+  "rom": {
+    "banks": 32,
+    "read_width_bits": 512,
+    "ports_per_bank": 1,
+    "read_latency_cycles": 2,
+    "replicas": 1
+  },
+  "sram": {
+    "banks": 16,
+    "ports_per_bank": 2,
+    "read_latency_cycles": 1,
+    "write_latency_cycles": 1,
+    "word_width_bits": 32,
+    "ping_pong_activations": true
+  },
+  "trace": {
+    "enabled": true,
+    "sample_stride": 128,
+    "emit_memory_events": true
+  }
+}
