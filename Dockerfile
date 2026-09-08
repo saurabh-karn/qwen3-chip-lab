@@ -11,6 +11,7 @@ COPY qwen_ref /app/qwen_ref
 COPY configs /app/configs
 COPY evidence /app/evidence
 COPY spec /app/spec
+COPY artifacts /app/artifacts
 
 ENV PYTHONPATH=/app
 ENV HOST=0.0.0.0
