@@ -496,6 +496,7 @@
     prompt: "",
     predictedText: "",
     rtlSignedOff: false,
+    replayOnly: false,
     viewLayer: 0,
     lastHotOp: null,
     layerSeen: new Set(),
@@ -2124,9 +2125,16 @@
       if (body.ready) {
         const signed = !!body.rtl_signed_off;
         state.rtlSignedOff = signed;
+        state.replayOnly = false;
         setBadge($("readyBadge"), signed ? "ROM signed off · RTL only" : "ROM + tokenizer ready", "ok");
         const btn = $("verifyBtn");
         if (btn && !SHARE_DEMO) btn.textContent = signed ? "Run chip" : "Compare full statement";
+        $("formError").hidden = true;
+      } else if (body.replay_only || body.tokenizer) {
+        state.replayOnly = true;
+        setBadge($("readyBadge"), "recorded replay", "ok");
+        const btn = $("verifyBtn");
+        if (btn) btn.textContent = "Replay statement";
         $("formError").hidden = true;
       } else {
         setBadge($("readyBadge"), "ROM missing", "bad");
@@ -2229,7 +2237,8 @@
       if (!res.ok) throw new Error(typeof body.detail === "string" ? body.detail : JSON.stringify(body.detail));
       state.tokenIds = body.token_ids || state.tokenIds;
       paintTokens(state.tokenIds, 0);
-      if (body.status === "cached" || body.status === "partial") {
+      if (body.status === "cached" || body.status === "partial" ||
+          (body.timeline && body.timeline.length && body.status !== "running")) {
         applyReplay(body);
         return;
       }

@@ -157,17 +157,20 @@ def _ready() -> dict[str, Any]:
     rom_ok = ROM.is_file()
     manifest_ok = MANIFEST.is_file()
     tokenizer_ok = TOKENIZER.is_file()
+    live = rom_ok and manifest_ok and tokenizer_ok
+    replay_only = tokenizer_ok and not live
     return {
         "rom": rom_ok,
         "manifest": manifest_ok,
         "tokenizer": tokenizer_ok,
-        "ready": rom_ok and manifest_ok and tokenizer_ok,
+        "ready": live,
+        "replay_only": replay_only,
         "rom_path": str(ROM),
         "manifest_path": str(MANIFEST),
         "tokenizer_path": str(TOKENIZER),
         "rom_bytes": ROM.stat().st_size if rom_ok else 0,
         "rtl_signed_off": _signed_off() is not None,
-        "error": None if (rom_ok and manifest_ok and tokenizer_ok) else (
+        "error": None if live or replay_only else (
             "Missing packed ROM or tokenizer. Stage artifacts/qwen3.bf16rom "
             "and artifacts/tokenizer.json locally."
         ),
@@ -1107,12 +1110,20 @@ def api_verify(body: VerifyRequest) -> dict[str, Any]:
     if tier not in {"T2", "T3", "T4", "T5"}:
         raise HTTPException(400, "tier must be T2, T3, T4, or T5")
     ready = _ready()
-    if not ready["ready"]:
-        raise HTTPException(400, ready["error"])
     try:
         token_ids = _tokenize(text, TOKENIZER)
     except (FileNotFoundError, ValueError) as exc:
         raise HTTPException(400, str(exc)) from exc
+    if not ready["ready"]:
+        # Hosted deck has tokenizer + cached walks, not the 1.2GB ROM.
+        replay = _replay_payload(text, token_ids, tier)
+        if replay.get("status") != "miss":
+            return replay
+        raise HTTPException(
+            400,
+            "This hosted deck replays cached walks only. "
+            "Live Python vs RTL needs artifacts/qwen3.bf16rom on a local machine.",
+        )
 
     signed = _signed_off()
     if signed and not body.force_verify:
