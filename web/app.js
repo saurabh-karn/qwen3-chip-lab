@@ -1645,13 +1645,38 @@
       offset: String(offset),
       limit: String(limit)
     });
-    if (state.workDir) params.set("work_dir", state.workDir);
-    const res = await apiFetch(`/api/tensor?${params}`);
-    if (!res.ok) {
-      const body = await res.json().catch(() => ({}));
-      throw new Error(body.detail || res.statusText);
+    if (state.workDir) {
+      const runId = String(state.workDir).split(/[/\\]/).filter(Boolean).pop();
+      if (runId) params.set("work_dir", runId);
     }
-    return res.json();
+    const sampled = () => rec.values && rec.values.length && Number(offset) === 0
+      ? {
+          event: rec.event,
+          source,
+          shape: rec.shape || [],
+          elements: rec.elements || rec.values.length,
+          offset: 0,
+          values: rec.values,
+          sampled: true
+        }
+      : null;
+    try {
+      const res = await apiFetch(`/api/tensor?${params}`);
+      if (!res.ok) {
+        const fallback = sampled();
+        if (fallback) return fallback;
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.detail || res.statusText);
+      }
+      return res.json();
+    } catch (err) {
+      const fallback = sampled();
+      if (fallback) return fallback;
+      const msg = err && err.message === "Failed to fetch"
+        ? "tensor endpoint unreachable"
+        : (err && err.message) || "checkpoint missing";
+      throw new Error(msg);
+    }
   }
 
   async function loadShareTensor(rec, source, offset, limit) {

@@ -901,7 +901,7 @@ def _event_shape(work: Path, event: str) -> list[int]:
 
 
 def _resolve_work_dir(job_id: str | None, work_dir: str | None) -> Path | None:
-    """Prefer the explicit job/work dir; fall back to the latest evidence."""
+    """Prefer the explicit job/work dir; fall back to a run that can replay."""
     candidate = _canonical_work_dir(work_dir)
     if candidate is not None:
         return candidate
@@ -914,8 +914,56 @@ def _resolve_work_dir(job_id: str | None, work_dir: str | None) -> Path | None:
                 return candidate
     evidence = _read_json(VERIFY_JSON)
     if evidence:
-        return _canonical_work_dir(evidence.get("work_dir"))
-    return None
+        candidate = _canonical_work_dir(evidence.get("work_dir"))
+        if candidate is not None:
+            return candidate
+    return _newest_run_dir()
+
+
+def _newest_run_dir() -> Path | None:
+    if not RUNS.is_dir():
+        return None
+    best: tuple[float, Path] | None = None
+    for d in RUNS.iterdir():
+        if not d.is_dir():
+            continue
+        marker = d / "python.ndjson"
+        if not marker.is_file():
+            marker = d / "python.filtered.ndjson"
+        if not marker.is_file():
+            continue
+        try:
+            mtime = marker.stat().st_mtime
+        except OSError:
+            mtime = 0.0
+        if best is None or mtime > best[0]:
+            best = (mtime, d)
+    return best[1] if best else None
+
+
+def _tensor_run_dirs(job_id: str | None, work_dir: str | None) -> list[Path]:
+    """Search the named run first, then any sibling with traces or checkpoints."""
+    ordered: list[Path] = []
+    seen: set[str] = set()
+
+    def add(path: Path | None) -> None:
+        if path is None or not path.is_dir():
+            return
+        key = str(path.resolve()) if path.exists() else str(path)
+        if key in seen:
+            return
+        seen.add(key)
+        ordered.append(path)
+
+    add(_resolve_work_dir(job_id, work_dir))
+    if work_dir:
+        add(RUNS / Path(work_dir).name)
+    newest = _newest_run_dir()
+    add(newest)
+    if RUNS.is_dir():
+        for d in sorted(RUNS.iterdir(), key=lambda p: p.stat().st_mtime if p.is_dir() else 0, reverse=True):
+            add(d)
+    return ordered
 
 
 @app.get("/api/tensor")
@@ -929,36 +977,32 @@ def api_tensor(
 ) -> dict[str, Any]:
     if source not in {"python", "rtl"}:
         raise HTTPException(400, "source must be python or rtl")
-    work = _resolve_work_dir(job_id, work_dir)
-    if work is None:
-        raise HTTPException(404, "no run work dir found for this request")
     safe = event.replace("/", "_").replace(".", "_") + ".f32le"
-    path = work / f"{source}_checkpoints" / safe
-    if path.is_file():
-        blob = path.read_bytes()
-        total = len(blob) // 4
-        offset = max(0, int(offset))
-        limit = min(max(1, int(limit)), 8192)
-        end = min(total, offset + limit)
-        count = end - offset
-        values = list(struct.unpack("<" + "f" * count, blob[offset * 4:end * 4])) if count else []
-        return {
-            "event": event,
-            "source": source,
-            "shape": _event_shape(work, event),
-            "elements": total,
-            "offset": offset,
-            "values": values,
-        }
-    # Deployed images keep the compact ndjson walk, not the 275MB checkpoint
-    # dumps. Serve the recorded sample vector so inspect/replay still works.
-    record = _ndjson_record(work, event, source)
+    offset = max(0, int(offset))
+    limit = min(max(1, int(limit)), 8192)
+    record = None
+    for work in _tensor_run_dirs(job_id, work_dir):
+        path = work / f"{source}_checkpoints" / safe
+        if path.is_file():
+            blob = path.read_bytes()
+            total = len(blob) // 4
+            end = min(total, offset + limit)
+            count = end - offset
+            values = list(struct.unpack("<" + "f" * count, blob[offset * 4:end * 4])) if count else []
+            return {
+                "event": event,
+                "source": source,
+                "shape": _event_shape(work, event),
+                "elements": total,
+                "offset": offset,
+                "values": values,
+            }
+        if record is None:
+            record = _ndjson_record(work, event, source)
     if not record:
         raise HTTPException(404, f"no {source} checkpoint for {event}")
     values = list(record.get("values") or [])
     total = int(record.get("elements") or len(values))
-    offset = max(0, int(offset))
-    limit = min(max(1, int(limit)), 8192)
     return {
         "event": event,
         "source": source,

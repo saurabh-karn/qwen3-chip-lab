@@ -367,6 +367,7 @@ def asic_estimate(model: dict[str, Any], seq: int) -> dict[str, Any]:
         energy_source = "measured_fused_t4_counters"
     else:
         cycles = (counted + lanes - 1) // lanes
+        latency_source = "idealized_schedule_model"
         energy_macs = counted
         energy_rom_bits = t["weight_bytes"] * 8
         energy_source = "idealized_schedule_model"
