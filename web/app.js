@@ -2648,8 +2648,8 @@
 
   function renderWalk() {
     const wrap = $("walkStrip");
-    const w = state.walk;
-    if (!wrap || !w) return;
+    const w = (state.walks || {})[state.walkSched || "fused"];
+    if (!wrap || !w || !Array.isArray(w.layers) || !w.layers.length) return;
     const clock = 500e6;
     const maxCyc = Math.max(...w.layers.map((l) => l.cycles));
     const rows = w.layers.map((l) => {
@@ -6393,7 +6393,7 @@
     setGpuSpeed(gpuAnim.speedIdx);
     paintGpuCycle();
     const reduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    gpuTogglePlay(!reduced && !gpuExperienceMounted);
+    gpuTogglePlay(!reduced);
   }
 
   function stopGpuAnim() {

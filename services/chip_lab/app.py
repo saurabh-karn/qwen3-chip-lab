@@ -712,6 +712,7 @@ def api_deck_evidence(name: str) -> dict[str, Any]:
         "multi_die_scaling": "multi_die_scaling.json",
         "gpu_tile_sim": "gpu_tile_sim.json",
         "machine_timelines": "machine_timelines.json",
+        "hw_comparison": "hw_comparison.json",
     }
     if name not in allowed:
         raise HTTPException(404, "unknown deck evidence file")
@@ -865,24 +866,35 @@ def api_verify_status(job_id: str) -> dict[str, Any]:
     return _job_view(snapshot)
 
 
-def _event_shape(work: Path, event: str) -> list[int]:
-    path = work / "python.ndjson"
-    if not path.is_file():
-        return []
-    try:
-        lines = path.read_text(encoding="utf-8").splitlines()
-    except OSError:
-        return []
-    for line in lines:
-        if not line.strip():
+def _ndjson_record(work: Path, event: str, source: str = "python") -> dict[str, Any] | None:
+    names = ("rtl.ndjson", "rtl.filtered.ndjson", "python.ndjson", "python.filtered.ndjson")
+    if source != "rtl":
+        names = ("python.ndjson", "python.filtered.ndjson")
+    for name in names:
+        path = work / name
+        if not path.is_file():
             continue
         try:
-            record = json.loads(line)
-        except json.JSONDecodeError:
+            lines = path.read_text(encoding="utf-8").splitlines()
+        except OSError:
             continue
-        if record.get("event") == event:
-            return list(record.get("shape") or [])
-    return []
+        for line in lines:
+            if not line.strip():
+                continue
+            try:
+                record = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+            if record.get("event") == event:
+                return record
+    return None
+
+
+def _event_shape(work: Path, event: str) -> list[int]:
+    record = _ndjson_record(work, event, "python") or _ndjson_record(work, event, "rtl")
+    if not record:
+        return []
+    return list(record.get("shape") or [])
 
 
 def _resolve_work_dir(job_id: str | None, work_dir: str | None) -> Path | None:
@@ -919,22 +931,39 @@ def api_tensor(
         raise HTTPException(404, "no run work dir found for this request")
     safe = event.replace("/", "_").replace(".", "_") + ".f32le"
     path = work / f"{source}_checkpoints" / safe
-    if not path.is_file():
+    if path.is_file():
+        blob = path.read_bytes()
+        total = len(blob) // 4
+        offset = max(0, int(offset))
+        limit = min(max(1, int(limit)), 8192)
+        end = min(total, offset + limit)
+        count = end - offset
+        values = list(struct.unpack("<" + "f" * count, blob[offset * 4:end * 4])) if count else []
+        return {
+            "event": event,
+            "source": source,
+            "shape": _event_shape(work, event),
+            "elements": total,
+            "offset": offset,
+            "values": values,
+        }
+    # Deployed images keep the compact ndjson walk, not the 275MB checkpoint
+    # dumps. Serve the recorded sample vector so inspect/replay still works.
+    record = _ndjson_record(work, event, source)
+    if not record:
         raise HTTPException(404, f"no {source} checkpoint for {event}")
-    blob = path.read_bytes()
-    total = len(blob) // 4
+    values = list(record.get("values") or [])
+    total = int(record.get("elements") or len(values))
     offset = max(0, int(offset))
     limit = min(max(1, int(limit)), 8192)
-    end = min(total, offset + limit)
-    count = end - offset
-    values = list(struct.unpack("<" + "f" * count, blob[offset * 4:end * 4])) if count else []
     return {
         "event": event,
         "source": source,
-        "shape": _event_shape(work, event),
+        "shape": list(record.get("shape") or []),
         "elements": total,
         "offset": offset,
-        "values": values,
+        "values": values[offset:offset + limit],
+        "sampled": total > len(values),
     }
 
 
