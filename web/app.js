@@ -1064,9 +1064,19 @@
     }).join("");
   }
 
+  function decodeReached() {
+    if (!state.timeline.length) return false;
+    for (let i = 0; i <= state.index && i < state.timeline.length; i += 1) {
+      const op = opKey(state.timeline[i].event);
+      if (op === "logits" || op === "argmax") return true;
+    }
+    return false;
+  }
+
   function predictedSentence() {
     const prompt = state.prompt || (state.tokenTexts || []).join("");
     const nxt = state.argmaxText || "";
+    if (!decodeReached()) return { prompt, next: "", full: prompt };
     if (state.predictedText) return { prompt, next: nxt, full: state.predictedText };
     if (!nxt) return { prompt, next: "", full: prompt };
     return { prompt, next: nxt, full: prompt + nxt };
@@ -1077,10 +1087,10 @@
     const sent = $("predSentence");
     if (!el || !sent) return;
     const { prompt, next, full } = predictedSentence();
-    if (state.argmax == null) {
+    if (state.argmax == null || !decodeReached()) {
       el.innerHTML = "";
       sent.className = "pred-inline muted";
-      sent.textContent = "Predicted sentence appears here after argmax.";
+      sent.textContent = prompt || "Predicted sentence appears here after argmax.";
       return;
     }
     const quoted = next == null ? "" : JSON.stringify(next);
@@ -1463,6 +1473,7 @@
     $("playEvent").textContent = rec.event + (rec.layer >= 0 ? ` · layer ${rec.layer}` : "");
     paintCursor(rec);
     showCompute(rec);
+    paintOutput();
     if (scroll === false) return;
   }
 
@@ -1728,6 +1739,10 @@
       if (!state.playing) return;
       if (state.index >= state.timeline.length - 1) {
         stopPlay();
+        state.runFinished = true;
+        const tok = String(state.argmaxText || "next token").trim();
+        setBadge($("runBadge"), tok ? `decoded ${tok}` : "decoded", "ok");
+        paintOutput();
         return;
       }
       showIndex(state.index + 1);
@@ -1907,8 +1922,12 @@
       return;
     }
     if (status === "cached" && body && body.mode === "oracle_replay") {
+      if (state.playing || (state.timeline.length && state.index < state.timeline.length - 1)) {
+        el.hidden = true;
+        return;
+      }
       el.hidden = false;
-      el.textContent = "Cached Python forward. The graph is playback of the saved walk — Python and Verilator are not running again.";
+      el.textContent = "Playing the recorded walk for this sentence — next token appears at argmax.";
       return;
     }
     if (status === "cached") {
@@ -2220,6 +2239,20 @@
     if (!text) return;
     $("formError").hidden = true;
     $("verifyBtn").disabled = true;
+    stopPlay();
+    state.userPaused = false;
+    state.argmaxText = "";
+    state.predictedText = "";
+    state.argmax = null;
+    paintOutput();
+    if (state.pendingReplay && state.pendingReplay.timeline &&
+        (state.pendingReplay.text === text ||
+         (state.pendingReplay.prompt_text === text))) {
+      setBadge($("runBadge"), "running", "run");
+      $("verifyBtn").disabled = false;
+      applyReplay(state.pendingReplay, { autoplay: true });
+      return;
+    }
     setBadge($("runBadge"), "tokenizing…", "run");
     $("runWhy").textContent = state.rtlSignedOff
       ? "Tokenizing. ROM is signed off — RTL only, no Python compare."
@@ -2296,43 +2329,31 @@
     } catch (_) { /* no prior evidence */ }
   }
 
-  function applyReplay(body) {
+  function applyReplay(body, opts) {
+    const autoplay = !opts || opts.autoplay !== false;
     if (body.token_ids) state.tokenIds = body.token_ids;
     if (body.token_texts) state.tokenTexts = body.token_texts;
-    paintTokens(state.tokenIds, (body.rtl_status && body.rtl_status.token_index) || 0);
-    if (body.status === "cached" || (body.evidence && body.evidence.passed && body.status !== "running")) {
-      $("verifyBtn").disabled = false;
-      const infer = body.mode === "rtl_infer" || (body.evidence && body.evidence.mode === "rtl_infer");
-      const oracle = body.mode === "oracle_replay";
-      setBadge($("runBadge"), infer
-        ? "RTL complete · signed-off ROM"
-        : oracle
-          ? "cached Python · playback"
-          : "full-statement compare · cached replay", "ok");
-      state.runFinished = true;
-      ingest(body, { autoplay: true });
-      return "done";
-    }
+    paintTokens(state.tokenIds, 0);
+    if (body.status === "miss") return "miss";
     if (body.status === "running") {
       $("verifyBtn").disabled = true;
       setBadge($("runBadge"), body.phase === "rtl" || body.mode === "rtl_infer" ? "RTL running" : "Python oracle", "run");
       ingest(body, { autoplay: false });
       return "running";
     }
-    if (body.status === "partial" && body.timeline && body.timeline.length) {
-      $("verifyBtn").disabled = false;
-      setBadge($("runBadge"), "replaying saved checkpoints", "run");
+    $("verifyBtn").disabled = false;
+    if (autoplay) {
+      setBadge($("runBadge"), "running", "run");
+      state.runFinished = false;
       ingest(body, { autoplay: true });
       return "done";
     }
-    if (body.timeline && body.timeline.length) {
-      $("verifyBtn").disabled = false;
-      setBadge($("runBadge"), body.evidence && body.evidence.passed ? "full-statement compare · cached replay" : "playing through",
-        body.evidence && body.evidence.passed ? "ok" : "");
-      ingest(body, { autoplay: true });
-      return "done";
-    }
-    return "miss";
+    state.runFinished = false;
+    ingest(body, { autoplay: false });
+    if (state.timeline.length) showIndex(0);
+    setBadge($("runBadge"), "idle", "");
+    paintOutput();
+    return "idle";
   }
 
   async function pollReplay(text) {
@@ -2365,8 +2386,8 @@
       const res = await apiFetch("/api/replay?text=" + encodeURIComponent(text) + "&tier=T4");
       const body = await res.json();
       if (!res.ok || body.status === "miss") return;
-      const kind = applyReplay(body);
-      if (kind === "running") pollReplay(text);
+      state.pendingReplay = body;
+      applyReplay(body, { autoplay: false });
     } catch (_) { /* no cache for this prompt */ }
   }
 
